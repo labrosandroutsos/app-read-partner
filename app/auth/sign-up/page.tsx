@@ -20,28 +20,47 @@ export default function SignUpPage() {
   const router = useRouter()
   const supabase = createClient()
 
+  function networkHint(err: unknown): string {
+    const msg = err instanceof Error ? err.message : String(err)
+    const name = err instanceof Error ? err.name : ""
+    if (
+      name === "TypeError" ||
+      msg.includes("fetch") ||
+      msg.includes("NetworkError") ||
+      msg.includes("Failed to fetch")
+    ) {
+      return "Cannot reach Supabase (network error). In Supabase: Settings → API, copy the current Project URL and anon/public key into .env.local as NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY, then restart npm run dev. If the project was paused, restore it from the dashboard."
+    }
+    return msg || "Something went wrong."
+  }
+
   async function handleSignUp(e: React.FormEvent) {
     e.preventDefault()
     setLoading(true)
     setError("")
 
-    const { error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        data: {
-          display_name: displayName,
-          degree,
-          semester: parseInt(semester),
+    try {
+      const { error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          data: {
+            display_name: displayName,
+            degree,
+            semester: parseInt(semester),
+          },
         },
-      },
-    })
+      })
 
-    if (error) {
-      setError(error.message)
+      if (error) {
+        setError(error.message)
+      } else {
+        router.push("/auth/sign-up-success")
+      }
+    } catch (err) {
+      setError(networkHint(err))
+    } finally {
       setLoading(false)
-    } else {
-      router.push("/auth/sign-up-success")
     }
   }
 

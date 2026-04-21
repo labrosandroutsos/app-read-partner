@@ -18,26 +18,49 @@ export default function LoginPage() {
   const router = useRouter()
   const supabase = createClient()
 
+  function networkHint(err: unknown): string {
+    const msg = err instanceof Error ? err.message : String(err)
+    const name = err instanceof Error ? err.name : ""
+    if (
+      name === "TypeError" ||
+      msg.includes("fetch") ||
+      msg.includes("NetworkError") ||
+      msg.includes("Failed to fetch")
+    ) {
+      return "Cannot reach Supabase (network error). In Supabase: Settings → API, copy the current Project URL and anon/public key into .env.local as NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY, then restart npm run dev. If the project was paused, restore it from the dashboard."
+    }
+    return msg || "Something went wrong."
+  }
+
   async function handleLogin(e: React.FormEvent) {
     e.preventDefault()
     setLoading(true)
     setError("")
 
-    const { error } = await supabase.auth.signInWithPassword({ email, password })
-    if (error) {
-      setError(error.message)
+    try {
+      const { error } = await supabase.auth.signInWithPassword({ email, password })
+      if (error) {
+        setError(error.message)
+      } else {
+        router.push("/app")
+      }
+    } catch (err) {
+      setError(networkHint(err))
+    } finally {
       setLoading(false)
-    } else {
-      router.push("/app")
     }
   }
 
   async function handleGoogleLogin() {
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider: "google",
-      options: { redirectTo: `${window.location.origin}/auth/callback` },
-    })
-    if (error) setError(error.message)
+    try {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: "google",
+        options: { redirectTo: `${window.location.origin}/auth/callback` },
+      })
+      if (error) setError(error.message)
+    } catch (err) {
+      setError(networkHint(err))
+    }
   }
 
   return (
