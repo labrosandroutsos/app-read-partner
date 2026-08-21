@@ -1,9 +1,9 @@
 "use client"
 
-import { Users } from "lucide-react"
 import { useTranslation } from "@/lib/i18n"
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area"
 import { cn } from "@/lib/utils"
+import { pastPartners as mockPastPartners, getStudentById } from "@/lib/mock-data"
 import type { Profile } from "@/lib/types"
 
 interface PastPartnersProps {
@@ -13,22 +13,26 @@ interface PastPartnersProps {
 export function PastPartners({ partners }: PastPartnersProps) {
   const { t } = useTranslation()
 
-  const items = (partners ?? []).map(pp => ({
-    id: pp.profile.id,
-    name: pp.profile.display_name || 'Student',
-    initials: (pp.profile.display_name || 'S').split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase(),
-    avatarColor: pp.profile.avatar_color || 'bg-blue-500',
-    sessions: pp.sessions,
-  }))
+  const hasReal = partners && partners.length > 0
 
-  if (items.length === 0) {
-    return (
-      <div className="flex flex-col items-center gap-2 py-6 text-center">
-        <Users className="h-8 w-8 text-muted-foreground/50" />
-        <p className="text-sm text-muted-foreground">No study partners yet. Find your first partner!</p>
-      </div>
-    )
-  }
+  const items = hasReal
+    ? partners.map(pp => ({
+        id: pp.profile.id,
+        name: pp.profile.display_name || 'Student',
+        initials: (pp.profile.display_name || 'S').split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase(),
+        avatarColor: pp.profile.avatar_color || 'bg-blue-500',
+        sessions: pp.sessions,
+      }))
+    : mockPastPartners.map(pp => {
+        const student = getStudentById(pp.studentId)
+        return {
+          id: pp.studentId,
+          name: student?.name.split(' ')[0] || '',
+          initials: student?.initials || '',
+          avatarColor: student?.avatarColor || 'bg-blue-500',
+          sessions: pp.sessions,
+        }
+      })
 
   return (
     <ScrollArea className="w-full">

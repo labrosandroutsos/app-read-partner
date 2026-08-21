@@ -46,6 +46,8 @@ export interface Match {
   venue_id: string | null
   status: 'pending' | 'accepted' | 'declined'
   matched_at: string
+  user_a_last_read_at: string | null
+  user_b_last_read_at: string | null
 }
 
 export interface Message {
@@ -104,11 +106,15 @@ export interface StudySessionRecord {
   venue?: Venue
 }
 
-export interface MatchCandidate {
-  profile: Profile
-  session: Session
-  subject: Subject
-  score: number
+export interface PartnerCandidate {
+  id: string
+  sessionId: string
+  name: string
+  initials: string
+  degree: string
+  semester: number
+  subjects: string[]
+  avatarColor: string
   distance: number
   timeOverlap: number
 }
@@ -120,18 +126,4 @@ export interface ConversationPreview {
   unreadCount: number
   subject: Subject | null
   venue: Venue | null
-}
-
-export interface PartnerCardData {
-  id: string
-  name: string
-  initials: string
-  degree: string
-  semester: number
-  subjects: string[]
-  avatarColor: string
-  distance: number
-  timeOverlap: number
-  _sessionId?: string
-  _subjectId?: number
 }

@@ -1,13 +1,14 @@
 "use client"
 
 import { useState } from "react"
-import { List, Map, MapPin } from "lucide-react"
+import { List, Map } from "lucide-react"
 import { useTranslation } from "@/lib/i18n"
 import { Button } from "@/components/ui/button"
 import { VenueCard } from "./venue-card"
 import { useRealtimeOccupancy } from "@/hooks/use-realtime-occupancy"
 import { cn } from "@/lib/utils"
 import type { Venue as DBVenue } from "@/lib/types"
+import { venues as mockVenues } from "@/lib/mock-data"
 
 interface VenuesScreenProps {
   venues?: DBVenue[]
@@ -17,7 +18,14 @@ export function VenuesScreen({ venues: dbVenues }: VenuesScreenProps) {
   const { t } = useTranslation()
   const [view, setView] = useState<"list" | "map">("list")
 
-  const venueList = dbVenues ?? []
+  const hasDB = dbVenues && dbVenues.length > 0
+  const venueList = hasDB
+    ? dbVenues
+    : mockVenues.map(v => ({
+        id: v.id, name: v.name, address: v.address, occupancy: v.occupancy,
+        discount: v.discount, is_open: v.isOpen, type: v.type, distance: v.distance,
+      }))
+
   const sortedVenues = [...venueList].sort((a, b) => a.distance - b.distance)
   const venueIds = sortedVenues.map(v => v.id)
   const occupancyUpdates = useRealtimeOccupancy(venueIds)
@@ -54,21 +62,11 @@ export function VenuesScreen({ venues: dbVenues }: VenuesScreenProps) {
       </div>
 
       {view === "list" ? (
-        venuesWithLiveOccupancy.length > 0 ? (
-          <div className="px-4 pb-4 flex flex-col gap-3">
-            {venuesWithLiveOccupancy.map((venue) => (
-              <VenueCard key={venue.id} venue={venue} />
-            ))}
-          </div>
-        ) : (
-          <div className="flex flex-col items-center justify-center gap-3 py-16 px-6 text-center">
-            <div className="w-14 h-14 rounded-full bg-muted flex items-center justify-center">
-              <MapPin className="h-7 w-7 text-muted-foreground" />
-            </div>
-            <h3 className="text-lg font-bold text-foreground">{t("venues.title")}</h3>
-            <p className="text-sm text-muted-foreground">No venues available yet.</p>
-          </div>
-        )
+        <div className="px-4 pb-4 flex flex-col gap-3">
+          {venuesWithLiveOccupancy.map((venue) => (
+            <VenueCard key={venue.id} venue={venue} />
+          ))}
+        </div>
       ) : (
         <div className="mx-4 mb-4 h-80 rounded-xl bg-muted border border-border flex items-center justify-center">
           <div className="text-center text-muted-foreground">

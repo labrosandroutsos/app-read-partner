@@ -34,6 +34,9 @@ const translations = {
     "partner.wizard.of": "από",
     "partner.wizard.next": "Επόμενο",
     "partner.wizard.back": "Πίσω",
+    "partner.search.loading": "Αναζήτηση...",
+    "partner.search.error": "Δεν ήταν δυνατή η αναζήτηση. Δοκίμασε ξανά.",
+    "partner.swipe.error": "Δεν ήταν δυνατή η καταχώριση. Δοκίμασε ξανά.",
     "partner.card.semester": "Εξάμηνο",
     "partner.card.km": "χλμ",
     "partner.card.overlap": "Χρονική επικάλυψη",
@@ -56,6 +59,8 @@ const translations = {
     "chat.quick.done": "Τελειώσαμε!",
     "chat.session.started": "Η συνεδρία ξεκίνησε",
     "chat.session.ended": "Η συνεδρία τελείωσε",
+    "chat.match.confirmed": "Έγινε match! Ξεκινήστε τη συνομιλία.",
+    "chat.send.error": "Το μήνυμα δεν στάλθηκε. Δοκίμασε ξανά.",
 
     // Notes screen
     "notes.title": "Σημειώσεις",
@@ -135,6 +140,9 @@ const translations = {
     "partner.wizard.of": "of",
     "partner.wizard.next": "Next",
     "partner.wizard.back": "Back",
+    "partner.search.loading": "Searching...",
+    "partner.search.error": "We couldn't start the search. Please try again.",
+    "partner.swipe.error": "We couldn't save that swipe. Please try again.",
     "partner.card.semester": "Semester",
     "partner.card.km": "km",
     "partner.card.overlap": "Time overlap",
@@ -157,6 +165,8 @@ const translations = {
     "chat.quick.done": "We're done!",
     "chat.session.started": "Session started",
     "chat.session.ended": "Session ended",
+    "chat.match.confirmed": "It's a match! Start the conversation.",
+    "chat.send.error": "Your message wasn't sent. Please try again.",
 
     // Notes screen
     "notes.title": "Notes",

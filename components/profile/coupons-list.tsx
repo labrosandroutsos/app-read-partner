@@ -1,9 +1,10 @@
 "use client"
 
-import { QrCode, Tag, Ticket } from "lucide-react"
+import { QrCode, Tag } from "lucide-react"
 import { useTranslation } from "@/lib/i18n"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
+import { coupons as mockCoupons } from "@/lib/mock-data"
 import type { Coupon, Venue } from "@/lib/types"
 
 interface CouponsListProps {
@@ -14,21 +15,21 @@ interface CouponsListProps {
 export function CouponsList({ coupons, venues }: CouponsListProps) {
   const { t } = useTranslation()
 
-  const items = (coupons ?? []).map(c => ({
-    id: c.id,
-    venue: (c as any).venue?.name || venues?.find(v => v.id === c.venue_id)?.name || 'Venue',
-    discount: c.discount,
-    expiresAt: c.expires_at || '',
-  }))
+  const hasReal = coupons && coupons.length > 0
 
-  if (items.length === 0) {
-    return (
-      <div className="flex flex-col items-center gap-2 py-6 text-center">
-        <Ticket className="h-8 w-8 text-muted-foreground/50" />
-        <p className="text-sm text-muted-foreground">No coupons yet. Share notes and study to earn rewards!</p>
-      </div>
-    )
-  }
+  const items = hasReal
+    ? coupons.map(c => ({
+        id: c.id,
+        venue: (c as any).venue?.name || venues?.find(v => v.id === c.venue_id)?.name || 'Venue',
+        discount: c.discount,
+        expiresAt: c.expires_at || '',
+      }))
+    : mockCoupons.map(c => ({
+        id: c.id,
+        venue: c.venue,
+        discount: c.discount,
+        expiresAt: c.expiresAt,
+      }))
 
   return (
     <div className="flex flex-col gap-3">

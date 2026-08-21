@@ -1,7 +1,7 @@
 "use client"
 
-import { BarChart3 } from "lucide-react"
 import { useTranslation } from "@/lib/i18n"
+import { subjectStats as mockStats } from "@/lib/mock-data"
 import { Progress } from "@/components/ui/progress"
 
 interface StudyStatsProps {
@@ -11,17 +11,7 @@ interface StudyStatsProps {
 export function StudyStats({ stats }: StudyStatsProps) {
   const { t } = useTranslation()
 
-  const data = stats ?? []
-
-  if (data.length === 0) {
-    return (
-      <div className="flex flex-col items-center gap-2 py-6 text-center">
-        <BarChart3 className="h-8 w-8 text-muted-foreground/50" />
-        <p className="text-sm text-muted-foreground">No study stats yet. Start studying to track your progress!</p>
-      </div>
-    )
-  }
-
+  const data = stats && stats.length > 0 ? stats : mockStats
   const maxHours = Math.max(...data.map((s) => s.hours), 1)
   const totalHours = data.reduce((sum, s) => sum + s.hours, 0)
 

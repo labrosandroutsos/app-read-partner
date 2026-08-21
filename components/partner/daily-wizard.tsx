@@ -10,12 +10,13 @@ import { cn } from "@/lib/utils"
 import type { Subject, Venue } from "@/lib/types"
 
 interface DailyWizardProps {
-  onComplete: (prefs: { subject: string; venue: string; duration: string }) => void
+  onComplete: (prefs: { subject: string; venue: string; duration: string }) => void | Promise<void>
   subjects?: Subject[]
   venues?: Venue[]
+  isSubmitting?: boolean
 }
 
-export function DailyWizard({ onComplete, subjects: propSubjects, venues: propVenues }: DailyWizardProps) {
+export function DailyWizard({ onComplete, subjects: propSubjects, venues: propVenues, isSubmitting = false }: DailyWizardProps) {
   const { t, locale } = useTranslation()
   const [step, setStep] = useState(0)
   const [selectedSubject, setSelectedSubject] = useState("")
@@ -191,10 +192,10 @@ export function DailyWizard({ onComplete, subjects: propSubjects, venues: propVe
         )}
         <Button
           onClick={handleNext}
-          disabled={!canProceed}
+          disabled={!canProceed || isSubmitting}
           className="flex-1"
         >
-          {step === 2 ? t("partner.wizard.find") : t("partner.wizard.next")}
+          {step === 2 && isSubmitting ? t("partner.search.loading") : step === 2 ? t("partner.wizard.find") : t("partner.wizard.next")}
           {step < 2 && <ChevronRight className="h-4 w-4 ml-1" />}
         </Button>
       </div>

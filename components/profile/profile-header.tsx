@@ -4,6 +4,7 @@ import { Settings } from "lucide-react"
 import { useTranslation } from "@/lib/i18n"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
+import { currentUser } from "@/lib/mock-data"
 import type { Profile } from "@/lib/types"
 
 interface ProfileHeaderProps {
@@ -14,10 +15,10 @@ interface ProfileHeaderProps {
 export function ProfileHeader({ profile, onOpenSettings }: ProfileHeaderProps) {
   const { t } = useTranslation()
 
-  const displayName = profile?.display_name || 'Student'
+  const displayName = profile?.display_name || currentUser.name
   const initials = displayName.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase()
-  const degree = profile?.degree || '—'
-  const semester = profile?.semester || 1
+  const degree = profile?.degree || currentUser.degree
+  const semester = profile?.semester || currentUser.semester
 
   return (
     <div className="flex flex-col items-center gap-3 pt-6 pb-4 px-4 relative">

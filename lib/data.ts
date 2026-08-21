@@ -1,7 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import type {
   Profile, Subject, Venue, Match, Message, Note, Coupon,
-  StudySessionRecord, MatchCandidate, ConversationPreview
+  StudySessionRecord, ConversationPreview
 } from '@/lib/types'
 
 export async function getProfile(userId: string): Promise<Profile | null> {
@@ -24,55 +24,6 @@ export async function getVenues(): Promise<Venue[]> {
   const supabase = await createClient()
   const { data } = await supabase.from('venues').select('*').order('distance')
   return data ?? []
-}
-
-export async function getMatchCandidates(
-  userId: string,
-  subjectId: number,
-  venueId: string | null
-): Promise<MatchCandidate[]> {
-  const supabase = await createClient()
-
-  const today = new Date().toISOString().split('T')[0]
-
-  const { data: sessions } = await supabase
-    .from('sessions')
-    .select('*, profiles:user_id(*), subjects:subject_id(*)')
-    .eq('planned_date', today)
-    .neq('user_id', userId)
-
-  if (!sessions) return []
-
-  const candidates: MatchCandidate[] = sessions.map((s: any) => {
-    let score = 0
-
-    // Subject match: 40 points
-    if (s.subject_id === subjectId) score += 40
-
-    // Venue proximity: 25 points (same venue = full)
-    if (venueId && s.venue_id === venueId) {
-      score += 25
-    } else if (s.venue_id) {
-      score += 10
-    }
-
-    // Schedule overlap: 25 points (same duration = higher)
-    score += 25
-
-    // Base 10 points
-    score += 10
-
-    return {
-      profile: s.profiles as Profile,
-      session: s as any,
-      subject: s.subjects as Subject,
-      score,
-      distance: Math.round(Math.random() * 30 + 1) / 10,
-      timeOverlap: Math.round(50 + Math.random() * 50),
-    }
-  })
-
-  return candidates.sort((a, b) => b.score - a.score).slice(0, 20)
 }
 
 export async function getConversations(userId: string): Promise<ConversationPreview[]> {
@@ -106,12 +57,16 @@ export async function getConversations(userId: string): Promise<ConversationPrev
       .limit(1)
       .single()
 
+    const lastReadAt = match.user_a === userId
+      ? match.user_a_last_read_at ?? match.matched_at
+      : match.user_b_last_read_at ?? match.matched_at
+
     const { count } = await supabase
       .from('messages')
       .select('*', { count: 'exact', head: true })
       .eq('match_id', match.id)
-      .neq('sender_id', userId)
-      .gt('created_at', match.matched_at)
+      .or(`sender_id.neq.${userId},sender_id.is.null`)
+      .gt('created_at', lastReadAt)
 
     conversations.push({
       match,

@@ -4,28 +4,50 @@ import { MessageCircle } from "lucide-react"
 import { useTranslation } from "@/lib/i18n"
 import { Badge } from "@/components/ui/badge"
 import { cn } from "@/lib/utils"
+import type { Conversation } from "@/lib/mock-data"
+import { getStudentById } from "@/lib/mock-data"
 import type { ConversationPreview } from "@/lib/types"
 
 interface ChatListProps {
-  conversations: ConversationPreview[]
+  conversations?: ConversationPreview[]
+  mockConversations?: Conversation[]
   onSelectChat: (id: string) => void
 }
 
-export function ChatList({ conversations, onSelectChat }: ChatListProps) {
+export function ChatList({ conversations, mockConversations, onSelectChat }: ChatListProps) {
   const { t } = useTranslation()
 
-  const items = conversations.map(c => ({
-    id: c.match.id,
-    name: c.partner.display_name || 'Student',
-    initials: (c.partner.display_name || 'S').slice(0, 2).toUpperCase(),
-    avatarColor: c.partner.avatar_color || 'bg-blue-500',
-    unread: c.unreadCount,
-    lastActive: new Date(c.match.matched_at).toLocaleTimeString('el-GR', { hour: '2-digit', minute: '2-digit' }),
-    lastMessage: c.lastMessage?.text || '',
-    isSystem: c.lastMessage?.is_system ?? false,
-    subject: c.subject?.name || '',
-    venue: c.venue?.name || '',
-  }))
+  const items = conversations && conversations.length > 0
+    ? conversations.map(c => ({
+        id: c.match.id,
+        name: c.partner.display_name || 'Student',
+        initials: (c.partner.display_name || 'S').slice(0, 2).toUpperCase(),
+        avatarColor: c.partner.avatar_color || 'bg-blue-500',
+        unread: c.unreadCount,
+        lastActive: new Date(c.lastMessage?.created_at || c.match.matched_at).toLocaleTimeString('el-GR', { hour: '2-digit', minute: '2-digit' }),
+        lastMessage: c.lastMessage?.is_system
+          ? t(c.lastMessage.text as Parameters<typeof t>[0])
+          : c.lastMessage?.text || '',
+        isSystem: c.lastMessage?.is_system ?? false,
+        subject: c.subject?.name || '',
+        venue: c.venue?.name || '',
+      }))
+    : (mockConversations || []).map(conv => {
+        const partner = getStudentById(conv.partnerId)
+        const lastMsg = conv.messages[conv.messages.length - 1]
+        return {
+          id: conv.id,
+          name: partner?.name || '',
+          initials: partner?.initials || '',
+          avatarColor: partner?.avatarColor || 'bg-blue-500',
+          unread: conv.unread,
+          lastActive: conv.lastActive,
+          lastMessage: lastMsg?.isSystem ? t(lastMsg.text as Parameters<typeof t>[0]) : lastMsg?.text || '',
+          isSystem: lastMsg?.isSystem ?? false,
+          subject: conv.subject,
+          venue: conv.venue,
+        }
+      })
 
   if (items.length === 0) {
     return (
@@ -70,8 +92,8 @@ export function ChatList({ conversations, onSelectChat }: ChatListProps) {
                 {item.lastMessage}
               </p>
               <div className="flex items-center gap-1.5 mt-1">
-                {item.subject && <Badge variant="outline" className="text-[10px] py-0 px-1.5 h-4">{item.subject}</Badge>}
-                {item.venue && <Badge variant="outline" className="text-[10px] py-0 px-1.5 h-4">{item.venue}</Badge>}
+                <Badge variant="outline" className="text-[10px] py-0 px-1.5 h-4">{item.subject}</Badge>
+                <Badge variant="outline" className="text-[10px] py-0 px-1.5 h-4">{item.venue}</Badge>
               </div>
             </div>
           </button>

@@ -34,7 +34,8 @@ export function useRealtimeMessages(matchId: string | null, userId: string) {
           filter: `match_id=eq.${matchId}`,
         },
         (payload) => {
-          setMessages((prev) => [...prev, payload.new as Message])
+          const incoming = payload.new as Message
+          setMessages((prev) => prev.some(message => message.id === incoming.id) ? prev : [...prev, incoming])
         }
       )
       .subscribe()

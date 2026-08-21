@@ -47,6 +47,7 @@ export function AppShellClient({
   }, [])
 
   const unreadChats = conversations.reduce((sum, c) => sum + c.unreadCount, 0)
+
   const handleGoToChat = () => setActiveTab("chat")
 
   return (

@@ -1,29 +1,41 @@
 "use client"
 
 import { useState, useRef, useCallback } from "react"
+import { useRouter } from "next/navigation"
 import { Check, X, RotateCcw } from "lucide-react"
 import { useTranslation } from "@/lib/i18n"
 import { PartnerCard } from "./partner-card"
 import { MatchAnimation } from "./match-animation"
 import { Button } from "@/components/ui/button"
-import { createMatch } from "@/lib/actions"
-import type { Profile, Subject, PartnerCardData } from "@/lib/types"
+import { swipeOnCandidate } from "@/lib/actions"
+import { toast } from "sonner"
+import type { PartnerCandidate, Subject } from "@/lib/types"
 
 interface PartnerStackProps {
-  students: PartnerCardData[]
+  candidates: PartnerCandidate[]
   matchSubject: string
   onGoToChat: () => void
   onRestart: () => void
-  userId?: string
-  profile?: Profile | null
   sessionId?: string | null
   subjects?: Subject[]
+  currentUserInitials: string
+  currentUserColor: string
 }
 
-export function PartnerStack({ students, matchSubject, onGoToChat, onRestart, userId, profile, sessionId, subjects }: PartnerStackProps) {
+export function PartnerStack({
+  candidates,
+  matchSubject,
+  onGoToChat,
+  onRestart,
+  sessionId,
+  subjects,
+  currentUserInitials,
+  currentUserColor,
+}: PartnerStackProps) {
   const { t } = useTranslation()
+  const router = useRouter()
   const [currentIndex, setCurrentIndex] = useState(0)
-  const [matchedPartner, setMatchedPartner] = useState<PartnerCardData | null>(null)
+  const [matchedPartner, setMatchedPartner] = useState<PartnerCandidate | null>(null)
   const [swipeOffset, setSwipeOffset] = useState(0)
   const [isAnimating, setIsAnimating] = useState(false)
   const [exitDirection, setExitDirection] = useState<"left" | "right" | null>(null)
@@ -49,23 +61,28 @@ export function PartnerStack({ students, matchSubject, onGoToChat, onRestart, us
 
     setTimeout(async () => {
       if (direction === "right") {
-        const student = students[currentIndex]
+        const candidate = candidates[currentIndex]
 
-        if (userId && sessionId && student.id) {
-          try {
-            const subjectId = parseInt(matchSubject) || 1
-            const result = await createMatch(sessionId, student.id, subjectId, null)
-            if (result.matched) {
-              setMatchedPartner(student)
-              setSwipeOffset(0)
-              setExitDirection(null)
-              setIsAnimating(false)
-              setCurrentIndex((prev) => prev + 1)
-              return
-            }
-          } catch {
-            // Match request failed — continue swiping
+        if (!sessionId || !candidate?.sessionId) {
+          toast.error(t("partner.swipe.error"))
+          setSwipeOffset(0)
+          setExitDirection(null)
+          setIsAnimating(false)
+          return
+        }
+
+        try {
+          const result = await swipeOnCandidate(sessionId, candidate.sessionId)
+          if (result.matched) {
+            setMatchedPartner(candidate)
+            router.refresh()
           }
+        } catch {
+          toast.error(t("partner.swipe.error"))
+          setSwipeOffset(0)
+          setExitDirection(null)
+          setIsAnimating(false)
+          return
         }
       }
       setCurrentIndex((prev) => prev + 1)
@@ -73,7 +90,7 @@ export function PartnerStack({ students, matchSubject, onGoToChat, onRestart, us
       setExitDirection(null)
       setIsAnimating(false)
     }, 300)
-  }, [currentIndex, students, userId, sessionId, matchSubject])
+  }, [candidates, currentIndex, router, sessionId, t])
 
   const handlePointerUp = useCallback(() => {
     if (!isDragging.current) return
@@ -97,14 +114,15 @@ export function PartnerStack({ students, matchSubject, onGoToChat, onRestart, us
     return (
       <MatchAnimation
         partner={matchedPartner}
-        profile={profile}
+        currentUserInitials={currentUserInitials}
+        currentUserColor={currentUserColor}
         onGoToChat={onGoToChat}
         onContinue={handleDismatchContinue}
       />
     )
   }
 
-  if (currentIndex >= students.length) {
+  if (currentIndex >= candidates.length) {
     return (
       <div className="flex flex-col items-center justify-center gap-4 py-16 px-6 text-center">
         <div className="w-16 h-16 rounded-full bg-muted flex items-center justify-center">
@@ -132,10 +150,10 @@ export function PartnerStack({ students, matchSubject, onGoToChat, onRestart, us
   return (
     <div className="flex flex-col gap-4 p-4">
       <div className="relative w-full aspect-[3/4] max-h-[480px]">
-        {students.slice(currentIndex + 1, currentIndex + 3).map((student, i) => (
+        {candidates.slice(currentIndex + 1, currentIndex + 3).map((candidate, i) => (
           <PartnerCard
-            key={student.id}
-            student={student}
+            key={candidate.id}
+            candidate={candidate}
             matchSubject={matchSubject}
             subjects={subjects}
             style={{
@@ -159,7 +177,7 @@ export function PartnerStack({ students, matchSubject, onGoToChat, onRestart, us
           onPointerCancel={handlePointerUp}
         >
           <PartnerCard
-            student={students[currentIndex]}
+            candidate={candidates[currentIndex]}
             matchSubject={matchSubject}
             subjects={subjects}
           />

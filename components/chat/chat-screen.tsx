@@ -1,8 +1,10 @@
 "use client"
 
 import { useState } from "react"
+import { useRouter } from "next/navigation"
 import { ChatList } from "./chat-list"
 import { ChatView } from "./chat-view"
+import { markConversationRead } from "@/lib/actions"
 import type { ConversationPreview } from "@/lib/types"
 
 interface ChatScreenProps {
@@ -11,7 +13,15 @@ interface ChatScreenProps {
 }
 
 export function ChatScreen({ userId, conversations }: ChatScreenProps) {
+  const router = useRouter()
   const [selectedChatId, setSelectedChatId] = useState<string | null>(null)
+
+  const handleSelectChat = (matchId: string) => {
+    setSelectedChatId(matchId)
+    void markConversationRead(matchId)
+      .then(() => router.refresh())
+      .catch(() => undefined)
+  }
 
   const selectedConv = conversations.find(c => c.match.id === selectedChatId)
   if (selectedConv) {
@@ -28,9 +38,6 @@ export function ChatScreen({ userId, conversations }: ChatScreenProps) {
   }
 
   return (
-    <ChatList
-      conversations={conversations}
-      onSelectChat={setSelectedChatId}
-    />
+    <ChatList conversations={conversations} onSelectChat={handleSelectChat} />
   )
 }

@@ -1,12 +1,9 @@
 import type { Metadata, Viewport } from 'next'
-import { Inter } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/next'
 import { ThemeProvider } from '@/components/theme-provider'
 import { I18nProvider } from '@/lib/i18n'
 import { Toaster } from '@/components/ui/sonner'
 import './globals.css'
-
-const _inter = Inter({ subsets: ["latin", "greek"] });
 
 export const metadata: Metadata = {
   title: 'Read Partner - Study Together',
