@@ -321,9 +321,26 @@ export async function updateProfile(formData: {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) throw new Error('Not authenticated')
 
-  const updates: any = {}
-  if (formData.displayName !== undefined) updates.display_name = formData.displayName
-  if (formData.degree !== undefined) updates.degree = formData.degree
+  const displayName = formData.displayName?.trim()
+  const degree = formData.degree?.trim()
+  if (displayName !== undefined && (displayName.length < 1 || displayName.length > 80)) {
+    throw new Error('Invalid display name')
+  }
+  if (degree !== undefined && degree.length > 120) {
+    throw new Error('Invalid degree')
+  }
+  if (formData.semester !== undefined && (!Number.isInteger(formData.semester) || formData.semester < 1 || formData.semester > 12)) {
+    throw new Error('Invalid semester')
+  }
+
+  const updates: {
+    display_name?: string
+    degree?: string
+    semester?: number
+    subjects?: string[]
+  } = {}
+  if (displayName !== undefined) updates.display_name = displayName
+  if (degree !== undefined) updates.degree = degree
   if (formData.semester !== undefined) updates.semester = formData.semester
   if (formData.subjects !== undefined) updates.subjects = formData.subjects
 
@@ -338,6 +355,7 @@ export async function updateProfile(formData: {
 
 export async function signOut() {
   const supabase = await createClient()
-  await supabase.auth.signOut()
+  const { error } = await supabase.auth.signOut({ scope: 'local' })
+  if (error) throw error
   redirect('/auth/login')
 }

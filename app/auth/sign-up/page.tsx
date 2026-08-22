@@ -89,7 +89,7 @@ export default function SignUpPage() {
             </div>
             <div className="flex flex-col gap-2">
               <Label htmlFor="password">Password</Label>
-              <Input id="password" type="password" placeholder="••••••••" value={password} onChange={(e) => setPassword(e.target.value)} required minLength={6} />
+              <Input id="password" type="password" placeholder="At least 8 characters" value={password} onChange={(e) => setPassword(e.target.value)} required minLength={8} autoComplete="new-password" />
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div className="flex flex-col gap-2">

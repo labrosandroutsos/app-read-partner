@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useRef, useEffect } from "react"
-import { ArrowLeft, Send, MapPin } from "lucide-react"
+import { ArrowLeft, Send, MapPin, Loader2 } from "lucide-react"
 import { useTranslation } from "@/lib/i18n"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -28,6 +28,9 @@ interface ChatViewProps {
 export function ChatView({ matchId, partner, subject, venue, userId, onBack, mockConversation }: ChatViewProps) {
   const { t } = useTranslation()
   const [input, setInput] = useState("")
+  const [isSending, setIsSending] = useState(false)
+  const [pendingQuickAction, setPendingQuickAction] = useState<string | null>(null)
+  const sendingRef = useRef(false)
   const scrollRef = useRef<HTMLDivElement>(null)
 
   // Real-time messages for DB conversations
@@ -51,42 +54,59 @@ export function ChatView({ matchId, partner, subject, venue, userId, onBack, moc
   }, [realtimeMessages, mockMessages])
 
   const handleSend = async () => {
-    if (!input.trim()) return
+    const message = input.trim()
+    if (!message || sendingRef.current) return
 
-    if (isReal && matchId) {
-      try {
-        await sendMessage(matchId, input.trim())
-        setInput("")
-      } catch {
-        toast.error(t("chat.send.error"))
+    sendingRef.current = true
+    setIsSending(true)
+    setInput("")
+
+    try {
+      if (isReal && matchId) {
+        await sendMessage(matchId, message)
+      } else {
+        const newMsg: MockMessage = {
+          id: `msg-${Date.now()}`,
+          senderId: "me",
+          text: message,
+          timestamp: new Date().toLocaleTimeString("el-GR", { hour: "2-digit", minute: "2-digit" }),
+        }
+        setMockMessages((prev) => [...prev, newMsg])
       }
-    } else {
-      const newMsg: MockMessage = {
-        id: `msg-${Date.now()}`,
-        senderId: "me",
-        text: input.trim(),
-        timestamp: new Date().toLocaleTimeString("el-GR", { hour: "2-digit", minute: "2-digit" }),
-      }
-      setMockMessages((prev) => [...prev, newMsg])
-      setInput("")
+    } catch {
+      setInput((current) => current || message)
+      toast.error(t("chat.send.error"))
+    } finally {
+      sendingRef.current = false
+      setIsSending(false)
     }
   }
 
-  const handleQuickAction = async (text: string) => {
-    if (isReal && matchId) {
-      try {
+  const handleQuickAction = async (key: string, text: string) => {
+    if (sendingRef.current) return
+
+    sendingRef.current = true
+    setIsSending(true)
+    setPendingQuickAction(key)
+
+    try {
+      if (isReal && matchId) {
         await sendMessage(matchId, text)
-      } catch {
-        toast.error(t("chat.send.error"))
+      } else {
+        const newMsg: MockMessage = {
+          id: `msg-${Date.now()}`,
+          senderId: "me",
+          text,
+          timestamp: new Date().toLocaleTimeString("el-GR", { hour: "2-digit", minute: "2-digit" }),
+        }
+        setMockMessages((prev) => [...prev, newMsg])
       }
-    } else {
-      const newMsg: MockMessage = {
-        id: `msg-${Date.now()}`,
-        senderId: "me",
-        text,
-        timestamp: new Date().toLocaleTimeString("el-GR", { hour: "2-digit", minute: "2-digit" }),
-      }
-      setMockMessages((prev) => [...prev, newMsg])
+    } catch {
+      toast.error(t("chat.send.error"))
+    } finally {
+      sendingRef.current = false
+      setIsSending(false)
+      setPendingQuickAction(null)
     }
   }
 
@@ -172,8 +192,10 @@ export function ChatView({ matchId, partner, subject, venue, userId, onBack, moc
             variant="outline"
             size="sm"
             className="shrink-0 text-xs rounded-full h-7"
-            onClick={() => handleQuickAction(action.label)}
+            onClick={() => handleQuickAction(action.key, action.label)}
+            disabled={isSending}
           >
+            {pendingQuickAction === action.key && <Loader2 className="h-3 w-3 mr-1 animate-spin" />}
             {action.label}
           </Button>
         ))}
@@ -184,11 +206,17 @@ export function ChatView({ matchId, partner, subject, venue, userId, onBack, moc
           placeholder={t("chat.input.placeholder")}
           value={input}
           onChange={(e) => setInput(e.target.value)}
-          onKeyDown={(e) => e.key === "Enter" && handleSend()}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" && !e.nativeEvent.isComposing) {
+              e.preventDefault()
+              void handleSend()
+            }
+          }}
           className="flex-1"
+          disabled={isSending}
         />
-        <Button size="icon" className="shrink-0 h-10 w-10 rounded-full" onClick={handleSend} disabled={!input.trim()}>
-          <Send className="h-4 w-4" />
+        <Button size="icon" className="shrink-0 h-10 w-10 rounded-full" onClick={handleSend} disabled={!input.trim() || isSending}>
+          {isSending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
         </Button>
       </div>
     </div>

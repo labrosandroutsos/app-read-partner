@@ -15,6 +15,8 @@ import type { Profile, Subject, Venue, Note, Coupon, StudySessionRecord, Convers
 
 interface AppShellClientProps {
   userId: string
+  email: string
+  authProvider: string
   profile: Profile | null
   subjects: Subject[]
   venues: Venue[]
@@ -28,6 +30,8 @@ interface AppShellClientProps {
 
 export function AppShellClient({
   userId,
+  email,
+  authProvider,
   profile,
   subjects,
   venues,
@@ -106,6 +110,8 @@ export function AppShellClient({
         {activeTab === "profile" && (
           <ProfileScreen
             userId={userId}
+            email={email}
+            authProvider={authProvider}
             profile={profile}
             studyStats={studyStats}
             pastPartners={pastPartners}

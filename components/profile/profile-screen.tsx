@@ -9,8 +9,9 @@ import { StudyStats } from "./study-stats"
 import { PastPartners } from "./past-partners"
 import { CouponsList } from "./coupons-list"
 import { CalendarView } from "./calendar-view"
+import { AccountSettingsDialog } from "./account-settings-dialog"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
-import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet"
+import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet"
 import { Button } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"
 import { cn } from "@/lib/utils"
@@ -19,6 +20,8 @@ import type { Profile, Subject, Venue, Coupon, StudySessionRecord } from "@/lib/
 
 interface ProfileScreenProps {
   userId: string
+  email: string
+  authProvider: string
   profile: Profile | null
   studyStats: { subject: string; hours: number }[]
   pastPartners: { profile: Profile; sessions: number }[]
@@ -29,7 +32,7 @@ interface ProfileScreenProps {
 }
 
 export function ProfileScreen({
-  userId, profile, studyStats, pastPartners: partners,
+  email, authProvider, profile, studyStats, pastPartners: partners,
   coupons, studySessions, subjects, venues
 }: ProfileScreenProps) {
   const { t, locale, setLocale } = useTranslation()
@@ -76,6 +79,7 @@ export function ProfileScreen({
         <SheetContent side="bottom" className="max-w-[430px] mx-auto rounded-t-2xl">
           <SheetHeader>
             <SheetTitle>{t("profile.settings")}</SheetTitle>
+            <SheetDescription className="sr-only">{t("profile.settings.description")}</SheetDescription>
           </SheetHeader>
           <div className="flex flex-col gap-4 py-4">
             <div>
@@ -119,6 +123,8 @@ export function ProfileScreen({
             </div>
 
             <Separator />
+
+            <AccountSettingsDialog email={email} authProvider={authProvider} profile={profile} />
 
             <form action={signOut}>
               <Button type="submit" variant="outline" className="w-full text-destructive hover:text-destructive">

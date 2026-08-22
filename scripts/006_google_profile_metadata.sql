@@ -1,5 +1,5 @@
--- 003_profile_trigger.sql
--- Auto-create profile row when a new user signs up
+-- 006_google_profile_metadata.sql
+-- Populate new Google-authenticated profiles from standard OAuth name metadata.
 
 CREATE OR REPLACE FUNCTION public.handle_new_user()
 RETURNS trigger
@@ -22,7 +22,3 @@ BEGIN
   RETURN NEW;
 END;
 $$;
-
-CREATE OR REPLACE TRIGGER on_auth_user_created
-  AFTER INSERT ON auth.users
-  FOR EACH ROW EXECUTE FUNCTION public.handle_new_user();

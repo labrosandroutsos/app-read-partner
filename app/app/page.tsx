@@ -26,6 +26,8 @@ export default async function AppPage() {
   return (
     <AppShellClient
       userId={user.id}
+      email={user.email ?? ''}
+      authProvider={typeof user.app_metadata.provider === 'string' ? user.app_metadata.provider : 'email'}
       profile={profile}
       subjects={subjects}
       venues={venues}
