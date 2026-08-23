@@ -1,6 +1,6 @@
 "use client"
 
-import { MapPin, Clock } from "lucide-react"
+import { MapPin, Clock, Sparkles } from "lucide-react"
 import { useTranslation } from "@/lib/i18n"
 import { Badge } from "@/components/ui/badge"
 import { Progress } from "@/components/ui/progress"
@@ -64,15 +64,32 @@ export function PartnerCard({ candidate, matchSubject, style, className, subject
           <span>{candidate.distance} {t("partner.card.km")}</span>
         </div>
 
+        {candidate.plannedStart && candidate.plannedEnd && (
+          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+            <Clock className="h-4 w-4" />
+            <span>
+              {new Date(candidate.plannedStart).toLocaleDateString(locale === "el" ? "el-GR" : "en-GB", { day: "numeric", month: "short" })}
+              {" · "}
+              {new Date(candidate.plannedStart).toLocaleTimeString(locale === "el" ? "el-GR" : "en-GB", { hour: "2-digit", minute: "2-digit" })}
+              {"–"}
+              {new Date(candidate.plannedEnd).toLocaleTimeString(locale === "el" ? "el-GR" : "en-GB", { hour: "2-digit", minute: "2-digit" })}
+            </span>
+          </div>
+        )}
+
         <div className="flex flex-col gap-1.5">
           <div className="flex items-center justify-between text-sm">
             <div className="flex items-center gap-2 text-muted-foreground">
-              <Clock className="h-4 w-4" />
-              <span>{t("partner.card.overlap")}</span>
+              <Sparkles className="h-4 w-4" />
+              <span>{locale === "el" ? "Συμβατότητα" : "Compatibility"}</span>
             </div>
-            <span className="font-semibold text-foreground">{candidate.timeOverlap}%</span>
+            <span className="font-semibold text-foreground">{candidate.compatibilityScore}%</span>
           </div>
-          <Progress value={candidate.timeOverlap} className="h-2" />
+          <Progress value={candidate.compatibilityScore} className="h-2" />
+          <div className="flex items-center gap-1 text-xs text-muted-foreground">
+            <Clock className="h-3.5 w-3.5" />
+            <span>{candidate.timeOverlap}% {locale === "el" ? "χρονική επικάλυψη" : "time overlap"}</span>
+          </div>
         </div>
 
         <div className="flex flex-wrap gap-1.5 mt-auto">

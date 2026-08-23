@@ -60,6 +60,10 @@ const translations = {
     "chat.session.started": "Η συνεδρία ξεκίνησε",
     "chat.session.ended": "Η συνεδρία τελείωσε",
     "chat.match.confirmed": "Έγινε match! Ξεκινήστε τη συνομιλία.",
+    "chat.schedule.proposed": "Προτάθηκε νέα ώρα μελέτης.",
+    "chat.schedule.confirmed": "Η συνάντηση μελέτης επιβεβαιώθηκε.",
+    "chat.schedule.declined": "Η πρόταση συνάντησης απορρίφθηκε.",
+    "chat.schedule.cancelled": "Η συνάντηση μελέτης ακυρώθηκε.",
     "chat.send.error": "Το μήνυμα δεν στάλθηκε. Δοκίμασε ξανά.",
 
     // Notes screen
@@ -185,6 +189,10 @@ const translations = {
     "chat.session.started": "Session started",
     "chat.session.ended": "Session ended",
     "chat.match.confirmed": "It's a match! Start the conversation.",
+    "chat.schedule.proposed": "A new study time was proposed.",
+    "chat.schedule.confirmed": "The study session was confirmed.",
+    "chat.schedule.declined": "The schedule proposal was declined.",
+    "chat.schedule.cancelled": "The study session was cancelled.",
     "chat.send.error": "Your message wasn't sent. Please try again.",
 
     // Notes screen

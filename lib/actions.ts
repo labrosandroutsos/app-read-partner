@@ -6,6 +6,8 @@ import { redirect } from 'next/navigation'
 import type { PartnerCandidate } from '@/lib/types'
 
 const ALLOWED_DURATIONS = new Set(['1h', '2h', '4h'])
+const ALLOWED_STUDY_STYLES = new Set(['quiet', 'social', 'either'])
+const ALLOWED_LANGUAGES = new Set(['el', 'en', 'either'])
 const REPORT_REASONS = new Set(['spam', 'harassment', 'unsafe', 'impersonation', 'copyright', 'other'])
 
 function assertUuid(value: string, field: string) {
@@ -18,6 +20,10 @@ export async function createSession(formData: {
   subjectId: number
   venueId: string | null
   duration: string
+  plannedStart: string
+  studyStyle: string
+  language: string
+  maxDistanceKm: number
 }) {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
@@ -30,8 +36,20 @@ export async function createSession(formData: {
   if (!ALLOWED_DURATIONS.has(formData.duration)) {
     throw new Error('Invalid duration')
   }
+  if (!ALLOWED_STUDY_STYLES.has(formData.studyStyle)) throw new Error('Invalid study style')
+  if (!ALLOWED_LANGUAGES.has(formData.language)) throw new Error('Invalid language')
+  if (!Number.isFinite(formData.maxDistanceKm) || formData.maxDistanceKm < 0.5 || formData.maxDistanceKm > 50) {
+    throw new Error('Invalid maximum distance')
+  }
 
-  const plannedDate = new Date().toISOString().split('T')[0]
+  const plannedStart = new Date(formData.plannedStart)
+  const durationHours = Number.parseInt(formData.duration, 10)
+  const plannedEnd = new Date(plannedStart.getTime() + durationHours * 60 * 60 * 1000)
+  const latestAllowed = Date.now() + 31 * 24 * 60 * 60 * 1000
+  if (!Number.isFinite(plannedStart.getTime()) || plannedStart.getTime() < Date.now() - 5 * 60 * 1000 || plannedStart.getTime() > latestAllowed) {
+    throw new Error('Invalid study date')
+  }
+  const plannedDate = new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/Athens' }).format(plannedStart)
 
   const { data: existingSession, error: existingError } = await supabase
     .from('sessions')
@@ -51,6 +69,13 @@ export async function createSession(formData: {
         subject_id: formData.subjectId,
         venue_id: formData.venueId,
         duration: formData.duration,
+        planned_start: plannedStart.toISOString(),
+        planned_end: plannedEnd.toISOString(),
+        study_style: formData.studyStyle,
+        language: formData.language,
+        max_distance_km: formData.maxDistanceKm,
+        status: 'active',
+        expires_at: plannedEnd.toISOString(),
       })
       .eq('id', existingSession.id)
       .eq('user_id', user.id)
@@ -70,6 +95,13 @@ export async function createSession(formData: {
       venue_id: formData.venueId,
       duration: formData.duration,
       planned_date: plannedDate,
+      planned_start: plannedStart.toISOString(),
+      planned_end: plannedEnd.toISOString(),
+      study_style: formData.studyStyle,
+      language: formData.language,
+      max_distance_km: formData.maxDistanceKm,
+      status: 'active',
+      expires_at: plannedEnd.toISOString(),
     })
     .select()
     .single()
@@ -95,16 +127,24 @@ export async function findMatchCandidates(sessionId: string): Promise<PartnerCan
 
   if (ownSessionError || !ownSession) throw ownSessionError ?? new Error('Session not found')
 
+  const { data: ownProfile } = await supabase
+    .from('profiles')
+    .select('semester')
+    .eq('id', user.id)
+    .maybeSingle()
+
   let query = supabase
     .from('sessions')
     .select('*, profiles:user_id(*), venues:venue_id(distance)')
     .eq('planned_date', ownSession.planned_date)
     .eq('subject_id', ownSession.subject_id)
     .neq('user_id', user.id)
+    .eq('status', 'active')
+    .gt('expires_at', new Date().toISOString())
     .order('created_at', { ascending: false })
 
-  if (ownSession.venue_id) {
-    query = query.or(`venue_id.eq.${ownSession.venue_id},venue_id.is.null`)
+  if (ownSession.planned_start && ownSession.planned_end) {
+    query = query.lt('planned_start', ownSession.planned_end).gt('planned_end', ownSession.planned_start)
   }
 
   const [
@@ -150,8 +190,35 @@ export async function findMatchCandidates(sessionId: string): Promise<PartnerCan
 
     if (!profile || hiddenPartnerIds.has(profile.id) || uniqueCandidates.has(profile.id)) continue
 
-    const sameDuration = session.duration === ownSession.duration
     const venue = session.venues as { distance: number | null } | null
+    if (venue?.distance != null && venue.distance > Number(ownSession.max_distance_km ?? 5)) continue
+    const ownStart = new Date(ownSession.planned_start ?? `${ownSession.planned_date}T12:00:00`).getTime()
+    const ownEnd = new Date(ownSession.planned_end ?? `${ownSession.planned_date}T14:00:00`).getTime()
+    const candidateStart = new Date(session.planned_start ?? `${session.planned_date}T12:00:00`).getTime()
+    const candidateEnd = new Date(session.planned_end ?? `${session.planned_date}T14:00:00`).getTime()
+    const overlapMs = Math.max(0, Math.min(ownEnd, candidateEnd) - Math.max(ownStart, candidateStart))
+    const ownDurationMs = Math.max(1, ownEnd - ownStart)
+    const timeOverlap = Math.round(Math.min(100, (overlapMs / ownDurationMs) * 100))
+    if (timeOverlap < 25) continue
+
+    const stylesCompatible = ownSession.study_style === 'either' || session.study_style === 'either' || ownSession.study_style === session.study_style
+    const languagesCompatible = ownSession.language === 'either' || session.language === 'either' || ownSession.language === session.language
+    const sameVenue = ownSession.venue_id && session.venue_id && ownSession.venue_id === session.venue_id
+    const flexibleVenue = !ownSession.venue_id || !session.venue_id
+    const venueScore = sameVenue ? 100 : flexibleVenue ? 75 : 35
+    const styleScore = stylesCompatible ? 100 : 40
+    const languageScore = languagesCompatible ? 100 : 25
+    const semesterDifference = Math.abs((profile.semester || 1) - (ownProfile?.semester || 1))
+    const semesterScore = Math.max(40, 100 - semesterDifference * 10)
+    const compatibilityScore = Math.round(
+      timeOverlap * 0.45 + venueScore * 0.2 + styleScore * 0.15 + languageScore * 0.1 + semesterScore * 0.1
+    )
+    const compatibilityReasons = [
+      `${timeOverlap}% time overlap`,
+      sameVenue ? 'Same study space' : flexibleVenue ? 'Flexible study space' : 'Different preferred spaces',
+      stylesCompatible ? 'Compatible study style' : 'Different study styles',
+      languagesCompatible ? 'Compatible language' : 'Different languages',
+    ]
 
     uniqueCandidates.set(profile.id, {
       id: profile.id,
@@ -163,14 +230,69 @@ export async function findMatchCandidates(sessionId: string): Promise<PartnerCan
       subjects: profile.subjects?.length ? profile.subjects : [String(session.subject_id)],
       avatarColor: profile.avatar_color || 'bg-blue-500',
       distance: venue?.distance ?? 0,
-      timeOverlap: sameDuration ? 100 : 75,
+      timeOverlap,
+      compatibilityScore,
+      compatibilityReasons,
+      plannedStart: session.planned_start ?? null,
+      plannedEnd: session.planned_end ?? null,
+      studyStyle: session.study_style ?? 'either',
+      language: session.language ?? 'either',
     })
   }
 
   return Array.from(uniqueCandidates.values()).sort((a, b) => {
-    if (b.timeOverlap !== a.timeOverlap) return b.timeOverlap - a.timeOverlap
+    if (b.compatibilityScore !== a.compatibilityScore) return b.compatibilityScore - a.compatibilityScore
     return a.distance - b.distance
   })
+}
+
+export async function proposeStudySession(formData: {
+  matchId: string
+  startsAt: string
+  endsAt: string
+  venueId: string | null
+}) {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) throw new Error('Not authenticated')
+  assertUuid(formData.matchId, 'match')
+  if (formData.venueId) assertUuid(formData.venueId, 'venue')
+
+  const start = new Date(formData.startsAt)
+  const end = new Date(formData.endsAt)
+  if (!Number.isFinite(start.getTime()) || !Number.isFinite(end.getTime()) || start <= new Date() || end <= start || end.getTime() - start.getTime() > 8 * 60 * 60 * 1000) {
+    throw new Error('Invalid schedule')
+  }
+
+  const { data, error } = await supabase.rpc('propose_study_session', {
+    p_match_id: formData.matchId,
+    p_starts_at: start.toISOString(),
+    p_ends_at: end.toISOString(),
+    p_venue_id: formData.venueId,
+  })
+  if (error) throw error
+  revalidatePath('/app')
+  return String(data)
+}
+
+export async function respondToStudySession(sessionId: string, accept: boolean) {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) throw new Error('Not authenticated')
+  assertUuid(sessionId, 'study session')
+  const { error } = await supabase.rpc('respond_study_session', { p_session_id: sessionId, p_accept: accept })
+  if (error) throw error
+  revalidatePath('/app')
+}
+
+export async function cancelStudySession(sessionId: string) {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) throw new Error('Not authenticated')
+  assertUuid(sessionId, 'study session')
+  const { error } = await supabase.rpc('cancel_study_session', { p_session_id: sessionId })
+  if (error) throw error
+  revalidatePath('/app')
 }
 
 export async function swipeOnCandidate(sessionId: string, candidateSessionId: string) {

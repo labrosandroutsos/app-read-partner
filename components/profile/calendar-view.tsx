@@ -1,96 +1,116 @@
 "use client"
 
-import { useState } from "react"
-import { Clock, MapPin } from "lucide-react"
+import { useMemo, useState, useTransition } from "react"
+import { Check, Clock, Loader2, MapPin, X } from "lucide-react"
+import { useRouter } from "next/navigation"
+import { toast } from "sonner"
+import { cancelStudySession, respondToStudySession } from "@/lib/actions"
 import { useTranslation } from "@/lib/i18n"
 import { Calendar } from "@/components/ui/calendar"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
 import { studySessions as mockSessions, getStudentById } from "@/lib/mock-data"
 import { cn } from "@/lib/utils"
 import type { StudySessionRecord } from "@/lib/types"
 
 interface CalendarViewProps {
   studySessions?: StudySessionRecord[]
+  userId: string
 }
 
-export function CalendarView({ studySessions }: CalendarViewProps) {
-  const { t } = useTranslation()
+function sameDay(a: Date, b: Date) {
+  return a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate()
+}
+
+export function CalendarView({ studySessions = [], userId }: CalendarViewProps) {
+  const { t, locale } = useTranslation()
+  const el = locale === "el"
+  const router = useRouter()
   const [date, setDate] = useState<Date | undefined>(new Date())
+  const [pendingId, setPendingId] = useState<string | null>(null)
+  const [isPending, startTransition] = useTransition()
+  const hasReal = studySessions.length > 0
 
-  const hasReal = studySessions && studySessions.length > 0
+  const items = useMemo(() => hasReal ? studySessions.filter((session) => session.status !== 'cancelled').map((session) => {
+    const partner = session.user_id === userId
+      ? session.partner
+      : session.owner
+    const startsAt = session.starts_at ? new Date(session.starts_at) : new Date(`${session.date}T12:00:00`)
+    return {
+      id: session.id,
+      startsAt,
+      subject: session.subject?.name || 'Subject',
+      partnerName: partner?.display_name?.split(' ')[0] || '?',
+      partnerInitials: (partner?.display_name || '?').slice(0, 2).toUpperCase(),
+      partnerColor: partner?.avatar_color || 'bg-primary',
+      venue: session.venue?.name || (el ? 'Δεν ορίστηκε' : 'Not selected'),
+      duration: session.duration_hours,
+      status: session.status,
+      proposedBy: session.proposed_by,
+      real: true,
+    }
+  }) : mockSessions.map((session) => {
+    const partner = getStudentById(session.partnerId)
+    return {
+      id: session.id,
+      startsAt: new Date(`${session.date}T12:00:00`),
+      subject: session.subject,
+      partnerName: partner?.name.split(' ')[0] || '?',
+      partnerInitials: partner?.initials || '?',
+      partnerColor: partner?.avatarColor || 'bg-primary',
+      venue: session.venue,
+      duration: session.duration,
+      status: 'confirmed' as const,
+      proposedBy: null,
+      real: false,
+    }
+  }), [el, hasReal, studySessions, userId])
 
-  const items = hasReal
-    ? studySessions.map(s => ({
-        id: s.id,
-        date: s.date,
-        subject: (s as any).subject?.name || 'Subject',
-        partnerName: (s as any).partner?.display_name?.split(' ')[0] || '?',
-        partnerInitials: ((s as any).partner?.display_name || '?').slice(0, 2).toUpperCase(),
-        partnerColor: (s as any).partner?.avatar_color || 'bg-primary',
-        venue: (s as any).venue?.name || 'Venue',
-        duration: s.duration_hours,
-      }))
-    : mockSessions.map(s => {
-        const partner = getStudentById(s.partnerId)
-        return {
-          id: s.id,
-          date: s.date,
-          subject: s.subject,
-          partnerName: partner?.name.split(' ')[0] || '?',
-          partnerInitials: partner?.initials || '?',
-          partnerColor: partner?.avatarColor || 'bg-primary',
-          venue: s.venue,
-          duration: s.duration,
-        }
-      })
-
-  const sessionDates = items.map(s => new Date(s.date))
-
-  const modifiers = { hasSession: sessionDates }
-  const modifiersStyles = { hasSession: { fontWeight: 700 } }
+  const visibleItems = date ? items.filter((session) => sameDay(session.startsAt, date)) : items
+  const respond = (sessionId: string, accept: boolean) => {
+    setPendingId(sessionId)
+    startTransition(async () => {
+      try {
+        await respondToStudySession(sessionId, accept)
+        router.refresh()
+        toast.success(accept ? (el ? "Η συνάντηση επιβεβαιώθηκε." : "Session confirmed.") : (el ? "Η πρόταση απορρίφθηκε." : "Proposal declined."))
+      } catch (error) {
+        toast.error(error instanceof Error ? error.message : (el ? "Η ενέργεια απέτυχε." : "Action failed."))
+      } finally { setPendingId(null) }
+    })
+  }
+  const cancel = (sessionId: string) => {
+    setPendingId(sessionId)
+    startTransition(async () => {
+      try {
+        await cancelStudySession(sessionId)
+        router.refresh()
+        toast.success(el ? "Η συνάντηση ακυρώθηκε." : "Session cancelled.")
+      } catch (error) {
+        toast.error(error instanceof Error ? error.message : (el ? "Η ακύρωση απέτυχε." : "Cancellation failed."))
+      } finally { setPendingId(null) }
+    })
+  }
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="flex justify-center">
-        <Calendar
-          mode="single"
-          selected={date}
-          onSelect={setDate}
-          modifiers={modifiers}
-          modifiersStyles={modifiersStyles}
-          className="rounded-md border"
-        />
-      </div>
-
+      <div className="flex justify-center"><Calendar mode="single" selected={date} onSelect={setDate} modifiers={{ hasSession: items.map((session) => session.startsAt) }} modifiersStyles={{ hasSession: { fontWeight: 700, textDecoration: 'underline' } }} className="rounded-md border" /></div>
       <div>
-        <h4 className="text-sm font-semibold text-foreground mb-2">{t("profile.calendar.upcoming")}</h4>
+        <h4 className="mb-2 text-sm font-semibold text-foreground">{date ? date.toLocaleDateString(locale === 'el' ? 'el-GR' : 'en-GB', { weekday: 'long', day: 'numeric', month: 'long' }) : t("profile.calendar.upcoming")}</h4>
         <div className="flex flex-col gap-2">
-          {items.map((session) => (
-            <Card key={session.id}>
-              <CardContent className="p-3 flex items-center gap-3">
-                <div className={cn("w-10 h-10 rounded-full flex items-center justify-center text-xs font-bold text-white shrink-0", session.partnerColor)}>
-                  {session.partnerInitials}
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="font-medium text-sm text-foreground">{session.subject}</p>
-                  <div className="flex items-center gap-3 mt-0.5">
-                    <span className="flex items-center gap-1 text-xs text-muted-foreground">
-                      <Clock className="h-3 w-3" />
-                      {session.duration}h
-                    </span>
-                    <span className="flex items-center gap-1 text-xs text-muted-foreground">
-                      <MapPin className="h-3 w-3" />
-                      {session.venue}
-                    </span>
-                  </div>
-                </div>
-                <Badge variant="outline" className="text-[10px] shrink-0">
-                  {new Date(session.date).toLocaleDateString("el-GR", { day: "numeric", month: "short" })}
-                </Badge>
-              </CardContent>
-            </Card>
-          ))}
+          {visibleItems.length === 0 && <p className="rounded-lg border border-dashed p-5 text-center text-sm text-muted-foreground">{el ? "Δεν υπάρχουν συναντήσεις για αυτή την ημέρα." : "No sessions on this day."}</p>}
+          {visibleItems.map((session) => {
+            const incoming = session.real && session.status === 'proposed' && session.proposedBy !== userId
+            return <Card key={session.id}><CardContent className="space-y-3 p-3">
+              <div className="flex items-center gap-3">
+                <div className={cn("flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-xs font-bold text-white", session.partnerColor)}>{session.partnerInitials}</div>
+                <div className="min-w-0 flex-1"><p className="text-sm font-medium text-foreground">{session.subject}</p><div className="mt-0.5 flex flex-wrap items-center gap-3"><span className="flex items-center gap-1 text-xs text-muted-foreground"><Clock className="h-3 w-3" />{session.startsAt.toLocaleTimeString(locale === 'el' ? 'el-GR' : 'en-GB', { hour: '2-digit', minute: '2-digit' })} · {session.duration}h</span><span className="flex items-center gap-1 text-xs text-muted-foreground"><MapPin className="h-3 w-3" />{session.venue}</span></div></div>
+                <Badge variant={session.status === 'confirmed' ? 'default' : 'outline'}>{session.status === 'confirmed' ? (el ? 'Επιβεβαιωμένη' : 'Confirmed') : (el ? 'Πρόταση' : 'Proposed')}</Badge>
+              </div>
+              {session.real && <div className="flex justify-end gap-2 border-t pt-2">{incoming ? <><Button size="sm" variant="outline" onClick={() => respond(session.id, false)} disabled={isPending}><X className="h-3.5 w-3.5" />{el ? 'Απόρριψη' : 'Decline'}</Button><Button size="sm" onClick={() => respond(session.id, true)} disabled={isPending}>{pendingId === session.id ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Check className="h-3.5 w-3.5" />}{el ? 'Αποδοχή' : 'Accept'}</Button></> : <Button size="sm" variant="outline" className="text-destructive" onClick={() => cancel(session.id)} disabled={isPending}>{pendingId === session.id && <Loader2 className="h-3.5 w-3.5 animate-spin" />}{el ? 'Ακύρωση' : 'Cancel'}</Button>}</div>}
+            </CardContent></Card>
+          })}
         </div>
       </div>
     </div>

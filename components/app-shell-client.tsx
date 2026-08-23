@@ -97,6 +97,7 @@ export function AppShellClient({
           <ChatScreen
             userId={userId}
             conversations={conversations}
+            venues={venues}
           />
         )}
         {activeTab === "notes" && (

@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { DailyWizard } from "./daily-wizard"
+import { DailyWizard, type MatchPreferences } from "./daily-wizard"
 import { PartnerStack } from "./partner-stack"
 import { createSession, findMatchCandidates } from "@/lib/actions"
 import { toast } from "sonner"
@@ -19,12 +19,12 @@ interface PartnerScreenProps {
 export function PartnerScreen({ onGoToChat, profile, subjects, venues }: PartnerScreenProps) {
   const { t } = useTranslation()
   const [wizardComplete, setWizardComplete] = useState(false)
-  const [prefs, setPrefs] = useState({ subject: "", venue: "", duration: "" })
+  const [prefs, setPrefs] = useState<MatchPreferences>({ subject: "", venue: "", duration: "", plannedStart: "", studyStyle: "either", language: "either", maxDistanceKm: 5 })
   const [candidates, setCandidates] = useState<PartnerCandidate[]>([])
   const [sessionId, setSessionId] = useState<string | null>(null)
   const [isSearching, setIsSearching] = useState(false)
 
-  const handleWizardComplete = async (p: { subject: string; venue: string; duration: string }) => {
+  const handleWizardComplete = async (p: MatchPreferences) => {
     setIsSearching(true)
 
     try {
@@ -35,6 +35,10 @@ export function PartnerScreen({ onGoToChat, profile, subjects, venues }: Partner
         subjectId,
         venueId,
         duration: p.duration,
+        plannedStart: p.plannedStart,
+        studyStyle: p.studyStyle,
+        language: p.language,
+        maxDistanceKm: p.maxDistanceKm,
       })
       const nextCandidates = await findMatchCandidates(session.id)
 
@@ -51,7 +55,7 @@ export function PartnerScreen({ onGoToChat, profile, subjects, venues }: Partner
 
   const handleRestart = () => {
     setWizardComplete(false)
-    setPrefs({ subject: "", venue: "", duration: "" })
+    setPrefs({ subject: "", venue: "", duration: "", plannedStart: "", studyStyle: "either", language: "either", maxDistanceKm: 5 })
     setCandidates([])
     setSessionId(null)
   }

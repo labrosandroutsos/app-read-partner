@@ -33,7 +33,7 @@ interface ProfileScreenProps {
 }
 
 export function ProfileScreen({
-  email, authProvider, profile, studyStats, pastPartners: partners,
+  userId, email, authProvider, profile, studyStats, pastPartners: partners,
   coupons, studySessions, subjects, venues, blockedUsers
 }: ProfileScreenProps) {
   const { t, locale, setLocale } = useTranslation()
@@ -70,7 +70,7 @@ export function ProfileScreen({
           <AccordionItem value="calendar">
             <AccordionTrigger className="text-sm font-semibold">{t("profile.calendar")}</AccordionTrigger>
             <AccordionContent>
-              <CalendarView studySessions={studySessions} />
+              <CalendarView studySessions={studySessions} userId={userId} />
             </AccordionContent>
           </AccordionItem>
         </Accordion>

@@ -34,6 +34,13 @@ export interface Session {
   duration: string | null
   planned_date: string
   created_at: string
+  planned_start: string | null
+  planned_end: string | null
+  study_style: 'quiet' | 'social' | 'either'
+  language: 'el' | 'en' | 'either'
+  max_distance_km: number
+  status: 'active' | 'expired' | 'matched' | 'cancelled'
+  expires_at: string | null
 }
 
 export interface Match {
@@ -109,7 +116,15 @@ export interface StudySessionRecord {
   date: string
   duration_hours: number
   created_at: string
+  match_id: string | null
+  starts_at: string | null
+  ends_at: string | null
+  status: 'proposed' | 'confirmed' | 'cancelled' | 'completed'
+  proposed_by: string | null
+  accepted_at: string | null
+  updated_at: string | null
   partner?: Profile
+  owner?: Profile
   subject?: Subject
   venue?: Venue
 }
@@ -125,6 +140,12 @@ export interface PartnerCandidate {
   avatarColor: string
   distance: number
   timeOverlap: number
+  compatibilityScore: number
+  compatibilityReasons: string[]
+  plannedStart: string | null
+  plannedEnd: string | null
+  studyStyle: 'quiet' | 'social' | 'either'
+  language: 'el' | 'en' | 'either'
 }
 
 export interface ConversationPreview {
@@ -134,4 +155,5 @@ export interface ConversationPreview {
   unreadCount: number
   subject: Subject | null
   venue: Venue | null
+  schedule: StudySessionRecord | null
 }

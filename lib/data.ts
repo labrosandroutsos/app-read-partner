@@ -80,6 +80,15 @@ export async function getConversations(userId: string): Promise<ConversationPrev
       .or(`sender_id.neq.${userId},sender_id.is.null`)
       .gt('created_at', lastReadAt)
 
+    const { data: schedule } = await supabase
+      .from('study_sessions')
+      .select('*, partner:partner_id(display_name, avatar_color), subject:subject_id(name, name_en), venue:venue_id(*)')
+      .eq('match_id', match.id)
+      .in('status', ['proposed', 'confirmed'])
+      .order('updated_at', { ascending: false })
+      .limit(1)
+      .maybeSingle()
+
     conversations.push({
       match,
       partner: partner!,
@@ -87,6 +96,7 @@ export async function getConversations(userId: string): Promise<ConversationPrev
       unreadCount: count ?? 0,
       subject: (match as any).subjects ?? null,
       venue: (match as any).venues ?? null,
+      schedule: schedule ?? null,
     })
   }
 
@@ -170,9 +180,9 @@ export async function getStudySessions(userId: string): Promise<StudySessionReco
   const supabase = await createClient()
   const { data } = await supabase
     .from('study_sessions')
-    .select('*, partner:partner_id(display_name, avatar_color), subject:subject_id(name, name_en), venue:venue_id(name)')
+    .select('*, owner:user_id(display_name, avatar_color), partner:partner_id(display_name, avatar_color), subject:subject_id(name, name_en), venue:venue_id(name)')
     .or(`user_id.eq.${userId},partner_id.eq.${userId}`)
-    .order('date', { ascending: true })
+    .order('starts_at', { ascending: true, nullsFirst: false })
   return data ?? []
 }
 

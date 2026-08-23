@@ -5,14 +5,15 @@ import { useRouter } from "next/navigation"
 import { ChatList } from "./chat-list"
 import { ChatView } from "./chat-view"
 import { markConversationRead } from "@/lib/actions"
-import type { ConversationPreview } from "@/lib/types"
+import type { ConversationPreview, Venue } from "@/lib/types"
 
 interface ChatScreenProps {
   userId: string
   conversations: ConversationPreview[]
+  venues: Venue[]
 }
 
-export function ChatScreen({ userId, conversations }: ChatScreenProps) {
+export function ChatScreen({ userId, conversations, venues }: ChatScreenProps) {
   const router = useRouter()
   const [selectedChatId, setSelectedChatId] = useState<string | null>(null)
 
@@ -32,6 +33,8 @@ export function ChatScreen({ userId, conversations }: ChatScreenProps) {
         subject={selectedConv.subject}
         venue={selectedConv.venue}
         userId={userId}
+        venues={venues}
+        schedule={selectedConv.schedule}
         onBack={() => setSelectedChatId(null)}
       />
     )

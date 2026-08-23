@@ -13,8 +13,9 @@ import { useRealtimeMessages } from "@/hooks/use-realtime-messages"
 import { toast } from "sonner"
 import type { Conversation, Message as MockMessage } from "@/lib/mock-data"
 import { getStudentById } from "@/lib/mock-data"
-import type { Profile, Subject, Venue } from "@/lib/types"
+import type { Profile, StudySessionRecord, Subject, Venue } from "@/lib/types"
 import { UserSafetyMenu } from "@/components/safety/user-safety-menu"
+import { ScheduleSessionDialog } from "@/components/calendar/schedule-session-dialog"
 
 interface ChatViewProps {
   matchId?: string
@@ -24,9 +25,11 @@ interface ChatViewProps {
   userId: string
   onBack: () => void
   mockConversation?: Conversation
+  venues?: Venue[]
+  schedule?: StudySessionRecord | null
 }
 
-export function ChatView({ matchId, partner, subject, venue, userId, onBack, mockConversation }: ChatViewProps) {
+export function ChatView({ matchId, partner, subject, venue, userId, onBack, mockConversation, venues = [], schedule = null }: ChatViewProps) {
   const { t } = useTranslation()
   const [input, setInput] = useState("")
   const [isSending, setIsSending] = useState(false)
@@ -153,6 +156,9 @@ export function ChatView({ matchId, partner, subject, venue, userId, onBack, moc
             </div>
           </div>
         </div>
+        {isReal && matchId && partner && (
+          <ScheduleSessionDialog matchId={matchId} currentUserId={userId} partnerName={displayName} venues={venues} schedule={schedule} />
+        )}
         {isReal && partner && (
           <UserSafetyMenu targetUserId={partner.id} targetName={displayName} onBlocked={onBack} />
         )}
