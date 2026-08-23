@@ -2,10 +2,10 @@
 
 import { useState } from "react"
 import Link from "next/link"
-import { KeyRound, Loader2, UserRound } from "lucide-react"
+import { KeyRound, Loader2, ShieldOff, UserRound } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { toast } from "sonner"
-import { updateProfile } from "@/lib/actions"
+import { unblockUser, updateProfile } from "@/lib/actions"
 import { useTranslation } from "@/lib/i18n"
 import { Button } from "@/components/ui/button"
 import {
@@ -20,22 +20,37 @@ import {
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Separator } from "@/components/ui/separator"
-import type { Profile } from "@/lib/types"
+import type { BlockedUser, Profile } from "@/lib/types"
 
 interface AccountSettingsDialogProps {
   email: string
   authProvider: string
   profile: Profile | null
+  blockedUsers: BlockedUser[]
 }
 
-export function AccountSettingsDialog({ email, authProvider, profile }: AccountSettingsDialogProps) {
-  const { t } = useTranslation()
+export function AccountSettingsDialog({ email, authProvider, profile, blockedUsers }: AccountSettingsDialogProps) {
+  const { t, locale } = useTranslation()
   const router = useRouter()
   const [open, setOpen] = useState(false)
   const [saving, setSaving] = useState(false)
   const [displayName, setDisplayName] = useState(profile?.display_name ?? "")
   const [degree, setDegree] = useState(profile?.degree ?? "")
   const [semester, setSemester] = useState(String(profile?.semester ?? 1))
+  const [unblockingId, setUnblockingId] = useState<string | null>(null)
+
+  async function handleUnblock(userId: string) {
+    setUnblockingId(userId)
+    try {
+      await unblockUser(userId)
+      toast.success(locale === "el" ? "Ο αποκλεισμός αφαιρέθηκε." : "User unblocked.")
+      router.refresh()
+    } catch {
+      toast.error(locale === "el" ? "Δεν ήταν δυνατή η άρση αποκλεισμού." : "Unable to unblock user.")
+    } finally {
+      setUnblockingId(null)
+    }
+  }
 
   async function handleSave(event: React.FormEvent) {
     event.preventDefault()
@@ -111,6 +126,25 @@ export function AccountSettingsDialog({ email, authProvider, profile }: AccountS
             {t("profile.account.changePassword")}
           </Link>
         </Button>
+
+        <Separator />
+        <div className="space-y-2">
+          <div className="flex items-center gap-2 text-sm font-medium">
+            <ShieldOff className="h-4 w-4" />
+            {locale === "el" ? "Αποκλεισμένοι χρήστες" : "Blocked users"}
+          </div>
+          {blockedUsers.length === 0 ? (
+            <p className="text-sm text-muted-foreground">{locale === "el" ? "Δεν έχεις αποκλείσει κανέναν." : "You have not blocked anyone."}</p>
+          ) : blockedUsers.map((blocked) => (
+            <div key={blocked.id} className="flex items-center justify-between rounded-lg border p-2">
+              <span className="truncate text-sm">{blocked.display_name || "Student"}</span>
+              <Button type="button" variant="outline" size="sm" disabled={unblockingId === blocked.id} onClick={() => handleUnblock(blocked.id)}>
+                {unblockingId === blocked.id && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
+                {locale === "el" ? "Άρση" : "Unblock"}
+              </Button>
+            </div>
+          ))}
+        </div>
       </DialogContent>
     </Dialog>
   )

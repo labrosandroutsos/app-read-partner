@@ -22,7 +22,7 @@ const noteColors = [
   "bg-amber-100 dark:bg-amber-900/30",
 ]
 
-export function NotesScreen({ notes: dbNotes = [], subjects: dbSubjects = [] }: NotesScreenProps) {
+export function NotesScreen({ userId = "", notes: dbNotes = [], subjects: dbSubjects = [] }: NotesScreenProps) {
   const { t, locale } = useTranslation()
   const [filterSubject, setFilterSubject] = useState("all")
   const subjectList = dbSubjects
@@ -30,7 +30,9 @@ export function NotesScreen({ notes: dbNotes = [], subjects: dbSubjects = [] }: 
   // Build display items
   const displayNotes = dbNotes.map(n => ({
         id: n.id,
+        authorId: n.author_id,
         title: n.title,
+        subjectId: n.subject_id,
         subject: n.subject_id?.toString() || '',
         subjectName: (n as any).subject?.name || '',
         subjectNameEn: (n as any).subject?.name_en || '',
@@ -70,7 +72,7 @@ export function NotesScreen({ notes: dbNotes = [], subjects: dbSubjects = [] }: 
 
       <div className="px-4 pb-4 grid grid-cols-2 gap-3">
         {filtered.map((note) => (
-          <NoteCard key={note.id} note={note} />
+          <NoteCard key={note.id} note={note} currentUserId={userId} subjects={subjectList} />
         ))}
       </div>
 

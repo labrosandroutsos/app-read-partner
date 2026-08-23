@@ -1,8 +1,18 @@
 import { createClient } from '@/lib/supabase/server'
 import type {
   Profile, Subject, Venue, Match, Message, Note, Coupon,
-  StudySessionRecord, ConversationPreview
+  StudySessionRecord, ConversationPreview, BlockedUser
 } from '@/lib/types'
+
+async function getBlockedUserIdSet(userId: string) {
+  const supabase = await createClient()
+  const { data } = await supabase
+    .from('user_blocks')
+    .select('blocker_id, blocked_id')
+    .or(`blocker_id.eq.${userId},blocked_id.eq.${userId}`)
+
+  return new Set((data ?? []).map((row) => row.blocker_id === userId ? row.blocked_id : row.blocker_id))
+}
 
 export async function getProfile(userId: string): Promise<Profile | null> {
   const supabase = await createClient()
@@ -28,6 +38,7 @@ export async function getVenues(): Promise<Venue[]> {
 
 export async function getConversations(userId: string): Promise<ConversationPreview[]> {
   const supabase = await createClient()
+  const blockedUserIds = await getBlockedUserIdSet(userId)
 
   const { data: matches } = await supabase
     .from('matches')
@@ -42,6 +53,7 @@ export async function getConversations(userId: string): Promise<ConversationPrev
 
   for (const match of matches) {
     const partnerId = match.user_a === userId ? match.user_b : match.user_a
+    if (blockedUserIds.has(partnerId)) continue
 
     const { data: partner } = await supabase
       .from('profiles')
@@ -93,9 +105,11 @@ export async function getMessages(matchId: string): Promise<Message[]> {
 
 export async function getNotes(userId: string, subjectId?: number): Promise<Note[]> {
   const supabase = await createClient()
+  const blockedUserIds = await getBlockedUserIdSet(userId)
   let query = supabase
     .from('notes')
     .select('*, author:author_id(display_name, avatar_color), subject:subject_id(name, name_en), note_likes(user_id)')
+    .neq('moderation_status', 'hidden')
     .order('created_at', { ascending: false })
 
   if (subjectId) {
@@ -103,13 +117,40 @@ export async function getNotes(userId: string, subjectId?: number): Promise<Note
   }
 
   const { data } = await query
-  return (data ?? []).map((note) => {
+  return (data ?? []).filter((note) => !blockedUserIds.has(note.author_id)).map((note) => {
     const likes = Array.isArray(note.note_likes) ? note.note_likes : []
     return {
       ...note,
       likes_count: likes.length,
       liked_by_me: likes.some((like: { user_id: string }) => like.user_id === userId),
       note_likes: undefined,
+    }
+  })
+}
+
+export async function getBlockedUsers(userId: string): Promise<BlockedUser[]> {
+  const supabase = await createClient()
+  const { data: blocks } = await supabase
+    .from('user_blocks')
+    .select('blocked_id, created_at')
+    .eq('blocker_id', userId)
+    .order('created_at', { ascending: false })
+
+  if (!blocks?.length) return []
+
+  const { data: profiles } = await supabase
+    .from('profiles')
+    .select('id, display_name, avatar_color')
+    .in('id', blocks.map((block) => block.blocked_id))
+
+  const profileMap = new Map((profiles ?? []).map((profile) => [profile.id, profile]))
+  return blocks.map((block) => {
+    const profile = profileMap.get(block.blocked_id)
+    return {
+      id: block.blocked_id,
+      display_name: profile?.display_name ?? 'Student',
+      avatar_color: profile?.avatar_color ?? 'bg-slate-500',
+      blocked_at: block.created_at,
     }
   })
 }

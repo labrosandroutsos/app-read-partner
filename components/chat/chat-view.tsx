@@ -14,6 +14,7 @@ import { toast } from "sonner"
 import type { Conversation, Message as MockMessage } from "@/lib/mock-data"
 import { getStudentById } from "@/lib/mock-data"
 import type { Profile, Subject, Venue } from "@/lib/types"
+import { UserSafetyMenu } from "@/components/safety/user-safety-menu"
 
 interface ChatViewProps {
   matchId?: string
@@ -152,6 +153,9 @@ export function ChatView({ matchId, partner, subject, venue, userId, onBack, moc
             </div>
           </div>
         </div>
+        {isReal && partner && (
+          <UserSafetyMenu targetUserId={partner.id} targetName={displayName} onBlocked={onBack} />
+        )}
       </div>
 
       <ScrollArea className="flex-1 px-4 py-3" ref={scrollRef}>

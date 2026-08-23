@@ -7,6 +7,7 @@ import { Progress } from "@/components/ui/progress"
 import { cn } from "@/lib/utils"
 import { getSubjectById } from "@/lib/mock-data"
 import type { PartnerCandidate, Subject as DBSubject } from "@/lib/types"
+import { UserSafetyMenu } from "@/components/safety/user-safety-menu"
 
 interface PartnerCardProps {
   candidate: PartnerCandidate
@@ -14,9 +15,10 @@ interface PartnerCardProps {
   style?: React.CSSProperties
   className?: string
   subjects?: DBSubject[]
+  onBlocked?: () => void
 }
 
-export function PartnerCard({ candidate, matchSubject, style, className, subjects }: PartnerCardProps) {
+export function PartnerCard({ candidate, matchSubject, style, className, subjects, onBlocked }: PartnerCardProps) {
   const { t, locale } = useTranslation()
 
   // Try DB subjects first, fallback to mock
@@ -37,6 +39,9 @@ export function PartnerCard({ candidate, matchSubject, style, className, subject
       )}
       style={style}
     >
+      <div className="absolute right-3 top-3 z-30" onPointerDown={(event) => event.stopPropagation()}>
+        <UserSafetyMenu targetUserId={candidate.id} targetName={candidate.name} onBlocked={onBlocked} />
+      </div>
       <div className="h-[45%] bg-gradient-to-br from-primary/20 via-primary/10 to-transparent flex flex-col items-center justify-center gap-3 p-6">
         <div className={cn("w-24 h-24 rounded-full flex items-center justify-center text-3xl font-bold text-card shadow-md", candidate.avatarColor)}>
           <span className="text-white">{candidate.initials}</span>

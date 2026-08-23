@@ -1,6 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
-import { getProfile, getSubjects, getVenues, getConversations, getNotes, getCoupons, getStudySessions, getStudyStats, getPastPartners } from '@/lib/data'
+import { getProfile, getSubjects, getVenues, getConversations, getNotes, getCoupons, getStudySessions, getStudyStats, getPastPartners, getBlockedUsers } from '@/lib/data'
 import { AppShellClient } from '@/components/app-shell-client'
 
 export default async function AppPage() {
@@ -11,7 +11,7 @@ export default async function AppPage() {
     redirect('/auth/login')
   }
 
-  const [profile, subjects, venues, conversations, notes, coupons, studySessions, studyStats, pastPartners] = await Promise.all([
+  const [profile, subjects, venues, conversations, notes, coupons, studySessions, studyStats, pastPartners, blockedUsers] = await Promise.all([
     getProfile(user.id),
     getSubjects(),
     getVenues(),
@@ -21,6 +21,7 @@ export default async function AppPage() {
     getStudySessions(user.id),
     getStudyStats(user.id),
     getPastPartners(user.id),
+    getBlockedUsers(user.id),
   ])
 
   return (
@@ -37,6 +38,7 @@ export default async function AppPage() {
       studySessions={studySessions}
       studyStats={studyStats}
       pastPartners={pastPartners}
+      blockedUsers={blockedUsers}
     />
   )
 }

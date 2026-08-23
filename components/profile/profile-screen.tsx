@@ -16,7 +16,7 @@ import { Button } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"
 import { cn } from "@/lib/utils"
 import { signOut } from "@/lib/actions"
-import type { Profile, Subject, Venue, Coupon, StudySessionRecord } from "@/lib/types"
+import type { Profile, Subject, Venue, Coupon, StudySessionRecord, BlockedUser } from "@/lib/types"
 
 interface ProfileScreenProps {
   userId: string
@@ -29,11 +29,12 @@ interface ProfileScreenProps {
   studySessions: StudySessionRecord[]
   subjects: Subject[]
   venues: Venue[]
+  blockedUsers: BlockedUser[]
 }
 
 export function ProfileScreen({
   email, authProvider, profile, studyStats, pastPartners: partners,
-  coupons, studySessions, subjects, venues
+  coupons, studySessions, subjects, venues, blockedUsers
 }: ProfileScreenProps) {
   const { t, locale, setLocale } = useTranslation()
   const { setTheme, resolvedTheme } = useTheme()
@@ -124,7 +125,7 @@ export function ProfileScreen({
 
             <Separator />
 
-            <AccountSettingsDialog email={email} authProvider={authProvider} profile={profile} />
+            <AccountSettingsDialog email={email} authProvider={authProvider} profile={profile} blockedUsers={blockedUsers} />
 
             <form action={signOut}>
               <Button type="submit" variant="outline" className="w-full text-destructive hover:text-destructive">

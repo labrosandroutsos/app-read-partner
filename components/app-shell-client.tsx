@@ -11,7 +11,7 @@ import { NotesScreen } from "@/components/notes/notes-screen"
 import { VenuesScreen } from "@/components/venues/venues-screen"
 import { ProfileScreen } from "@/components/profile/profile-screen"
 import { Button } from "@/components/ui/button"
-import type { Profile, Subject, Venue, Note, Coupon, StudySessionRecord, ConversationPreview } from "@/lib/types"
+import type { Profile, Subject, Venue, Note, Coupon, StudySessionRecord, ConversationPreview, BlockedUser } from "@/lib/types"
 
 interface AppShellClientProps {
   userId: string
@@ -26,6 +26,7 @@ interface AppShellClientProps {
   studySessions: StudySessionRecord[]
   studyStats: { subject: string; hours: number }[]
   pastPartners: { profile: Profile; sessions: number }[]
+  blockedUsers: BlockedUser[]
 }
 
 export function AppShellClient({
@@ -41,6 +42,7 @@ export function AppShellClient({
   studySessions,
   studyStats,
   pastPartners,
+  blockedUsers,
 }: AppShellClientProps) {
   const [activeTab, setActiveTab] = useState<TabId>("partner")
   const [mounted, setMounted] = useState(false)
@@ -115,6 +117,7 @@ export function AppShellClient({
             profile={profile}
             studyStats={studyStats}
             pastPartners={pastPartners}
+            blockedUsers={blockedUsers}
             coupons={coupons}
             studySessions={studySessions}
             subjects={subjects}

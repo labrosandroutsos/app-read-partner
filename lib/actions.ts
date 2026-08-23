@@ -6,6 +6,7 @@ import { redirect } from 'next/navigation'
 import type { PartnerCandidate } from '@/lib/types'
 
 const ALLOWED_DURATIONS = new Set(['1h', '2h', '4h'])
+const REPORT_REASONS = new Set(['spam', 'harassment', 'unsafe', 'impersonation', 'copyright', 'other'])
 
 function assertUuid(value: string, field: string) {
   if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(value)) {
@@ -106,18 +107,30 @@ export async function findMatchCandidates(sessionId: string): Promise<PartnerCan
     query = query.or(`venue_id.eq.${ownSession.venue_id},venue_id.is.null`)
   }
 
-  const [{ data: sessions, error: sessionsError }, { data: existingMatches, error: matchesError }] = await Promise.all([
+  const [
+    { data: sessions, error: sessionsError },
+    { data: existingMatches, error: matchesError },
+    { data: blocks, error: blocksError },
+  ] = await Promise.all([
     query,
     supabase
       .from('matches')
       .select('user_a, user_b, status')
       .or(`user_a.eq.${user.id},user_b.eq.${user.id}`),
+    supabase
+      .from('user_blocks')
+      .select('blocker_id, blocked_id')
+      .or(`blocker_id.eq.${user.id},blocked_id.eq.${user.id}`),
   ])
 
   if (sessionsError) throw sessionsError
   if (matchesError) throw matchesError
+  if (blocksError && blocksError.code !== 'PGRST205') throw blocksError
 
   const hiddenPartnerIds = new Set<string>()
+  for (const block of blocks ?? []) {
+    hiddenPartnerIds.add(block.blocker_id === user.id ? block.blocked_id : block.blocker_id)
+  }
   for (const match of existingMatches ?? []) {
     const partnerId = match.user_a === user.id ? match.user_b : match.user_a
     const isOutgoing = match.user_a === user.id
@@ -242,6 +255,15 @@ export async function uploadNote(formData: FormData) {
   const extension = allowedTypes[file.type]
   if (!extension) throw new Error('Only PDF, JPG, PNG, and WEBP files are supported')
 
+  const header = new Uint8Array(await file.slice(0, 16).arrayBuffer())
+  const startsWith = (...bytes: number[]) => bytes.every((byte, index) => header[index] === byte)
+  const isValidSignature =
+    (file.type === 'application/pdf' && startsWith(0x25, 0x50, 0x44, 0x46, 0x2d)) ||
+    (file.type === 'image/jpeg' && startsWith(0xff, 0xd8, 0xff)) ||
+    (file.type === 'image/png' && startsWith(0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a)) ||
+    (file.type === 'image/webp' && startsWith(0x52, 0x49, 0x46, 0x46) && header[8] === 0x57 && header[9] === 0x45 && header[10] === 0x42 && header[11] === 0x50)
+  if (!isValidSignature) throw new Error('The file contents do not match its declared type')
+
   const { data: subject } = await supabase
     .from('subjects')
     .select('id')
@@ -307,6 +329,122 @@ export async function toggleNoteLike(noteId: string) {
 
   revalidatePath('/app')
   return { liked: !existing, likesCount: count ?? 0 }
+}
+
+export async function updateNote(formData: { noteId: string; title: string; subjectId: number }) {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) throw new Error('Not authenticated')
+
+  assertUuid(formData.noteId, 'note')
+  const title = formData.title.trim()
+  if (!title || title.length > 160) throw new Error('Invalid title')
+  if (!Number.isInteger(formData.subjectId) || formData.subjectId < 1) throw new Error('Invalid subject')
+
+  const { data, error } = await supabase
+    .from('notes')
+    .update({ title, subject_id: formData.subjectId })
+    .eq('id', formData.noteId)
+    .eq('author_id', user.id)
+    .select('id')
+    .maybeSingle()
+
+  if (error) throw error
+  if (!data) throw new Error('You can only edit your own notes')
+  revalidatePath('/app')
+}
+
+export async function deleteNote(noteId: string) {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) throw new Error('Not authenticated')
+  assertUuid(noteId, 'note')
+
+  const { data: note, error: noteError } = await supabase
+    .from('notes')
+    .select('file_url')
+    .eq('id', noteId)
+    .eq('author_id', user.id)
+    .maybeSingle()
+  if (noteError) throw noteError
+  if (!note) throw new Error('You can only delete your own notes')
+
+  const { error } = await supabase.from('notes').delete().eq('id', noteId).eq('author_id', user.id)
+  if (error) throw error
+  if (note.file_url && !/^https?:\/\//i.test(note.file_url)) {
+    await supabase.storage.from('notes').remove([note.file_url])
+  }
+  revalidatePath('/app')
+}
+
+function validateReport(reason: string, details = '') {
+  if (!REPORT_REASONS.has(reason)) throw new Error('Invalid report reason')
+  if (details.trim().length > 500) throw new Error('Report details are too long')
+}
+
+export async function reportNote(noteId: string, reason: string, details = '') {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) throw new Error('Not authenticated')
+  assertUuid(noteId, 'note')
+  validateReport(reason, details)
+
+  const { error } = await supabase.rpc('report_note', {
+    p_note_id: noteId,
+    p_reason: reason,
+    p_details: details.trim() || null,
+  })
+  if (error) throw error
+  revalidatePath('/app')
+}
+
+export async function blockUser(blockedUserId: string) {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) throw new Error('Not authenticated')
+  assertUuid(blockedUserId, 'user')
+  if (blockedUserId === user.id) throw new Error('You cannot block yourself')
+
+  const { error } = await supabase
+    .from('user_blocks')
+    .upsert({ blocker_id: user.id, blocked_id: blockedUserId }, { onConflict: 'blocker_id,blocked_id' })
+  if (error) throw error
+  revalidatePath('/app')
+}
+
+export async function unblockUser(blockedUserId: string) {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) throw new Error('Not authenticated')
+  assertUuid(blockedUserId, 'user')
+
+  const { error } = await supabase
+    .from('user_blocks')
+    .delete()
+    .eq('blocker_id', user.id)
+    .eq('blocked_id', blockedUserId)
+  if (error) throw error
+  revalidatePath('/app')
+}
+
+export async function reportUser(reportedUserId: string, reason: string, details = '') {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) throw new Error('Not authenticated')
+  assertUuid(reportedUserId, 'user')
+  if (reportedUserId === user.id) throw new Error('You cannot report yourself')
+  validateReport(reason, details)
+
+  const { error } = await supabase
+    .from('user_reports')
+    .upsert({
+      reporter_id: user.id,
+      reported_id: reportedUserId,
+      reason,
+      details: details.trim() || null,
+      status: 'open',
+    }, { onConflict: 'reporter_id,reported_id' })
+  if (error) throw error
 }
 
 export async function reportOccupancy(venueId: string, occupancyPct: number) {

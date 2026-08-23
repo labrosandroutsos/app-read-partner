@@ -71,6 +71,14 @@ export interface Note {
   author?: Profile
   subject?: Subject
   liked_by_me?: boolean
+  moderation_status?: 'visible' | 'hidden'
+}
+
+export interface BlockedUser {
+  id: string
+  display_name: string | null
+  avatar_color: string | null
+  blocked_at: string
 }
 
 export interface Coupon {

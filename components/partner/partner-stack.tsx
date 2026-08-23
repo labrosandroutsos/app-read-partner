@@ -180,6 +180,7 @@ export function PartnerStack({
             candidate={candidates[currentIndex]}
             matchSubject={matchSubject}
             subjects={subjects}
+            onBlocked={() => setCurrentIndex((prev) => prev + 1)}
           />
 
           <div
