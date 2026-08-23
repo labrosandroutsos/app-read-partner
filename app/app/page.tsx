@@ -16,7 +16,7 @@ export default async function AppPage() {
     getSubjects(),
     getVenues(),
     getConversations(user.id),
-    getNotes(),
+    getNotes(user.id),
     getCoupons(user.id),
     getStudySessions(user.id),
     getStudyStats(user.id),

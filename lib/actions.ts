@@ -224,25 +224,37 @@ export async function uploadNote(formData: FormData) {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) throw new Error('Not authenticated')
 
-  const title = formData.get('title') as string
-  const subjectId = parseInt(formData.get('subjectId') as string)
-  const file = formData.get('file') as File | null
+  const title = String(formData.get('title') ?? '').trim()
+  const subjectId = Number.parseInt(String(formData.get('subjectId') ?? ''), 10)
+  const file = formData.get('file')
 
-  let fileUrl: string | null = null
+  if (!title || title.length > 160) throw new Error('Title must be between 1 and 160 characters')
+  if (!Number.isInteger(subjectId) || subjectId < 1) throw new Error('Invalid subject')
+  if (!(file instanceof File) || file.size === 0) throw new Error('Please select a file')
+  if (file.size > 10 * 1024 * 1024) throw new Error('The maximum file size is 10 MB')
 
-  if (file && file.size > 0) {
-    const ext = file.name.split('.').pop()
-    const path = `notes/${user.id}/${Date.now()}.${ext}`
-
-    const { error: uploadError } = await supabase.storage
-      .from('notes')
-      .upload(path, file)
-
-    if (!uploadError) {
-      const { data: urlData } = supabase.storage.from('notes').getPublicUrl(path)
-      fileUrl = urlData.publicUrl
-    }
+  const allowedTypes: Record<string, string> = {
+    'application/pdf': 'pdf',
+    'image/jpeg': 'jpg',
+    'image/png': 'png',
+    'image/webp': 'webp',
   }
+  const extension = allowedTypes[file.type]
+  if (!extension) throw new Error('Only PDF, JPG, PNG, and WEBP files are supported')
+
+  const { data: subject } = await supabase
+    .from('subjects')
+    .select('id')
+    .eq('id', subjectId)
+    .maybeSingle()
+  if (!subject) throw new Error('Subject not found')
+
+  const filePath = `${user.id}/${crypto.randomUUID()}.${extension}`
+  const { error: uploadError } = await supabase.storage
+    .from('notes')
+    .upload(filePath, file, { contentType: file.type, upsert: false })
+
+  if (uploadError) throw new Error(`File upload failed: ${uploadError.message}`)
 
   const { data, error } = await supabase
     .from('notes')
@@ -250,12 +262,15 @@ export async function uploadNote(formData: FormData) {
       title,
       subject_id: subjectId,
       author_id: user.id,
-      file_url: fileUrl,
+      file_url: filePath,
     })
     .select()
     .single()
 
-  if (error) throw error
+  if (error) {
+    await supabase.storage.from('notes').remove([filePath])
+    throw error
+  }
   revalidatePath('/app')
   return data
 }
@@ -265,24 +280,33 @@ export async function toggleNoteLike(noteId: string) {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) throw new Error('Not authenticated')
 
-  const { data: existing } = await supabase
+  assertUuid(noteId, 'note')
+
+  const { data: existing, error: existingError } = await supabase
     .from('note_likes')
-    .select()
+    .select('note_id')
     .eq('user_id', user.id)
     .eq('note_id', noteId)
-    .single()
+    .maybeSingle()
+
+  if (existingError) throw existingError
 
   if (existing) {
-    await supabase.from('note_likes').delete().eq('user_id', user.id).eq('note_id', noteId)
-    const { error } = await supabase.rpc('decrement_likes', { note_id_input: noteId })
+    const { error } = await supabase.from('note_likes').delete().eq('user_id', user.id).eq('note_id', noteId)
     if (error) throw error
   } else {
-    await supabase.from('note_likes').insert({ user_id: user.id, note_id: noteId })
-    const { error } = await supabase.rpc('increment_likes', { note_id_input: noteId })
+    const { error } = await supabase.from('note_likes').insert({ user_id: user.id, note_id: noteId })
     if (error) throw error
   }
 
+  const { count, error: countError } = await supabase
+    .from('note_likes')
+    .select('*', { count: 'exact', head: true })
+    .eq('note_id', noteId)
+  if (countError) throw countError
+
   revalidatePath('/app')
+  return { liked: !existing, likesCount: count ?? 0 }
 }
 
 export async function reportOccupancy(venueId: string, occupancyPct: number) {

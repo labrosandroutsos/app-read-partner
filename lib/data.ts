@@ -91,11 +91,11 @@ export async function getMessages(matchId: string): Promise<Message[]> {
   return data ?? []
 }
 
-export async function getNotes(subjectId?: number): Promise<Note[]> {
+export async function getNotes(userId: string, subjectId?: number): Promise<Note[]> {
   const supabase = await createClient()
   let query = supabase
     .from('notes')
-    .select('*, author:author_id(display_name, avatar_color), subject:subject_id(name, name_en)')
+    .select('*, author:author_id(display_name, avatar_color), subject:subject_id(name, name_en), note_likes(user_id)')
     .order('created_at', { ascending: false })
 
   if (subjectId) {
@@ -103,7 +103,15 @@ export async function getNotes(subjectId?: number): Promise<Note[]> {
   }
 
   const { data } = await query
-  return data ?? []
+  return (data ?? []).map((note) => {
+    const likes = Array.isArray(note.note_likes) ? note.note_likes : []
+    return {
+      ...note,
+      likes_count: likes.length,
+      liked_by_me: likes.some((like: { user_id: string }) => like.user_id === userId),
+      note_likes: undefined,
+    }
+  })
 }
 
 export async function getCoupons(userId: string): Promise<Coupon[]> {

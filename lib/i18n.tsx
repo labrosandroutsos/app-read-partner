@@ -75,6 +75,10 @@ const translations = {
     "notes.upload.file.placeholder": "Επίλεξε αρχείο PDF ή εικόνα",
     "notes.upload.submit": "Ανέβασμα",
     "notes.upload.success": "Οι σημειώσεις ανέβηκαν επιτυχώς!",
+    "notes.upload.error": "Το ανέβασμα απέτυχε. Δοκίμασε ξανά.",
+    "notes.upload.uploading": "Ανέβασμα...",
+    "notes.empty": "Δεν υπάρχουν ακόμη σημειώσεις",
+    "notes.empty.help": "Πάτησε το κουμπί ανεβάσματος για να προσθέσεις τις πρώτες.",
     "notes.likes": "Likes",
     "notes.downloads": "Downloads",
 
@@ -196,6 +200,10 @@ const translations = {
     "notes.upload.file.placeholder": "Select a PDF or image file",
     "notes.upload.submit": "Upload",
     "notes.upload.success": "Notes uploaded successfully!",
+    "notes.upload.error": "Upload failed. Please try again.",
+    "notes.upload.uploading": "Uploading...",
+    "notes.empty": "No notes yet",
+    "notes.empty.help": "Use the upload button to add the first one.",
     "notes.likes": "Likes",
     "notes.downloads": "Downloads",
 
