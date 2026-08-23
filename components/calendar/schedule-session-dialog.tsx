@@ -1,6 +1,6 @@
 "use client"
 
-import { useMemo, useState, useTransition } from "react"
+import { type ReactNode, useEffect, useMemo, useState, useTransition } from "react"
 import { CalendarClock, Check, Loader2, X } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { toast } from "sonner"
@@ -19,6 +19,7 @@ interface ScheduleSessionDialogProps {
   partnerName: string
   venues: Venue[]
   schedule: StudySessionRecord | null
+  trigger?: ReactNode
 }
 
 function localParts(iso?: string | null) {
@@ -31,7 +32,7 @@ function localParts(iso?: string | null) {
   return { date: `${year}-${month}-${day}`, time: `${hours}:${minutes}` }
 }
 
-export function ScheduleSessionDialog({ matchId, currentUserId, partnerName, venues, schedule }: ScheduleSessionDialogProps) {
+export function ScheduleSessionDialog({ matchId, currentUserId, partnerName, venues, schedule, trigger }: ScheduleSessionDialogProps) {
   const { locale } = useTranslation()
   const el = locale === "el"
   const router = useRouter()
@@ -43,6 +44,14 @@ export function ScheduleSessionDialog({ matchId, currentUserId, partnerName, ven
   const [venueId, setVenueId] = useState(schedule?.venue_id ?? "anywhere")
   const [isPending, startTransition] = useTransition()
   const incomingProposal = schedule?.status === "proposed" && schedule.proposed_by !== currentUserId
+
+  useEffect(() => {
+    const nextDefaults = localParts(schedule?.starts_at)
+    setDate(nextDefaults.date)
+    setTime(nextDefaults.time)
+    setDuration(String(schedule?.duration_hours || 2))
+    setVenueId(schedule?.venue_id ?? "anywhere")
+  }, [schedule?.duration_hours, schedule?.starts_at, schedule?.updated_at, schedule?.venue_id])
 
   const propose = () => {
     if (isPending) return
@@ -91,7 +100,7 @@ export function ScheduleSessionDialog({ matchId, currentUserId, partnerName, ven
   return (
     <Dialog open={open} onOpenChange={(next) => !isPending && setOpen(next)}>
       <DialogTrigger asChild>
-        <Button variant="ghost" size="icon" className="h-8 w-8" aria-label={el ? "Προγραμματισμός συνάντησης" : "Schedule study session"}><CalendarClock className="h-4 w-4" /></Button>
+        {trigger ?? <Button variant="ghost" size="icon" className="h-8 w-8" aria-label={el ? "Προγραμματισμός συνάντησης" : "Schedule study session"}><CalendarClock className="h-4 w-4" /></Button>}
       </DialogTrigger>
       <DialogContent className="max-w-[390px]">
         <DialogHeader>

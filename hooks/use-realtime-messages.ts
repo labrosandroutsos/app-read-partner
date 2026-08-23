@@ -1,28 +1,42 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useCallback, useEffect, useState } from "react"
 import { createClient } from "@/lib/supabase/client"
 import type { Message } from "@/lib/types"
 
 export function useRealtimeMessages(matchId: string | null, userId: string) {
   const [messages, setMessages] = useState<Message[]>([])
 
+  const mergeMessages = useCallback((incoming: Message[]) => {
+    setMessages((current) => {
+      const merged = new Map(current.map((message) => [message.id, message]))
+      for (const message of incoming) merged.set(message.id, message)
+      return Array.from(merged.values()).sort((a, b) => a.created_at.localeCompare(b.created_at))
+    })
+  }, [])
+
+  const appendMessage = useCallback((message: Message) => mergeMessages([message]), [mergeMessages])
+
   useEffect(() => {
-    if (!matchId) return
+    if (!matchId) {
+      setMessages([])
+      return
+    }
 
     const supabase = createClient()
+    let active = true
+    setMessages([])
 
-    // Fetch existing messages
-    supabase
-      .from("messages")
-      .select("*")
-      .eq("match_id", matchId)
-      .order("created_at", { ascending: true })
-      .then(({ data }) => {
-        if (data) setMessages(data)
-      })
+    const syncMessages = async () => {
+      const { data } = await supabase
+        .from("messages")
+        .select("*")
+        .eq("match_id", matchId)
+        .order("created_at", { ascending: true })
+      if (active && data) mergeMessages(data)
+    }
 
-    // Subscribe to new messages
+    // Subscribe first, then merge the initial fetch so an incoming event cannot be overwritten.
     const channel = supabase
       .channel(`messages:${matchId}`)
       .on(
@@ -34,16 +48,27 @@ export function useRealtimeMessages(matchId: string | null, userId: string) {
           filter: `match_id=eq.${matchId}`,
         },
         (payload) => {
-          const incoming = payload.new as Message
-          setMessages((prev) => prev.some(message => message.id === incoming.id) ? prev : [...prev, incoming])
+          appendMessage(payload.new as Message)
         }
       )
-      .subscribe()
+      .subscribe((status) => {
+        if (status === "SUBSCRIBED") void syncMessages()
+      })
+
+    void syncMessages()
+    const recoveryTimer = window.setInterval(syncMessages, 4000)
+    const syncWhenVisible = () => {
+      if (document.visibilityState === "visible") void syncMessages()
+    }
+    document.addEventListener("visibilitychange", syncWhenVisible)
 
     return () => {
-      supabase.removeChannel(channel)
+      active = false
+      window.clearInterval(recoveryTimer)
+      document.removeEventListener("visibilitychange", syncWhenVisible)
+      void supabase.removeChannel(channel)
     }
-  }, [matchId, userId])
+  }, [appendMessage, matchId, mergeMessages, userId])
 
-  return messages
+  return { messages, appendMessage }
 }

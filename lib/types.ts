@@ -90,6 +90,23 @@ export interface BlockedUser {
   blocked_at: string
 }
 
+export interface VenueCheckin {
+  id: string
+  venue_id: string
+  user_id: string
+  checked_in_at: string
+  checked_out_at: string | null
+}
+
+export interface VenueManagerDashboardData {
+  assignmentId: string
+  venue: Venue
+  activeCheckins: number
+  upcomingSessions: Pick<StudySessionRecord, 'id' | 'starts_at' | 'ends_at' | 'status' | 'duration_hours'>[]
+  recentCheckins: Pick<VenueCheckin, 'id' | 'checked_in_at' | 'checked_out_at'>[]
+  occupancyHistory: Pick<OccupancyReport, 'id' | 'occupancy_pct' | 'reported_at'>[]
+}
+
 export interface Coupon {
   id: string
   user_id: string

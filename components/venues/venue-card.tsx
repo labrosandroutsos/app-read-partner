@@ -1,13 +1,14 @@
 "use client"
 
-import { MapPin, LogIn } from "lucide-react"
+import { useTransition } from "react"
+import { Loader2, LogIn, LogOut, MapPin } from "lucide-react"
 import { useTranslation } from "@/lib/i18n"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent } from "@/components/ui/card"
 import { OccupancyBar } from "./occupancy-bar"
 import { cn } from "@/lib/utils"
-import { reportOccupancy } from "@/lib/actions"
+import { toggleVenueCheckin } from "@/lib/actions"
 import { toast } from "sonner"
 
 interface VenueCardProps {
@@ -21,10 +22,13 @@ interface VenueCardProps {
     type: string
     distance: number
   }
+  checkedIn: boolean
+  onCheckinChange: (active: boolean) => void
 }
 
-export function VenueCard({ venue }: VenueCardProps) {
-  const { t } = useTranslation()
+export function VenueCard({ venue, checkedIn, onCheckinChange }: VenueCardProps) {
+  const { t, locale } = useTranslation()
+  const [isPending, startTransition] = useTransition()
 
   const occupancyColor =
     venue.occupancy < 50
@@ -33,13 +37,17 @@ export function VenueCard({ venue }: VenueCardProps) {
       ? "text-amber-600 dark:text-amber-400"
       : "text-red-600 dark:text-red-400"
 
-  const handleCheckin = async () => {
-    try {
-      await reportOccupancy(venue.id, venue.occupancy)
-      toast.success("Checked in!")
-    } catch {
-      toast.success("Checked in!")
-    }
+  const handleCheckin = () => {
+    if (isPending) return
+    startTransition(async () => {
+      try {
+        const active = await toggleVenueCheckin(venue.id)
+        onCheckinChange(active)
+        toast.success(active ? (locale === "el" ? "Έκανες check in!" : "Checked in!") : (locale === "el" ? "Έκανες check out." : "Checked out."))
+      } catch (error) {
+        toast.error(error instanceof Error ? error.message : (locale === "el" ? "Το check-in απέτυχε." : "Check-in failed."))
+      }
+    })
   }
 
   return (
@@ -76,10 +84,10 @@ export function VenueCard({ venue }: VenueCardProps) {
           <OccupancyBar percentage={venue.occupancy} />
         </div>
 
-        {venue.is_open && (
-          <Button variant="outline" size="sm" className="w-full text-xs" onClick={handleCheckin}>
-            <LogIn className="h-3.5 w-3.5 mr-1.5" />
-            {t("venues.checkin")}
+        {(venue.is_open || checkedIn) && (
+          <Button variant="outline" size="sm" className="w-full text-xs" onClick={handleCheckin} disabled={isPending}>
+            {isPending ? <Loader2 className="h-3.5 w-3.5 mr-1.5 animate-spin" /> : checkedIn ? <LogOut className="h-3.5 w-3.5 mr-1.5" /> : <LogIn className="h-3.5 w-3.5 mr-1.5" />}
+            {checkedIn ? (locale === "el" ? "Check out" : "Check out") : t("venues.checkin")}
           </Button>
         )}
       </CardContent>

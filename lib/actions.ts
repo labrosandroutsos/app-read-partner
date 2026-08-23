@@ -602,6 +602,44 @@ export async function reportOccupancy(venueId: string, occupancyPct: number) {
   revalidatePath('/app')
 }
 
+export async function toggleVenueCheckin(venueId: string) {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) throw new Error('Not authenticated')
+  assertUuid(venueId, 'venue')
+
+  const { data, error } = await supabase.rpc('toggle_venue_checkin', { p_venue_id: venueId })
+  if (error) throw error
+  revalidatePath('/app')
+  revalidatePath('/venue-manager')
+  return Boolean(data)
+}
+
+export async function updateManagedVenue(formData: {
+  isOpen: boolean
+  occupancy: number
+  discount: number | null
+}) {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) throw new Error('Not authenticated')
+  if (!Number.isInteger(formData.occupancy) || formData.occupancy < 0 || formData.occupancy > 100) {
+    throw new Error('Invalid occupancy')
+  }
+  if (formData.discount !== null && (!Number.isInteger(formData.discount) || formData.discount < 0 || formData.discount > 100)) {
+    throw new Error('Invalid discount')
+  }
+
+  const { error } = await supabase.rpc('update_managed_venue', {
+    p_is_open: formData.isOpen,
+    p_occupancy: formData.occupancy,
+    p_discount: formData.discount,
+  })
+  if (error) throw error
+  revalidatePath('/app')
+  revalidatePath('/venue-manager')
+}
+
 export async function redeemCoupon(couponId: string) {
   const supabase = await createClient()
   const { error } = await supabase

@@ -1,7 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import type {
   Profile, Subject, Venue, Match, Message, Note, Coupon,
-  StudySessionRecord, ConversationPreview, BlockedUser
+  StudySessionRecord, ConversationPreview, BlockedUser, VenueManagerDashboardData
 } from '@/lib/types'
 
 async function getBlockedUserIdSet(userId: string) {
@@ -34,6 +34,77 @@ export async function getVenues(): Promise<Venue[]> {
   const supabase = await createClient()
   const { data } = await supabase.from('venues').select('*').order('distance')
   return data ?? []
+}
+
+export async function getActiveVenueCheckin(userId: string): Promise<string | null> {
+  const supabase = await createClient()
+  const { data } = await supabase
+    .from('venue_checkins')
+    .select('venue_id')
+    .eq('user_id', userId)
+    .is('checked_out_at', null)
+    .maybeSingle()
+  return data?.venue_id ?? null
+}
+
+export async function getVenueManagerAssignment(userId: string) {
+  const supabase = await createClient()
+  const { data } = await supabase
+    .from('venue_managers')
+    .select('id, venue_id')
+    .eq('user_id', userId)
+    .maybeSingle()
+  return data ?? null
+}
+
+export async function getVenueManagerDashboard(userId: string): Promise<VenueManagerDashboardData | null> {
+  const supabase = await createClient()
+  const { data: assignment } = await supabase
+    .from('venue_managers')
+    .select('id, venue_id, venue:venue_id(*)')
+    .eq('user_id', userId)
+    .maybeSingle()
+
+  const joinedVenue = assignment?.venue
+  const venue = (Array.isArray(joinedVenue) ? joinedVenue[0] : joinedVenue) as Venue | null | undefined
+  if (!assignment || !venue) return null
+
+  const [{ count: activeCheckins }, { data: upcomingSessions }, { data: recentCheckins }, { data: occupancyHistory }] = await Promise.all([
+    supabase
+      .from('venue_checkins')
+      .select('*', { count: 'exact', head: true })
+      .eq('venue_id', assignment.venue_id)
+      .is('checked_out_at', null),
+    supabase
+      .from('study_sessions')
+      .select('id, starts_at, ends_at, status, duration_hours')
+      .eq('venue_id', assignment.venue_id)
+      .in('status', ['proposed', 'confirmed'])
+      .gte('ends_at', new Date().toISOString())
+      .order('starts_at', { ascending: true })
+      .limit(12),
+    supabase
+      .from('venue_checkins')
+      .select('id, checked_in_at, checked_out_at')
+      .eq('venue_id', assignment.venue_id)
+      .order('checked_in_at', { ascending: false })
+      .limit(8),
+    supabase
+      .from('occupancy_reports')
+      .select('id, occupancy_pct, reported_at')
+      .eq('venue_id', assignment.venue_id)
+      .order('reported_at', { ascending: false })
+      .limit(12),
+  ])
+
+  return {
+    assignmentId: assignment.id,
+    venue,
+    activeCheckins: activeCheckins ?? 0,
+    upcomingSessions: upcomingSessions ?? [],
+    recentCheckins: recentCheckins ?? [],
+    occupancyHistory: occupancyHistory ?? [],
+  }
 }
 
 export async function getConversations(userId: string): Promise<ConversationPreview[]> {

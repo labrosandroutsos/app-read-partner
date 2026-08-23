@@ -10,12 +10,14 @@ import { ScrollArea } from "@/components/ui/scroll-area"
 import { cn } from "@/lib/utils"
 import { sendMessage } from "@/lib/actions"
 import { useRealtimeMessages } from "@/hooks/use-realtime-messages"
+import { useRealtimeSchedule } from "@/hooks/use-realtime-schedule"
 import { toast } from "sonner"
 import type { Conversation, Message as MockMessage } from "@/lib/mock-data"
 import { getStudentById } from "@/lib/mock-data"
 import type { Profile, StudySessionRecord, Subject, Venue } from "@/lib/types"
 import { UserSafetyMenu } from "@/components/safety/user-safety-menu"
 import { ScheduleSessionDialog } from "@/components/calendar/schedule-session-dialog"
+import { StudyProposalCard } from "@/components/chat/study-proposal-card"
 
 interface ChatViewProps {
   matchId?: string
@@ -38,7 +40,8 @@ export function ChatView({ matchId, partner, subject, venue, userId, onBack, moc
   const scrollRef = useRef<HTMLDivElement>(null)
 
   // Real-time messages for DB conversations
-  const realtimeMessages = useRealtimeMessages(matchId ?? null, userId)
+  const { messages: realtimeMessages, appendMessage } = useRealtimeMessages(matchId ?? null, userId)
+  const liveSchedule = useRealtimeSchedule(matchId ?? null, schedule)
 
   // Mock fallback
   const mockPartner = mockConversation ? getStudentById(mockConversation.partnerId) : null
@@ -67,7 +70,8 @@ export function ChatView({ matchId, partner, subject, venue, userId, onBack, moc
 
     try {
       if (isReal && matchId) {
-        await sendMessage(matchId, message)
+        const sent = await sendMessage(matchId, message)
+        appendMessage(sent)
       } else {
         const newMsg: MockMessage = {
           id: `msg-${Date.now()}`,
@@ -95,7 +99,8 @@ export function ChatView({ matchId, partner, subject, venue, userId, onBack, moc
 
     try {
       if (isReal && matchId) {
-        await sendMessage(matchId, text)
+        const sent = await sendMessage(matchId, text)
+        appendMessage(sent)
       } else {
         const newMsg: MockMessage = {
           id: `msg-${Date.now()}`,
@@ -157,7 +162,7 @@ export function ChatView({ matchId, partner, subject, venue, userId, onBack, moc
           </div>
         </div>
         {isReal && matchId && partner && (
-          <ScheduleSessionDialog matchId={matchId} currentUserId={userId} partnerName={displayName} venues={venues} schedule={schedule} />
+          <ScheduleSessionDialog matchId={matchId} currentUserId={userId} partnerName={displayName} venues={venues} schedule={liveSchedule} />
         )}
         {isReal && partner && (
           <UserSafetyMenu
@@ -169,6 +174,10 @@ export function ChatView({ matchId, partner, subject, venue, userId, onBack, moc
           />
         )}
       </div>
+
+      {isReal && matchId && liveSchedule && (liveSchedule.status === "proposed" || liveSchedule.status === "confirmed") && (
+        <StudyProposalCard matchId={matchId} currentUserId={userId} partnerName={displayName} venues={venues} schedule={liveSchedule} />
+      )}
 
       <ScrollArea className="flex-1 px-4 py-3" ref={scrollRef}>
         <div className="flex flex-col gap-2">

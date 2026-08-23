@@ -27,6 +27,7 @@ interface AppShellClientProps {
   studyStats: { subject: string; hours: number }[]
   pastPartners: { profile: Profile; sessions: number }[]
   blockedUsers: BlockedUser[]
+  activeVenueId: string | null
 }
 
 export function AppShellClient({
@@ -43,6 +44,7 @@ export function AppShellClient({
   studyStats,
   pastPartners,
   blockedUsers,
+  activeVenueId,
 }: AppShellClientProps) {
   const [activeTab, setActiveTab] = useState<TabId>("partner")
   const [mounted, setMounted] = useState(false)
@@ -108,7 +110,7 @@ export function AppShellClient({
           />
         )}
         {activeTab === "venues" && (
-          <VenuesScreen venues={venues} />
+          <VenuesScreen venues={venues} initialActiveVenueId={activeVenueId} />
         )}
         {activeTab === "profile" && (
           <ProfileScreen
