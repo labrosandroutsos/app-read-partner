@@ -160,7 +160,13 @@ export function ChatView({ matchId, partner, subject, venue, userId, onBack, moc
           <ScheduleSessionDialog matchId={matchId} currentUserId={userId} partnerName={displayName} venues={venues} schedule={schedule} />
         )}
         {isReal && partner && (
-          <UserSafetyMenu targetUserId={partner.id} targetName={displayName} onBlocked={onBack} />
+          <UserSafetyMenu
+            targetUserId={partner.id}
+            targetName={displayName}
+            matchId={matchId}
+            onBlocked={onBack}
+            onMatchEnded={onBack}
+          />
         )}
       </div>
 

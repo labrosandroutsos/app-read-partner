@@ -218,7 +218,7 @@ export async function getPastPartners(userId: string) {
     .from('matches')
     .select('user_a, user_b')
     .or(`user_a.eq.${userId},user_b.eq.${userId}`)
-    .eq('status', 'accepted')
+    .in('status', ['accepted', 'ended'])
 
   if (!matches) return []
 

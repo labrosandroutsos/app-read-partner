@@ -155,7 +155,7 @@ export async function findMatchCandidates(sessionId: string): Promise<PartnerCan
     query,
     supabase
       .from('matches')
-      .select('user_a, user_b, status')
+      .select('user_a, user_b, status, ended_at')
       .or(`user_a.eq.${user.id},user_b.eq.${user.id}`),
     supabase
       .from('user_blocks')
@@ -174,7 +174,12 @@ export async function findMatchCandidates(sessionId: string): Promise<PartnerCan
   for (const match of existingMatches ?? []) {
     const partnerId = match.user_a === user.id ? match.user_b : match.user_a
     const isOutgoing = match.user_a === user.id
-    if (isOutgoing || match.status === 'accepted') hiddenPartnerIds.add(partnerId)
+    const cooldownActive = match.status === 'ended'
+      && match.ended_at
+      && new Date(match.ended_at).getTime() > Date.now() - 5 * 60 * 1000
+    if (match.status === 'accepted' || (match.status === 'pending' && isOutgoing) || cooldownActive) {
+      hiddenPartnerIds.add(partnerId)
+    }
   }
 
   const uniqueCandidates = new Map<string, PartnerCandidate>()
@@ -325,6 +330,19 @@ export async function markConversationRead(matchId: string) {
   assertUuid(matchId, 'match')
 
   const { error } = await supabase.rpc('mark_match_read', { p_match_id: matchId })
+  if (error) throw error
+
+  revalidatePath('/app')
+}
+
+export async function endMatch(matchId: string) {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) throw new Error('Not authenticated')
+
+  assertUuid(matchId, 'match')
+
+  const { error } = await supabase.rpc('end_match', { p_match_id: matchId })
   if (error) throw error
 
   revalidatePath('/app')

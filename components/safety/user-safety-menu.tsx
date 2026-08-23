@@ -1,10 +1,10 @@
 "use client"
 
 import { useState, useTransition } from "react"
-import { Ban, EllipsisVertical, Flag, Loader2 } from "lucide-react"
+import { Ban, EllipsisVertical, Flag, Loader2, UserRoundX } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { toast } from "sonner"
-import { blockUser, reportUser } from "@/lib/actions"
+import { blockUser, endMatch, reportUser } from "@/lib/actions"
 import { useTranslation } from "@/lib/i18n"
 import { Button } from "@/components/ui/button"
 import {
@@ -22,14 +22,17 @@ import { Textarea } from "@/components/ui/textarea"
 interface UserSafetyMenuProps {
   targetUserId: string
   targetName: string
+  matchId?: string
   onBlocked?: () => void
+  onMatchEnded?: () => void
 }
 
-export function UserSafetyMenu({ targetUserId, targetName, onBlocked }: UserSafetyMenuProps) {
+export function UserSafetyMenu({ targetUserId, targetName, matchId, onBlocked, onMatchEnded }: UserSafetyMenuProps) {
   const { locale } = useTranslation()
   const router = useRouter()
   const [reportOpen, setReportOpen] = useState(false)
   const [blockOpen, setBlockOpen] = useState(false)
+  const [endMatchOpen, setEndMatchOpen] = useState(false)
   const [reason, setReason] = useState("")
   const [details, setDetails] = useState("")
   const [isPending, startTransition] = useTransition()
@@ -65,6 +68,21 @@ export function UserSafetyMenu({ targetUserId, targetName, onBlocked }: UserSafe
     })
   }
 
+  const confirmEndMatch = () => {
+    if (!matchId || isPending) return
+    startTransition(async () => {
+      try {
+        await endMatch(matchId)
+        setEndMatchOpen(false)
+        onMatchEnded?.()
+        router.refresh()
+        toast.success(el ? "Το match τερματίστηκε." : "Match ended.")
+      } catch (error) {
+        toast.error(error instanceof Error ? error.message : (el ? "Δεν ήταν δυνατός ο τερματισμός του match." : "We couldn't end the match."))
+      }
+    })
+  }
+
   return (
     <>
       <DropdownMenu>
@@ -74,6 +92,11 @@ export function UserSafetyMenu({ targetUserId, targetName, onBlocked }: UserSafe
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
+          {matchId && (
+            <DropdownMenuItem onSelect={() => setEndMatchOpen(true)}>
+              <UserRoundX /> {el ? "Τερματισμός match" : "End match"}
+            </DropdownMenuItem>
+          )}
           <DropdownMenuItem onSelect={() => setReportOpen(true)}>
             <Flag /> {el ? "Αναφορά χρήστη" : "Report user"}
           </DropdownMenuItem>
@@ -116,6 +139,26 @@ export function UserSafetyMenu({ targetUserId, targetName, onBlocked }: UserSafe
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      <AlertDialog open={endMatchOpen} onOpenChange={(open) => !isPending && setEndMatchOpen(open)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{el ? `Τερματισμός match με ${targetName};` : `End match with ${targetName}?`}</AlertDialogTitle>
+            <AlertDialogDescription>
+              {el
+                ? "Η συνομιλία θα κλείσει και οι ενεργές συναντήσεις θα ακυρωθούν. Θα μπορείτε να ξαναβρεθείτε στην αναζήτηση μετά από 5 λεπτά."
+                : "The chat will close and active study sessions will be cancelled. You can discover each other again after 5 minutes."}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>{el ? "Ακύρωση" : "Cancel"}</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmEndMatch} className="bg-destructive text-white hover:bg-destructive/90">
+              {isPending && <Loader2 className="h-4 w-4 animate-spin" />}
+              {el ? "Τερματισμός match" : "End match"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
       <AlertDialog open={blockOpen} onOpenChange={(open) => !isPending && setBlockOpen(open)}>
         <AlertDialogContent>

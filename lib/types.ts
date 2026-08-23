@@ -51,10 +51,12 @@ export interface Match {
   session_b: string | null
   subject_id: number | null
   venue_id: string | null
-  status: 'pending' | 'accepted' | 'declined'
+  status: 'pending' | 'accepted' | 'declined' | 'ended'
   matched_at: string
   user_a_last_read_at: string | null
   user_b_last_read_at: string | null
+  ended_at: string | null
+  ended_by: string | null
 }
 
 export interface Message {
