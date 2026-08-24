@@ -59,52 +59,12 @@ export async function getVenueManagerAssignment(userId: string) {
 
 export async function getVenueManagerDashboard(userId: string): Promise<VenueManagerDashboardData | null> {
   const supabase = await createClient()
-  const { data: assignment } = await supabase
-    .from('venue_managers')
-    .select('id, venue_id, venue:venue_id(*)')
-    .eq('user_id', userId)
-    .maybeSingle()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user || user.id !== userId) return null
 
-  const joinedVenue = assignment?.venue
-  const venue = (Array.isArray(joinedVenue) ? joinedVenue[0] : joinedVenue) as Venue | null | undefined
-  if (!assignment || !venue) return null
-
-  const [{ count: activeCheckins }, { data: upcomingSessions }, { data: recentCheckins }, { data: occupancyHistory }] = await Promise.all([
-    supabase
-      .from('venue_checkins')
-      .select('*', { count: 'exact', head: true })
-      .eq('venue_id', assignment.venue_id)
-      .is('checked_out_at', null),
-    supabase
-      .from('study_sessions')
-      .select('id, starts_at, ends_at, status, duration_hours')
-      .eq('venue_id', assignment.venue_id)
-      .in('status', ['proposed', 'confirmed'])
-      .gte('ends_at', new Date().toISOString())
-      .order('starts_at', { ascending: true })
-      .limit(12),
-    supabase
-      .from('venue_checkins')
-      .select('id, checked_in_at, checked_out_at')
-      .eq('venue_id', assignment.venue_id)
-      .order('checked_in_at', { ascending: false })
-      .limit(8),
-    supabase
-      .from('occupancy_reports')
-      .select('id, occupancy_pct, reported_at')
-      .eq('venue_id', assignment.venue_id)
-      .order('reported_at', { ascending: false })
-      .limit(12),
-  ])
-
-  return {
-    assignmentId: assignment.id,
-    venue,
-    activeCheckins: activeCheckins ?? 0,
-    upcomingSessions: upcomingSessions ?? [],
-    recentCheckins: recentCheckins ?? [],
-    occupancyHistory: occupancyHistory ?? [],
-  }
+  const { data, error } = await supabase.rpc('get_managed_venue_dashboard')
+  if (error) return null
+  return data as VenueManagerDashboardData | null
 }
 
 export async function getConversations(userId: string): Promise<ConversationPreview[]> {

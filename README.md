@@ -13,9 +13,14 @@ Read Partner is a bilingual, mobile-first web app for finding university study p
 Useful checks:
 
 ```bash
+npm run test:run
 npm run typecheck
 npm run build
 ```
+
+Every feature should add or update tests for its business rules. Database and RLS changes also need an ordered migration plus an audit query; critical sign-in, matching, chat, upload, and scheduling journeys should be checked in the browser. The goal is risk-based coverage, not testing purely visual markup or chasing an arbitrary 100% number.
+
+After applying `scripts/012_privacy_and_rls_hardening.sql`, run `scripts/rls_privacy_audit.sql` in the Supabase SQL editor. A successful audit returns `RLS privacy audit passed`.
 
 The project path must not contain a literal backslash (`\\`). Node's ESM resolver encodes it as `%5C`, which prevents Next.js from starting. Rename the current parent folder from `Tzo_project\\` to `Tzo_project` before running the app from its permanent location.
 
@@ -48,3 +53,7 @@ To enable Google sign-in:
 4. Add the Google client ID and secret to the Supabase Google provider and enable it.
 
 For production, add the deployed origin in Google and the deployed callback route (`https://<domain>/auth/callback`) to the Supabase redirect allow list.
+
+## Privacy setup
+
+Set `NEXT_PUBLIC_PRIVACY_CONTACT_EMAIL` to the controller's real privacy contact before deployment. Optional Vercel analytics is not loaded until a user opts in; essential authentication storage remains available when analytics is rejected. Review the included privacy and cookie text with the final controller identity, retention schedule, processor agreements, and legal adviser before public launch.

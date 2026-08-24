@@ -1,8 +1,8 @@
 import type { Metadata, Viewport } from 'next'
-import { Analytics } from '@vercel/analytics/next'
 import { ThemeProvider } from '@/components/theme-provider'
 import { I18nProvider } from '@/lib/i18n'
 import { Toaster } from '@/components/ui/sonner'
+import { PrivacyConsentManager } from '@/components/privacy/privacy-consent'
 import './globals.css'
 
 export const metadata: Metadata = {
@@ -48,9 +48,9 @@ export default function RootLayout({
           <I18nProvider>
             {children}
             <Toaster position="top-center" />
+            <PrivacyConsentManager />
           </I18nProvider>
         </ThemeProvider>
-        <Analytics />
       </body>
     </html>
   )

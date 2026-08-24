@@ -5,7 +5,6 @@ import { List, Map } from "lucide-react"
 import { useTranslation } from "@/lib/i18n"
 import { Button } from "@/components/ui/button"
 import { VenueCard } from "./venue-card"
-import { useRealtimeOccupancy } from "@/hooks/use-realtime-occupancy"
 import { useRealtimeVenues } from "@/hooks/use-realtime-venues"
 import { cn } from "@/lib/utils"
 import type { Venue as DBVenue } from "@/lib/types"
@@ -31,13 +30,6 @@ export function VenuesScreen({ venues: dbVenues, initialActiveVenueId = null }: 
   const venueList = useRealtimeVenues(initialVenueList)
 
   const sortedVenues = [...venueList].sort((a, b) => a.distance - b.distance)
-  const venueIds = sortedVenues.map(v => v.id)
-  const occupancyUpdates = useRealtimeOccupancy(venueIds)
-
-  const venuesWithLiveOccupancy = sortedVenues.map(v => ({
-    ...v,
-    occupancy: occupancyUpdates.get(v.id) ?? v.occupancy,
-  }))
 
   return (
     <div>
@@ -67,7 +59,7 @@ export function VenuesScreen({ venues: dbVenues, initialActiveVenueId = null }: 
 
       {view === "list" ? (
         <div className="px-4 pb-4 flex flex-col gap-3">
-          {venuesWithLiveOccupancy.map((venue) => (
+          {sortedVenues.map((venue) => (
             <VenueCard key={venue.id} venue={venue} checkedIn={activeVenueId === venue.id} onCheckinChange={(active) => setActiveVenueId(active ? venue.id : null)} />
           ))}
         </div>

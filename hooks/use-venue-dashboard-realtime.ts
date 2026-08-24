@@ -2,29 +2,21 @@
 
 import { useEffect } from "react"
 import { useRouter } from "next/navigation"
-import { createClient } from "@/lib/supabase/client"
 
 export function useVenueDashboardRealtime(venueId: string) {
   const router = useRouter()
 
   useEffect(() => {
-    const supabase = createClient()
-    let refreshTimer: number | undefined
-    const refresh = () => {
-      window.clearTimeout(refreshTimer)
-      refreshTimer = window.setTimeout(() => router.refresh(), 250)
+    const refresh = () => router.refresh()
+    const timer = window.setInterval(refresh, 5000)
+    const refreshWhenVisible = () => {
+      if (document.visibilityState === "visible") refresh()
     }
-
-    const channel = supabase
-      .channel(`venue-dashboard:${venueId}`)
-      .on("postgres_changes", { event: "*", schema: "public", table: "venue_checkins", filter: `venue_id=eq.${venueId}` }, refresh)
-      .on("postgres_changes", { event: "*", schema: "public", table: "study_sessions", filter: `venue_id=eq.${venueId}` }, refresh)
-      .on("postgres_changes", { event: "INSERT", schema: "public", table: "occupancy_reports", filter: `venue_id=eq.${venueId}` }, refresh)
-      .subscribe()
+    document.addEventListener("visibilitychange", refreshWhenVisible)
 
     return () => {
-      window.clearTimeout(refreshTimer)
-      void supabase.removeChannel(channel)
+      window.clearInterval(timer)
+      document.removeEventListener("visibilitychange", refreshWhenVisible)
     }
   }, [router, venueId])
 }

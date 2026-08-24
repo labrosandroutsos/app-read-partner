@@ -4,6 +4,7 @@ import { createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 import type { PartnerCandidate } from '@/lib/types'
+import { calculateMatchCompatibility } from '@/lib/match-compatibility'
 
 const ALLOWED_DURATIONS = new Set(['1h', '2h', '4h'])
 const ALLOWED_STUDY_STYLES = new Set(['quiet', 'social', 'either'])
@@ -133,115 +134,49 @@ export async function findMatchCandidates(sessionId: string): Promise<PartnerCan
     .eq('id', user.id)
     .maybeSingle()
 
-  let query = supabase
-    .from('sessions')
-    .select('*, profiles:user_id(*), venues:venue_id(distance)')
-    .eq('planned_date', ownSession.planned_date)
-    .eq('subject_id', ownSession.subject_id)
-    .neq('user_id', user.id)
-    .eq('status', 'active')
-    .gt('expires_at', new Date().toISOString())
-    .order('created_at', { ascending: false })
-
-  if (ownSession.planned_start && ownSession.planned_end) {
-    query = query.lt('planned_start', ownSession.planned_end).gt('planned_end', ownSession.planned_start)
-  }
-
-  const [
-    { data: sessions, error: sessionsError },
-    { data: existingMatches, error: matchesError },
-    { data: blocks, error: blocksError },
-  ] = await Promise.all([
-    query,
-    supabase
-      .from('matches')
-      .select('user_a, user_b, status, ended_at')
-      .or(`user_a.eq.${user.id},user_b.eq.${user.id}`),
-    supabase
-      .from('user_blocks')
-      .select('blocker_id, blocked_id')
-      .or(`blocker_id.eq.${user.id},blocked_id.eq.${user.id}`),
-  ])
-
-  if (sessionsError) throw sessionsError
-  if (matchesError) throw matchesError
-  if (blocksError && blocksError.code !== 'PGRST205') throw blocksError
-
-  const hiddenPartnerIds = new Set<string>()
-  for (const block of blocks ?? []) {
-    hiddenPartnerIds.add(block.blocker_id === user.id ? block.blocked_id : block.blocker_id)
-  }
-  for (const match of existingMatches ?? []) {
-    const partnerId = match.user_a === user.id ? match.user_b : match.user_a
-    const isOutgoing = match.user_a === user.id
-    const cooldownActive = match.status === 'ended'
-      && match.ended_at
-      && new Date(match.ended_at).getTime() > Date.now() - 5 * 60 * 1000
-    if (match.status === 'accepted' || (match.status === 'pending' && isOutgoing) || cooldownActive) {
-      hiddenPartnerIds.add(partnerId)
-    }
-  }
+  const { data: candidates, error: candidatesError } = await supabase.rpc('find_match_candidates_private', {
+    p_session_id: sessionId,
+  })
+  if (candidatesError) throw candidatesError
 
   const uniqueCandidates = new Map<string, PartnerCandidate>()
-  for (const session of sessions ?? []) {
-    const profile = session.profiles as {
-      id: string
-      display_name: string | null
-      degree: string | null
-      semester: number | null
-      subjects: string[] | null
-      avatar_color: string | null
-    } | null
+  for (const candidate of candidates ?? []) {
+    if (uniqueCandidates.has(candidate.candidate_user_id)) continue
+    const compatibility = calculateMatchCompatibility({
+      ownStart: ownSession.planned_start ?? `${ownSession.planned_date}T12:00:00`,
+      ownEnd: ownSession.planned_end ?? `${ownSession.planned_date}T14:00:00`,
+      candidateStart: candidate.planned_start,
+      candidateEnd: candidate.planned_end,
+      ownStudyStyle: ownSession.study_style ?? 'either',
+      candidateStudyStyle: candidate.study_style ?? 'either',
+      ownLanguage: ownSession.language ?? 'either',
+      candidateLanguage: candidate.language ?? 'either',
+      ownVenueId: ownSession.venue_id,
+      candidateVenueId: candidate.venue_id,
+      ownSemester: ownProfile?.semester ?? 1,
+      candidateSemester: candidate.semester ?? 1,
+      candidateDistanceKm: Number(candidate.distance) || 0,
+      maximumDistanceKm: Number(ownSession.max_distance_km ?? 5),
+    })
+    if (!compatibility) continue
 
-    if (!profile || hiddenPartnerIds.has(profile.id) || uniqueCandidates.has(profile.id)) continue
-
-    const venue = session.venues as { distance: number | null } | null
-    if (venue?.distance != null && venue.distance > Number(ownSession.max_distance_km ?? 5)) continue
-    const ownStart = new Date(ownSession.planned_start ?? `${ownSession.planned_date}T12:00:00`).getTime()
-    const ownEnd = new Date(ownSession.planned_end ?? `${ownSession.planned_date}T14:00:00`).getTime()
-    const candidateStart = new Date(session.planned_start ?? `${session.planned_date}T12:00:00`).getTime()
-    const candidateEnd = new Date(session.planned_end ?? `${session.planned_date}T14:00:00`).getTime()
-    const overlapMs = Math.max(0, Math.min(ownEnd, candidateEnd) - Math.max(ownStart, candidateStart))
-    const ownDurationMs = Math.max(1, ownEnd - ownStart)
-    const timeOverlap = Math.round(Math.min(100, (overlapMs / ownDurationMs) * 100))
-    if (timeOverlap < 25) continue
-
-    const stylesCompatible = ownSession.study_style === 'either' || session.study_style === 'either' || ownSession.study_style === session.study_style
-    const languagesCompatible = ownSession.language === 'either' || session.language === 'either' || ownSession.language === session.language
-    const sameVenue = ownSession.venue_id && session.venue_id && ownSession.venue_id === session.venue_id
-    const flexibleVenue = !ownSession.venue_id || !session.venue_id
-    const venueScore = sameVenue ? 100 : flexibleVenue ? 75 : 35
-    const styleScore = stylesCompatible ? 100 : 40
-    const languageScore = languagesCompatible ? 100 : 25
-    const semesterDifference = Math.abs((profile.semester || 1) - (ownProfile?.semester || 1))
-    const semesterScore = Math.max(40, 100 - semesterDifference * 10)
-    const compatibilityScore = Math.round(
-      timeOverlap * 0.45 + venueScore * 0.2 + styleScore * 0.15 + languageScore * 0.1 + semesterScore * 0.1
-    )
-    const compatibilityReasons = [
-      `${timeOverlap}% time overlap`,
-      sameVenue ? 'Same study space' : flexibleVenue ? 'Flexible study space' : 'Different preferred spaces',
-      stylesCompatible ? 'Compatible study style' : 'Different study styles',
-      languagesCompatible ? 'Compatible language' : 'Different languages',
-    ]
-
-    uniqueCandidates.set(profile.id, {
-      id: profile.id,
-      sessionId: session.id,
-      name: profile.display_name || 'Student',
-      initials: (profile.display_name || 'S').slice(0, 2).toUpperCase(),
-      degree: profile.degree || '',
-      semester: profile.semester || 1,
-      subjects: profile.subjects?.length ? profile.subjects : [String(session.subject_id)],
-      avatarColor: profile.avatar_color || 'bg-blue-500',
-      distance: venue?.distance ?? 0,
-      timeOverlap,
-      compatibilityScore,
-      compatibilityReasons,
-      plannedStart: session.planned_start ?? null,
-      plannedEnd: session.planned_end ?? null,
-      studyStyle: session.study_style ?? 'either',
-      language: session.language ?? 'either',
+    uniqueCandidates.set(candidate.candidate_user_id, {
+      id: candidate.candidate_user_id,
+      sessionId: candidate.candidate_session_id,
+      name: candidate.display_name || 'Student',
+      initials: (candidate.display_name || 'S').slice(0, 2).toUpperCase(),
+      degree: candidate.degree || '',
+      semester: candidate.semester || 1,
+      subjects: candidate.subjects?.length ? candidate.subjects : [String(ownSession.subject_id)],
+      avatarColor: candidate.avatar_color || 'bg-blue-500',
+      distance: Number(candidate.distance) || 0,
+      timeOverlap: compatibility.timeOverlap,
+      compatibilityScore: compatibility.compatibilityScore,
+      compatibilityReasons: compatibility.compatibilityReasons,
+      plannedStart: candidate.planned_start ?? null,
+      plannedEnd: candidate.planned_end ?? null,
+      studyStyle: candidate.study_style ?? 'either',
+      language: candidate.language ?? 'either',
     })
   }
 
