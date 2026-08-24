@@ -510,16 +510,126 @@ export async function reportUser(reportedUserId: string, reason: string, details
   if (reportedUserId === user.id) throw new Error('You cannot report yourself')
   validateReport(reason, details)
 
-  const { error } = await supabase
-    .from('user_reports')
-    .upsert({
-      reporter_id: user.id,
-      reported_id: reportedUserId,
-      reason,
-      details: details.trim() || null,
-      status: 'open',
-    }, { onConflict: 'reporter_id,reported_id' })
+  const { error } = await supabase.rpc('report_user', {
+    p_reported_user_id: reportedUserId,
+    p_reason: reason,
+    p_details: details.trim() || null,
+  })
   if (error) throw error
+}
+
+export async function moderateNoteReport(reportId: string, decision: 'hide' | 'restore' | 'dismiss') {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) throw new Error('Not authenticated')
+  assertUuid(reportId, 'report')
+  if (!['hide', 'restore', 'dismiss'].includes(decision)) throw new Error('Invalid moderation decision')
+  const { error } = await supabase.rpc('moderate_note_report', { p_report_id: reportId, p_decision: decision })
+  if (error) throw error
+  revalidatePath('/moderator')
+  revalidatePath('/admin')
+  revalidatePath('/app')
+}
+
+export async function resolveUserReport(reportId: string, decision: 'reviewed' | 'dismissed') {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) throw new Error('Not authenticated')
+  assertUuid(reportId, 'report')
+  const { error } = await supabase.rpc('resolve_user_report', { p_report_id: reportId, p_decision: decision })
+  if (error) throw error
+  revalidatePath('/moderator')
+  revalidatePath('/admin')
+}
+
+export async function setUserSuspension(formData: {
+  userId: string
+  suspended: boolean
+  reason?: string
+  suspendedUntil?: string | null
+}) {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) throw new Error('Not authenticated')
+  assertUuid(formData.userId, 'user')
+  const reason = formData.reason?.trim() || null
+  if (formData.suspended && (!reason || reason.length < 3 || reason.length > 500)) throw new Error('A valid suspension reason is required')
+  const until = formData.suspendedUntil ? new Date(formData.suspendedUntil) : null
+  if (until && (!Number.isFinite(until.getTime()) || until.getTime() <= Date.now())) throw new Error('Invalid suspension end')
+  const { error } = await supabase.rpc('set_user_suspension', {
+    p_user_id: formData.userId,
+    p_suspended: formData.suspended,
+    p_reason: reason,
+    p_suspended_until: until?.toISOString() ?? null,
+  })
+  if (error) throw error
+  revalidatePath('/moderator')
+  revalidatePath('/admin')
+  revalidatePath('/app')
+}
+
+export async function adminSetUserRole(userId: string, role: 'moderator' | 'admin' | null) {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) throw new Error('Not authenticated')
+  assertUuid(userId, 'user')
+  const { error } = await supabase.rpc('admin_set_user_role', { p_user_id: userId, p_role: role })
+  if (error) throw error
+  revalidatePath('/admin')
+  revalidatePath('/moderator')
+  revalidatePath('/app')
+}
+
+export async function adminAssignVenueManager(userId: string, venueId: string | null) {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) throw new Error('Not authenticated')
+  assertUuid(userId, 'user')
+  if (venueId) assertUuid(venueId, 'venue')
+  const { error } = await supabase.rpc('admin_assign_venue_manager', { p_user_id: userId, p_venue_id: venueId })
+  if (error) throw error
+  revalidatePath('/admin')
+  revalidatePath('/venue-manager')
+  revalidatePath('/app')
+}
+
+export async function adminUpsertVenue(formData: {
+  venueId?: string | null
+  name: string
+  address: string
+  type: string
+  distance: number
+}) {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) throw new Error('Not authenticated')
+  if (formData.venueId) assertUuid(formData.venueId, 'venue')
+  const name = formData.name.trim()
+  if (name.length < 2 || name.length > 120) throw new Error('Invalid venue name')
+  if (!Number.isFinite(formData.distance) || formData.distance < 0 || formData.distance > 100) throw new Error('Invalid venue distance')
+  const { error } = await supabase.rpc('admin_upsert_venue', {
+    p_venue_id: formData.venueId ?? null,
+    p_name: name,
+    p_address: formData.address.trim(),
+    p_type: formData.type.trim(),
+    p_distance: formData.distance,
+  })
+  if (error) throw error
+  revalidatePath('/admin')
+  revalidatePath('/app')
+}
+
+export async function adminUpdateAutoHideThreshold(threshold: number) {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) throw new Error('Not authenticated')
+  if (!Number.isInteger(threshold) || threshold < 1 || threshold > 20) throw new Error('Threshold must be between 1 and 20')
+  const { error } = await supabase.rpc('admin_update_setting', {
+    p_key: 'moderation_auto_hide_threshold',
+    p_value: threshold,
+  })
+  if (error) throw error
+  revalidatePath('/admin')
 }
 
 export async function reportOccupancy(venueId: string, occupancyPct: number) {

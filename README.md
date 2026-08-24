@@ -20,7 +20,23 @@ npm run build
 
 Every feature should add or update tests for its business rules. Database and RLS changes also need an ordered migration plus an audit query; critical sign-in, matching, chat, upload, and scheduling journeys should be checked in the browser. The goal is risk-based coverage, not testing purely visual markup or chasing an arbitrary 100% number.
 
-After applying migrations through `scripts/014_security_advisor_hardening.sql`, run `scripts/rls_privacy_audit.sql` in the Supabase SQL editor. A successful audit returns `RLS privacy audit passed`.
+After applying migrations through `scripts/015_admin_and_moderation.sql`, run `scripts/rls_privacy_audit.sql` in the Supabase SQL editor. A successful audit returns `RLS privacy audit passed`.
+
+### Bootstrap the first administrator
+
+After applying `scripts/015_admin_and_moderation.sql`, choose an existing verified account and find its UUID in Supabase Authentication. Bootstrap it once from the SQL editor:
+
+```sql
+INSERT INTO public.user_roles(user_id, role)
+VALUES ('ADMIN_PROFILE_UUID', 'admin')
+ON CONFLICT (user_id) DO UPDATE SET role = 'admin';
+```
+
+Use a verified account that is not assigned as a venue manager. Assigning a
+staff role converts that login into an operational account; it will no longer
+use the student interface.
+
+After signing in again, `/app` routes that account to `/admin`. Further admin and moderator roles, venue-manager assignments, venues, suspensions, moderation settings, and audit review are managed in the dashboard. Staff registration is never exposed publicly. Admins inherit moderator privileges; moderators cannot manage roles, venues, settings, other staff, or venue managers.
 
 The project path must not contain a literal backslash (`\\`). Node's ESM resolver encodes it as `%5C`, which prevents Next.js from starting. Rename the current parent folder from `Tzo_project\\` to `Tzo_project` before running the app from its permanent location.
 

@@ -107,6 +107,82 @@ export interface VenueManagerDashboardData {
   occupancyHistory: Pick<OccupancyReport, 'id' | 'occupancy_pct' | 'reported_at'>[]
 }
 
+export type AppRole = 'moderator' | 'admin'
+
+export interface ActiveSuspension {
+  id: string
+  user_id: string
+  reason: string
+  suspended_by: string
+  suspended_at: string
+  suspended_until: string | null
+  lifted_at: string | null
+  user?: Pick<Profile, 'id' | 'display_name' | 'avatar_color'>
+  actor?: Pick<Profile, 'id' | 'display_name'>
+}
+
+export interface AccessContext {
+  role: AppRole | null
+  suspension: ActiveSuspension | null
+}
+
+export interface ModerationNoteReport {
+  id: string
+  reporter_id: string
+  note_id: string
+  reason: string
+  details: string | null
+  status: 'open' | 'reviewed' | 'dismissed'
+  created_at: string
+  reporter?: Pick<Profile, 'id' | 'display_name' | 'avatar_color'>
+  note?: Pick<Note, 'id' | 'title' | 'author_id' | 'moderation_status'> & {
+    author?: Pick<Profile, 'id' | 'display_name' | 'avatar_color'>
+  }
+}
+
+export interface ModerationUserReport {
+  id: string
+  reporter_id: string
+  reported_id: string
+  reason: string
+  details: string | null
+  status: 'open' | 'reviewed' | 'dismissed'
+  created_at: string
+  reporter?: Pick<Profile, 'id' | 'display_name' | 'avatar_color'>
+  reported?: Pick<Profile, 'id' | 'display_name' | 'avatar_color'>
+}
+
+export interface ModerationDashboardData {
+  role: AppRole
+  noteReports: ModerationNoteReport[]
+  userReports: ModerationUserReport[]
+  activeSuspensions: ActiveSuspension[]
+}
+
+export interface AdminAccount {
+  profile: Profile
+  role: AppRole | null
+  managedVenueId: string | null
+}
+
+export interface ModerationAuditEntry {
+  id: number
+  actor_id: string
+  action: string
+  target_type: string
+  target_id: string | null
+  details: Record<string, unknown>
+  created_at: string
+  actor?: Pick<Profile, 'id' | 'display_name'>
+}
+
+export interface AdminDashboardData extends ModerationDashboardData {
+  accounts: AdminAccount[]
+  venues: Venue[]
+  settings: Record<string, unknown>
+  auditLog: ModerationAuditEntry[]
+}
+
 export interface Coupon {
   id: string
   user_id: string

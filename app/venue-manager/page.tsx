@@ -1,12 +1,17 @@
 import { redirect } from "next/navigation"
 import { VenueManagerDashboard } from "@/components/venue-manager/venue-manager-dashboard"
-import { getVenueManagerDashboard } from "@/lib/data"
+import { getAccessContext, getVenueManagerDashboard } from "@/lib/data"
 import { createClient } from "@/lib/supabase/server"
 
 export default async function VenueManagerPage() {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect("/auth/login")
+
+  const access = await getAccessContext(user.id)
+  if (access.suspension) redirect("/account-suspended")
+  if (access.role === "admin") redirect("/admin")
+  if (access.role === "moderator") redirect("/moderator")
 
   const dashboard = await getVenueManagerDashboard(user.id)
   if (!dashboard) redirect("/app")

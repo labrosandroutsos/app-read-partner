@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { getAccessContext } from '@/lib/data'
 
 const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i
 
@@ -10,6 +11,8 @@ export async function GET(request: Request, context: { params: Promise<{ id: str
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return NextResponse.redirect(new URL('/auth/login', request.url))
+  const access = await getAccessContext(user.id)
+  if (access.suspension) return NextResponse.json({ error: 'Account suspended' }, { status: 403 })
 
   const { data: note, error } = await supabase
     .from('notes')
@@ -17,7 +20,7 @@ export async function GET(request: Request, context: { params: Promise<{ id: str
     .eq('id', id)
     .single()
 
-  if (error || !note?.file_url || note.moderation_status === 'hidden') {
+  if (error || !note?.file_url || (note.moderation_status === 'hidden' && !access.role)) {
     return NextResponse.json({ error: 'File not found' }, { status: 404 })
   }
 

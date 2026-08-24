@@ -1,6 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
-import { getProfile, getSubjects, getVenues, getConversations, getNotes, getCoupons, getStudySessions, getStudyStats, getPastPartners, getBlockedUsers, getActiveVenueCheckin, getVenueManagerAssignment } from '@/lib/data'
+import { getProfile, getSubjects, getVenues, getConversations, getNotes, getCoupons, getStudySessions, getStudyStats, getPastPartners, getBlockedUsers, getActiveVenueCheckin, getVenueManagerAssignment, getAccessContext } from '@/lib/data'
 import { AppShellClient } from '@/components/app-shell-client'
 
 export default async function AppPage() {
@@ -10,6 +10,11 @@ export default async function AppPage() {
   if (!user) {
     redirect('/auth/login')
   }
+
+  const access = await getAccessContext(user.id)
+  if (access.suspension) redirect('/account-suspended')
+  if (access.role === 'admin') redirect('/admin')
+  if (access.role === 'moderator') redirect('/moderator')
 
   const managerAssignment = await getVenueManagerAssignment(user.id)
   if (managerAssignment) redirect('/venue-manager')

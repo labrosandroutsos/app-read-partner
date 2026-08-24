@@ -31,7 +31,13 @@ export async function updateSession(request: NextRequest) {
 
   if (
     !user &&
-    (request.nextUrl.pathname.startsWith('/app') || request.nextUrl.pathname.startsWith('/venue-manager'))
+    (
+      request.nextUrl.pathname.startsWith('/app')
+      || request.nextUrl.pathname.startsWith('/venue-manager')
+      || request.nextUrl.pathname.startsWith('/moderator')
+      || request.nextUrl.pathname.startsWith('/admin')
+      || request.nextUrl.pathname.startsWith('/account-suspended')
+    )
   ) {
     const url = request.nextUrl.clone()
     url.pathname = '/auth/login'
