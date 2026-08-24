@@ -1,8 +1,94 @@
 import { createClient } from '@/lib/supabase/server'
 import type {
   Profile, Subject, Venue, Match, Message, Note, Coupon,
-  StudySessionRecord, ConversationPreview, BlockedUser, VenueManagerDashboardData
+  StudySessionRecord, ConversationPreview, BlockedUser, VenueManagerDashboardData,
+  AccessContext, ModerationDashboardData, AdminDashboardData, AppRole
 } from '@/lib/types'
+
+export async function getAccessContext(userId: string): Promise<AccessContext> {
+  const supabase = await createClient()
+  const [roleResult, suspensionResult] = await Promise.all([
+    supabase.from('user_roles').select('role').eq('user_id', userId).maybeSingle(),
+    supabase
+      .from('user_suspensions')
+      .select('*')
+      .eq('user_id', userId)
+      .is('lifted_at', null)
+      .or(`suspended_until.is.null,suspended_until.gt.${new Date().toISOString()}`)
+      .order('suspended_at', { ascending: false })
+      .limit(1)
+      .maybeSingle(),
+  ])
+  if (roleResult.error) throw roleResult.error
+  if (suspensionResult.error) throw suspensionResult.error
+  return {
+    role: (roleResult.data?.role as AppRole | undefined) ?? null,
+    suspension: suspensionResult.data ?? null,
+  }
+}
+
+export async function getModerationDashboard(userId: string): Promise<ModerationDashboardData | null> {
+  const supabase = await createClient()
+  const access = await getAccessContext(userId)
+  if (!access.role) return null
+
+  const [noteReportResult, userReportResult, suspensionResult] = await Promise.all([
+    supabase
+      .from('note_reports')
+      .select('*, reporter:reporter_id(id, display_name, avatar_color), note:note_id(id, title, author_id, moderation_status, author:author_id(id, display_name, avatar_color))')
+      .eq('status', 'open')
+      .order('created_at', { ascending: true }),
+    supabase
+      .from('user_reports')
+      .select('*, reporter:reporter_id(id, display_name, avatar_color), reported:reported_id(id, display_name, avatar_color)')
+      .eq('status', 'open')
+      .order('created_at', { ascending: true }),
+    supabase
+      .from('user_suspensions')
+      .select('*, user:user_id(id, display_name, avatar_color), actor:suspended_by(id, display_name)')
+      .is('lifted_at', null)
+      .or(`suspended_until.is.null,suspended_until.gt.${new Date().toISOString()}`)
+      .order('suspended_at', { ascending: false }),
+  ])
+  if (noteReportResult.error) throw noteReportResult.error
+  if (userReportResult.error) throw userReportResult.error
+  if (suspensionResult.error) throw suspensionResult.error
+
+  return {
+    role: access.role,
+    noteReports: (noteReportResult.data ?? []) as ModerationDashboardData['noteReports'],
+    userReports: (userReportResult.data ?? []) as ModerationDashboardData['userReports'],
+    activeSuspensions: (suspensionResult.data ?? []) as ModerationDashboardData['activeSuspensions'],
+  }
+}
+
+export async function getAdminDashboard(userId: string): Promise<AdminDashboardData | null> {
+  const supabase = await createClient()
+  const moderation = await getModerationDashboard(userId)
+  if (!moderation || moderation.role !== 'admin') return null
+
+  const results = await Promise.all([
+    supabase.from('profiles').select('*').order('created_at', { ascending: false }).limit(200),
+    supabase.from('user_roles').select('user_id, role'),
+    supabase.from('venue_managers').select('user_id, venue_id'),
+    supabase.from('venues').select('*').order('name'),
+    supabase.from('app_settings').select('key, value'),
+    supabase.from('moderation_audit_log').select('*, actor:actor_id(id, display_name)').order('created_at', { ascending: false }).limit(100),
+  ])
+  const [profileResult, roleResult, assignmentResult, venueResult, settingResult, auditResult] = results
+  const error = results.find((result) => result.error)?.error
+  if (error) throw error
+
+  const roleMap = new Map((roleResult.data ?? []).map((row) => [row.user_id, row.role as AppRole]))
+  const venueMap = new Map((assignmentResult.data ?? []).map((row) => [row.user_id, row.venue_id]))
+  return {
+    ...moderation,
+    accounts: (profileResult.data ?? []).map((profile) => ({ profile, role: roleMap.get(profile.id) ?? null, managedVenueId: venueMap.get(profile.id) ?? null })),
+    venues: venueResult.data ?? [],
+    settings: Object.fromEntries((settingResult.data ?? []).map((setting) => [setting.key, setting.value])),
+    auditLog: (auditResult.data ?? []) as AdminDashboardData['auditLog'],
+  }
+}
 
 async function getBlockedUserIdSet(userId: string) {
   const supabase = await createClient()

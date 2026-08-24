@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { getAccessContext } from '@/lib/data'
 
 const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i
 
@@ -14,6 +15,8 @@ export async function GET(_request: Request, context: { params: Promise<{ id: st
   if (!user) {
     return NextResponse.redirect(new URL('/auth/login', _request.url))
   }
+  const access = await getAccessContext(user.id)
+  if (access.suspension || access.role) return NextResponse.json({ error: 'Student account required' }, { status: 403 })
 
   const { data: note, error } = await supabase
     .from('notes')
@@ -34,7 +37,8 @@ export async function GET(_request: Request, context: { params: Promise<{ id: st
   if (block) return NextResponse.json({ error: 'File not found' }, { status: 404 })
 
   if (/^https?:\/\//i.test(note.file_url)) {
-    await supabase.rpc('register_note_download', { p_note_id: id })
+    const { error: registerError } = await supabase.rpc('register_note_download', { p_note_id: id })
+    if (registerError) return NextResponse.json({ error: registerError.message }, { status: 403 })
     return NextResponse.redirect(note.file_url)
   }
 
@@ -49,6 +53,7 @@ export async function GET(_request: Request, context: { params: Promise<{ id: st
     return NextResponse.json({ error: 'Unable to prepare download' }, { status: 500 })
   }
 
-  await supabase.rpc('register_note_download', { p_note_id: id })
+  const { error: registerError } = await supabase.rpc('register_note_download', { p_note_id: id })
+  if (registerError) return NextResponse.json({ error: registerError.message }, { status: 403 })
   return NextResponse.redirect(data.signedUrl)
 }
