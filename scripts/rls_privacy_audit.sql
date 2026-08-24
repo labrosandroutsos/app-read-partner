@@ -1,4 +1,4 @@
--- Run after 012_privacy_and_rls_hardening.sql in the Supabase SQL editor.
+-- Run after all numbered migrations through 016 in the Supabase SQL editor.
 -- This script is read-only. It raises an error if a privacy invariant is missing.
 
 DO $$
@@ -14,7 +14,8 @@ BEGIN
     'profiles', 'sessions', 'matches', 'messages', 'notes', 'note_likes',
     'coupons', 'occupancy_reports', 'study_sessions', 'note_reports',
     'user_blocks', 'user_reports', 'venue_managers', 'venue_checkins',
-    'user_roles', 'user_suspensions', 'moderation_audit_log', 'app_settings'
+    'user_roles', 'user_suspensions', 'moderation_audit_log', 'app_settings',
+    'notifications'
   ]) AS required_table
   WHERE to_regclass('public.' || required_table) IS NULL;
 
@@ -31,7 +32,8 @@ BEGIN
       'profiles', 'sessions', 'matches', 'messages', 'notes', 'note_likes',
       'coupons', 'occupancy_reports', 'study_sessions', 'note_reports',
       'user_blocks', 'user_reports', 'venue_managers', 'venue_checkins',
-      'user_roles', 'user_suspensions', 'moderation_audit_log', 'app_settings'
+      'user_roles', 'user_suspensions', 'moderation_audit_log', 'app_settings',
+      'notifications'
     ])
     AND NOT c.relrowsecurity;
 
@@ -47,7 +49,8 @@ BEGIN
       'profiles', 'sessions', 'matches', 'messages', 'notes', 'note_likes',
       'coupons', 'occupancy_reports', 'study_sessions', 'note_reports',
       'user_blocks', 'user_reports', 'venue_managers', 'venue_checkins', 'objects',
-      'user_roles', 'user_suspensions', 'moderation_audit_log', 'app_settings'
+      'user_roles', 'user_suspensions', 'moderation_audit_log', 'app_settings',
+      'notifications'
     ])
     AND cmd = 'SELECT'
     AND (roles @> ARRAY['public']::name[] OR roles @> ARRAY['anon']::name[]);
@@ -113,7 +116,8 @@ BEGIN
      OR has_function_privilege('anon', 'public.admin_assign_venue_manager(uuid,uuid)', 'EXECUTE')
      OR has_function_privilege('anon', 'public.admin_upsert_venue(uuid,text,text,text,double precision)', 'EXECUTE')
      OR has_function_privilege('anon', 'public.admin_update_setting(text,jsonb)', 'EXECUTE')
-     OR has_function_privilege('anon', 'public.report_user(uuid,text,text)', 'EXECUTE') THEN
+     OR has_function_privilege('anon', 'public.report_user(uuid,text,text)', 'EXECUTE')
+     OR has_function_privilege('anon', 'public.mark_notifications_read(uuid)', 'EXECUTE') THEN
     RAISE EXCEPTION 'Anonymous users can execute a moderation/admin RPC';
   END IF;
 
@@ -154,6 +158,27 @@ BEGIN
 
   IF v_missing_trigger IS NOT NULL THEN
     RAISE EXCEPTION 'Suspension write trigger is missing on: %', v_missing_trigger;
+  END IF;
+
+  IF EXISTS (
+    SELECT 1
+    FROM (VALUES
+      ('matches', 'create_match_notifications'),
+      ('messages', 'create_message_notification'),
+      ('study_sessions', 'create_schedule_notification')
+    ) AS required_trigger(table_name, trigger_name)
+    WHERE NOT EXISTS (
+      SELECT 1
+      FROM pg_trigger t
+      JOIN pg_class c ON c.oid = t.tgrelid
+      JOIN pg_namespace n ON n.oid = c.relnamespace
+      WHERE n.nspname = 'public'
+        AND c.relname = required_trigger.table_name
+        AND t.tgname = required_trigger.trigger_name
+        AND NOT t.tgisinternal
+    )
+  ) THEN
+    RAISE EXCEPTION 'A notification event trigger is missing';
   END IF;
 END;
 $$;

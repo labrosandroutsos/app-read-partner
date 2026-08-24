@@ -2,8 +2,20 @@ import { createClient } from '@/lib/supabase/server'
 import type {
   Profile, Subject, Venue, Match, Message, Note, Coupon,
   StudySessionRecord, ConversationPreview, BlockedUser, VenueManagerDashboardData,
-  AccessContext, ModerationDashboardData, AdminDashboardData, AppRole
+  AccessContext, ModerationDashboardData, AdminDashboardData, AppRole, AppNotification
 } from '@/lib/types'
+
+export async function getNotifications(userId: string): Promise<AppNotification[]> {
+  const supabase = await createClient()
+  const { data, error } = await supabase
+    .from('notifications')
+    .select('*, actor:actor_id(id, display_name, avatar_color)')
+    .eq('user_id', userId)
+    .order('created_at', { ascending: false })
+    .limit(50)
+  if (error) throw error
+  return (data ?? []) as AppNotification[]
+}
 
 export async function getAccessContext(userId: string): Promise<AccessContext> {
   const supabase = await createClient()

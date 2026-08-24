@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { useTheme } from "next-themes"
+import { useRouter } from "next/navigation"
 import { BookOpen, Moon, Sun } from "lucide-react"
 import { BottomTabBar, type TabId } from "@/components/bottom-tab-bar"
 import { LanguageToggle } from "@/components/language-toggle"
@@ -10,8 +11,10 @@ import { ChatScreen } from "@/components/chat/chat-screen"
 import { NotesScreen } from "@/components/notes/notes-screen"
 import { VenuesScreen } from "@/components/venues/venues-screen"
 import { ProfileScreen } from "@/components/profile/profile-screen"
+import { NotificationCenter } from "@/components/notifications/notification-center"
 import { Button } from "@/components/ui/button"
-import type { Profile, Subject, Venue, Note, Coupon, StudySessionRecord, ConversationPreview, BlockedUser } from "@/lib/types"
+import { markConversationRead } from "@/lib/actions"
+import type { Profile, Subject, Venue, Note, Coupon, StudySessionRecord, ConversationPreview, BlockedUser, AppNotification } from "@/lib/types"
 
 interface AppShellClientProps {
   userId: string
@@ -28,6 +31,7 @@ interface AppShellClientProps {
   pastPartners: { profile: Profile; sessions: number }[]
   blockedUsers: BlockedUser[]
   activeVenueId: string | null
+  notifications: AppNotification[]
 }
 
 export function AppShellClient({
@@ -45,10 +49,13 @@ export function AppShellClient({
   pastPartners,
   blockedUsers,
   activeVenueId,
+  notifications,
 }: AppShellClientProps) {
   const [activeTab, setActiveTab] = useState<TabId>("partner")
+  const [selectedChatId, setSelectedChatId] = useState<string | null>(null)
   const [mounted, setMounted] = useState(false)
   const { resolvedTheme, setTheme } = useTheme()
+  const router = useRouter()
 
   useEffect(() => {
     setMounted(true)
@@ -57,6 +64,15 @@ export function AppShellClient({
   const unreadChats = conversations.reduce((sum, c) => sum + c.unreadCount, 0)
 
   const handleGoToChat = () => setActiveTab("chat")
+  const handleNotificationChat = (matchId: string) => {
+    setSelectedChatId(matchId)
+    setActiveTab("chat")
+    void markConversationRead(matchId).then(() => router.refresh(), () => router.refresh())
+  }
+  const handleTabChange = (tab: TabId) => {
+    setActiveTab(tab)
+    if (tab !== "chat") setSelectedChatId(null)
+  }
 
   return (
     <div className="mx-auto max-w-[430px] min-h-dvh bg-background relative flex flex-col">
@@ -68,6 +84,12 @@ export function AppShellClient({
           <span className="font-bold text-base text-foreground tracking-tight">Read Partner</span>
         </div>
         <div className="flex items-center gap-1">
+          <NotificationCenter
+            userId={userId}
+            initialNotifications={notifications}
+            activeMatchId={activeTab === "chat" ? selectedChatId : null}
+            onOpenChat={handleNotificationChat}
+          />
           <LanguageToggle />
           <Button
             variant="ghost"
@@ -100,6 +122,8 @@ export function AppShellClient({
             userId={userId}
             conversations={conversations}
             venues={venues}
+            selectedChatId={selectedChatId}
+            onSelectedChatIdChange={setSelectedChatId}
           />
         )}
         {activeTab === "notes" && (
@@ -131,7 +155,7 @@ export function AppShellClient({
 
       <BottomTabBar
         activeTab={activeTab}
-        onTabChange={setActiveTab}
+        onTabChange={handleTabChange}
         unreadChats={unreadChats}
       />
     </div>
