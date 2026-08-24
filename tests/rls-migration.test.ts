@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest"
 
 const migration = readFileSync(new URL("../scripts/012_privacy_and_rls_hardening.sql", import.meta.url), "utf8")
 const anonymousRpcMigration = readFileSync(new URL("../scripts/013_revoke_anonymous_rpc_access.sql", import.meta.url), "utf8")
+const advisorMigration = readFileSync(new URL("../scripts/014_security_advisor_hardening.sql", import.meta.url), "utf8")
 
 describe("privacy hardening migration", () => {
   it("removes anonymous reads from sensitive discovery tables", () => {
@@ -37,5 +38,17 @@ describe("privacy hardening migration", () => {
 
   it("prevents direct rewriting of protected schedule columns", () => {
     expect(migration).toContain('DROP POLICY IF EXISTS "Match participants can update schedules"')
+  })
+
+  it("keeps trigger helpers out of the exposed API", () => {
+    expect(advisorMigration).toContain('REVOKE ALL ON FUNCTION public.handle_new_user() FROM PUBLIC, anon, authenticated, service_role')
+    expect(advisorMigration).toContain('REVOKE ALL ON FUNCTION public.rls_auto_enable() FROM PUBLIC, anon, authenticated, service_role')
+    expect(advisorMigration).toContain('CREATE OR REPLACE FUNCTION private.is_venue_manager')
+    expect(advisorMigration).toContain('DROP FUNCTION IF EXISTS public.is_venue_manager(uuid)')
+  })
+
+  it("makes future RPC exposure opt-in", () => {
+    expect(advisorMigration).toContain('ALTER DEFAULT PRIVILEGES FOR ROLE postgres IN SCHEMA public')
+    expect(advisorMigration).toContain('REVOKE EXECUTE ON FUNCTIONS FROM PUBLIC, anon, authenticated, service_role')
   })
 })

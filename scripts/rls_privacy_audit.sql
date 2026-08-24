@@ -53,9 +53,34 @@ BEGIN
 
   IF has_function_privilege('anon', 'public.find_match_candidates_private(uuid)', 'EXECUTE')
      OR has_function_privilege('anon', 'public.get_managed_venue_dashboard()', 'EXECUTE')
-     OR has_function_privilege('anon', 'public.is_venue_manager(uuid)', 'EXECUTE')
      OR has_function_privilege('anon', 'public.is_current_user_venue_manager()', 'EXECUTE') THEN
     RAISE EXCEPTION 'Anonymous users can execute a private RPC';
+  END IF;
+
+  IF has_function_privilege('anon', 'public.handle_new_user()', 'EXECUTE')
+     OR has_function_privilege('authenticated', 'public.handle_new_user()', 'EXECUTE') THEN
+    RAISE EXCEPTION 'A trigger or administrative function is exposed through the API';
+  END IF;
+
+  IF to_regprocedure('public.rls_auto_enable()') IS NOT NULL THEN
+    IF has_function_privilege('anon', 'public.rls_auto_enable()', 'EXECUTE')
+       OR has_function_privilege('authenticated', 'public.rls_auto_enable()', 'EXECUTE') THEN
+      RAISE EXCEPTION 'RLS administration function is exposed through the API';
+    END IF;
+  END IF;
+
+  IF to_regprocedure('public.is_venue_manager(uuid)') IS NOT NULL THEN
+    RAISE EXCEPTION 'Internal venue role helper remains in the exposed public schema';
+  END IF;
+
+  IF EXISTS (
+    SELECT 1 FROM pg_proc p
+    JOIN pg_namespace n ON n.oid = p.pronamespace
+    WHERE n.nspname = 'public'
+      AND p.proname = 'is_current_user_venue_manager'
+      AND p.prosecdef
+  ) THEN
+    RAISE EXCEPTION 'Current-manager helper still uses SECURITY DEFINER';
   END IF;
 
   IF NOT has_function_privilege('authenticated', 'public.find_match_candidates_private(uuid)', 'EXECUTE')

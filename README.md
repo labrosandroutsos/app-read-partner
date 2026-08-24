@@ -20,7 +20,7 @@ npm run build
 
 Every feature should add or update tests for its business rules. Database and RLS changes also need an ordered migration plus an audit query; critical sign-in, matching, chat, upload, and scheduling journeys should be checked in the browser. The goal is risk-based coverage, not testing purely visual markup or chasing an arbitrary 100% number.
 
-After applying `scripts/012_privacy_and_rls_hardening.sql` and `scripts/013_revoke_anonymous_rpc_access.sql`, run `scripts/rls_privacy_audit.sql` in the Supabase SQL editor. A successful audit returns `RLS privacy audit passed`.
+After applying migrations through `scripts/014_security_advisor_hardening.sql`, run `scripts/rls_privacy_audit.sql` in the Supabase SQL editor. A successful audit returns `RLS privacy audit passed`.
 
 The project path must not contain a literal backslash (`\\`). Node's ESM resolver encodes it as `%5C`, which prevents Next.js from starting. Rename the current parent folder from `Tzo_project\\` to `Tzo_project` before running the app from its permanent location.
 
