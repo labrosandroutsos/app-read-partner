@@ -2,6 +2,7 @@ import { readFileSync } from "node:fs"
 import { describe, expect, it } from "vitest"
 
 const migration = readFileSync(new URL("../scripts/012_privacy_and_rls_hardening.sql", import.meta.url), "utf8")
+const anonymousRpcMigration = readFileSync(new URL("../scripts/013_revoke_anonymous_rpc_access.sql", import.meta.url), "utf8")
 
 describe("privacy hardening migration", () => {
   it("removes anonymous reads from sensitive discovery tables", () => {
@@ -26,10 +27,12 @@ describe("privacy hardening migration", () => {
   })
 
   it("makes sensitive RPCs authenticated-only", () => {
-    expect(migration).toContain('REVOKE ALL ON FUNCTION public.find_match_candidates_private(uuid) FROM PUBLIC')
+    expect(migration).toContain('REVOKE ALL ON FUNCTION public.find_match_candidates_private(uuid) FROM PUBLIC, anon')
     expect(migration).toContain('GRANT EXECUTE ON FUNCTION public.find_match_candidates_private(uuid) TO authenticated')
-    expect(migration).toContain('REVOKE ALL ON FUNCTION public.get_managed_venue_dashboard() FROM PUBLIC')
+    expect(migration).toContain('REVOKE ALL ON FUNCTION public.get_managed_venue_dashboard() FROM PUBLIC, anon')
     expect(migration).toContain('GRANT EXECUTE ON FUNCTION public.get_managed_venue_dashboard() TO authenticated')
+    expect(anonymousRpcMigration).toContain('FROM PUBLIC, anon')
+    expect(anonymousRpcMigration).toContain('REVOKE EXECUTE ON FUNCTION public.swipe_on_session(uuid, uuid) FROM anon')
   })
 
   it("prevents direct rewriting of protected schedule columns", () => {

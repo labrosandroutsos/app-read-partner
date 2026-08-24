@@ -13,7 +13,7 @@ AS $$
   );
 $$;
 
-REVOKE ALL ON FUNCTION public.is_venue_manager(uuid) FROM PUBLIC;
+REVOKE ALL ON FUNCTION public.is_venue_manager(uuid) FROM PUBLIC, anon;
 GRANT EXECUTE ON FUNCTION public.is_venue_manager(uuid) TO authenticated;
 
 CREATE OR REPLACE FUNCTION public.is_current_user_venue_manager()
@@ -26,7 +26,7 @@ AS $$
   SELECT public.is_venue_manager(auth.uid());
 $$;
 
-REVOKE ALL ON FUNCTION public.is_current_user_venue_manager() FROM PUBLIC;
+REVOKE ALL ON FUNCTION public.is_current_user_venue_manager() FROM PUBLIC, anon;
 GRANT EXECUTE ON FUNCTION public.is_current_user_venue_manager() TO authenticated;
 
 -- A profile is readable only for a concrete product purpose: the user's own
@@ -287,7 +287,7 @@ BEGIN
 END;
 $$;
 
-REVOKE ALL ON FUNCTION public.find_match_candidates_private(uuid) FROM PUBLIC;
+REVOKE ALL ON FUNCTION public.find_match_candidates_private(uuid) FROM PUBLIC, anon;
 GRANT EXECUTE ON FUNCTION public.find_match_candidates_private(uuid) TO authenticated;
 
 CREATE OR REPLACE FUNCTION public.get_managed_venue_dashboard()
@@ -347,5 +347,19 @@ BEGIN
 END;
 $$;
 
-REVOKE ALL ON FUNCTION public.get_managed_venue_dashboard() FROM PUBLIC;
+REVOKE ALL ON FUNCTION public.get_managed_venue_dashboard() FROM PUBLIC, anon;
 GRANT EXECUTE ON FUNCTION public.get_managed_venue_dashboard() TO authenticated;
+
+-- Supabase projects may grant EXECUTE directly to `anon` through default
+-- privileges. Revoking PUBLIC alone does not remove that direct grant, so
+-- explicitly remove anonymous access from every authenticated application RPC.
+REVOKE EXECUTE ON FUNCTION public.register_note_download(uuid) FROM anon;
+REVOKE EXECUTE ON FUNCTION public.report_note(uuid, text, text) FROM anon;
+REVOKE EXECUTE ON FUNCTION public.swipe_on_session(uuid, uuid) FROM anon;
+REVOKE EXECUTE ON FUNCTION public.mark_match_read(uuid) FROM anon;
+REVOKE EXECUTE ON FUNCTION public.propose_study_session(uuid, timestamptz, timestamptz, uuid) FROM anon;
+REVOKE EXECUTE ON FUNCTION public.respond_study_session(uuid, boolean) FROM anon;
+REVOKE EXECUTE ON FUNCTION public.cancel_study_session(uuid) FROM anon;
+REVOKE EXECUTE ON FUNCTION public.end_match(uuid) FROM anon;
+REVOKE EXECUTE ON FUNCTION public.toggle_venue_checkin(uuid) FROM anon;
+REVOKE EXECUTE ON FUNCTION public.update_managed_venue(boolean, integer, integer) FROM anon;

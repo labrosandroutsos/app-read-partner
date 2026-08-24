@@ -52,7 +52,9 @@ BEGIN
   END IF;
 
   IF has_function_privilege('anon', 'public.find_match_candidates_private(uuid)', 'EXECUTE')
-     OR has_function_privilege('anon', 'public.get_managed_venue_dashboard()', 'EXECUTE') THEN
+     OR has_function_privilege('anon', 'public.get_managed_venue_dashboard()', 'EXECUTE')
+     OR has_function_privilege('anon', 'public.is_venue_manager(uuid)', 'EXECUTE')
+     OR has_function_privilege('anon', 'public.is_current_user_venue_manager()', 'EXECUTE') THEN
     RAISE EXCEPTION 'Anonymous users can execute a private RPC';
   END IF;
 
