@@ -270,6 +270,19 @@ export async function markConversationRead(matchId: string) {
   revalidatePath('/app')
 }
 
+export async function markNotificationsRead(notificationId?: string | null) {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) throw new Error('Not authenticated')
+  if (notificationId) assertUuid(notificationId, 'notification')
+
+  const { error } = await supabase.rpc('mark_notifications_read', {
+    p_notification_id: notificationId ?? null,
+  })
+  if (error) throw error
+  revalidatePath('/app')
+}
+
 export async function endMatch(matchId: string) {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()

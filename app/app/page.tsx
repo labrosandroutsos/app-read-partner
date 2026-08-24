@@ -1,6 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
-import { getProfile, getSubjects, getVenues, getConversations, getNotes, getCoupons, getStudySessions, getStudyStats, getPastPartners, getBlockedUsers, getActiveVenueCheckin, getVenueManagerAssignment, getAccessContext } from '@/lib/data'
+import { getProfile, getSubjects, getVenues, getConversations, getNotes, getCoupons, getStudySessions, getStudyStats, getPastPartners, getBlockedUsers, getActiveVenueCheckin, getVenueManagerAssignment, getAccessContext, getNotifications } from '@/lib/data'
 import { AppShellClient } from '@/components/app-shell-client'
 
 export default async function AppPage() {
@@ -19,7 +19,7 @@ export default async function AppPage() {
   const managerAssignment = await getVenueManagerAssignment(user.id)
   if (managerAssignment) redirect('/venue-manager')
 
-  const [profile, subjects, venues, conversations, notes, coupons, studySessions, studyStats, pastPartners, blockedUsers, activeVenueId] = await Promise.all([
+  const [profile, subjects, venues, conversations, notes, coupons, studySessions, studyStats, pastPartners, blockedUsers, activeVenueId, notifications] = await Promise.all([
     getProfile(user.id),
     getSubjects(),
     getVenues(),
@@ -31,6 +31,7 @@ export default async function AppPage() {
     getPastPartners(user.id),
     getBlockedUsers(user.id),
     getActiveVenueCheckin(user.id),
+    getNotifications(user.id),
   ])
 
   return (
@@ -49,6 +50,7 @@ export default async function AppPage() {
       pastPartners={pastPartners}
       blockedUsers={blockedUsers}
       activeVenueId={activeVenueId}
+      notifications={notifications}
     />
   )
 }

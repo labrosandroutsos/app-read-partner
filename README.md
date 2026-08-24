@@ -20,7 +20,7 @@ npm run build
 
 Every feature should add or update tests for its business rules. Database and RLS changes also need an ordered migration plus an audit query; critical sign-in, matching, chat, upload, and scheduling journeys should be checked in the browser. The goal is risk-based coverage, not testing purely visual markup or chasing an arbitrary 100% number.
 
-After applying migrations through `scripts/015_admin_and_moderation.sql`, run `scripts/rls_privacy_audit.sql` in the Supabase SQL editor. A successful audit returns `RLS privacy audit passed`.
+After applying migrations through `scripts/016_in_app_notifications.sql`, run `scripts/rls_privacy_audit.sql` in the Supabase SQL editor. A successful audit returns `RLS privacy audit passed`.
 
 ### Bootstrap the first administrator
 

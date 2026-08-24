@@ -1,6 +1,5 @@
 "use client"
 
-import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { ChatList } from "./chat-list"
 import { ChatView } from "./chat-view"
@@ -11,14 +10,15 @@ interface ChatScreenProps {
   userId: string
   conversations: ConversationPreview[]
   venues: Venue[]
+  selectedChatId: string | null
+  onSelectedChatIdChange: (matchId: string | null) => void
 }
 
-export function ChatScreen({ userId, conversations, venues }: ChatScreenProps) {
+export function ChatScreen({ userId, conversations, venues, selectedChatId, onSelectedChatIdChange }: ChatScreenProps) {
   const router = useRouter()
-  const [selectedChatId, setSelectedChatId] = useState<string | null>(null)
 
   const handleSelectChat = (matchId: string) => {
-    setSelectedChatId(matchId)
+    onSelectedChatIdChange(matchId)
     void markConversationRead(matchId)
       .then(() => router.refresh())
       .catch(() => undefined)
@@ -35,7 +35,7 @@ export function ChatScreen({ userId, conversations, venues }: ChatScreenProps) {
         userId={userId}
         venues={venues}
         schedule={selectedConv.schedule}
-        onBack={() => setSelectedChatId(null)}
+        onBack={() => onSelectedChatIdChange(null)}
       />
     )
   }

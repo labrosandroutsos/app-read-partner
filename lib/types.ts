@@ -126,6 +126,21 @@ export interface AccessContext {
   suspension: ActiveSuspension | null
 }
 
+export type NotificationType = 'match' | 'message' | 'schedule_proposal'
+
+export interface AppNotification {
+  id: string
+  user_id: string
+  type: NotificationType
+  actor_id: string | null
+  match_id: string | null
+  source_id: string
+  payload: Record<string, unknown>
+  read_at: string | null
+  created_at: string
+  actor?: Pick<Profile, 'id' | 'display_name' | 'avatar_color'> | null
+}
+
 export interface ModerationNoteReport {
   id: string
   reporter_id: string

@@ -5,6 +5,7 @@ const migration = readFileSync(new URL("../scripts/012_privacy_and_rls_hardening
 const anonymousRpcMigration = readFileSync(new URL("../scripts/013_revoke_anonymous_rpc_access.sql", import.meta.url), "utf8")
 const advisorMigration = readFileSync(new URL("../scripts/014_security_advisor_hardening.sql", import.meta.url), "utf8")
 const administrationMigration = readFileSync(new URL("../scripts/015_admin_and_moderation.sql", import.meta.url), "utf8")
+const notificationMigration = readFileSync(new URL("../scripts/016_in_app_notifications.sql", import.meta.url), "utf8")
 
 describe("privacy hardening migration", () => {
   it("removes anonymous reads from sensitive discovery tables", () => {
@@ -86,5 +87,14 @@ describe("privacy hardening migration", () => {
     expect(administrationMigration).toContain("REVOKE ALL ON FUNCTION public.admin_set_user_role(uuid, text) FROM PUBLIC, anon")
     expect(administrationMigration).toContain("REVOKE ALL ON FUNCTION public.admin_assign_venue_manager(uuid, uuid) FROM PUBLIC, anon")
     expect(administrationMigration).toContain("REVOKE ALL ON FUNCTION public.set_user_suspension(uuid, boolean, text, timestamptz) FROM PUBLIC, anon")
+  })
+
+  it("keeps notification events private and server-generated", () => {
+    expect(notificationMigration).toContain('ALTER TABLE public.notifications ENABLE ROW LEVEL SECURITY')
+    expect(notificationMigration).toContain('USING (user_id = auth.uid())')
+    expect(notificationMigration).toContain('CREATE TRIGGER create_match_notifications')
+    expect(notificationMigration).toContain('CREATE TRIGGER create_message_notification')
+    expect(notificationMigration).toContain('CREATE TRIGGER create_schedule_notification')
+    expect(notificationMigration).toContain('REVOKE ALL ON FUNCTION public.mark_notifications_read(uuid) FROM PUBLIC, anon')
   })
 })
