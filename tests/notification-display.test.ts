@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { markNotificationsReadLocally, mergeNotifications, notificationCopy } from "../lib/notification-display"
+import { markNotificationsReadLocally, mergeNotifications, notificationCopy, notificationMessagePreview, shouldDismissNotificationBanner } from "../lib/notification-display"
 import type { AppNotification, NotificationType } from "../lib/types"
 
 const notification = (id: string, type: NotificationType, createdAt: string, readAt: string | null = null): AppNotification => ({
@@ -34,5 +34,17 @@ describe("notification presentation", () => {
   it("localizes structured event types without storing rendered text", () => {
     expect(notificationCopy("match", "Alex", "en")).toEqual({ title: "New match", body: "You matched with Alex." })
     expect(notificationCopy("schedule_proposal", "Άννα", "el").title).toBe("Πρόταση μελέτης")
+  })
+
+  it("uses a private message preview with a localized fallback", () => {
+    const withPreview = { ...notification("00000000-0000-4000-8000-000000000012", "message", "2026-08-24T12:00:00Z"), payload: { message_preview: "  See you there!  " } }
+    expect(notificationMessagePreview(withPreview, "en")).toBe("See you there!")
+    expect(notificationMessagePreview(notification("00000000-0000-4000-8000-000000000013", "message", "2026-08-24T13:00:00Z"), "el")).toBe("Σου έστειλε ένα νέο μήνυμα.")
+  })
+
+  it("dismisses the transient banner only after a deliberate upward swipe", () => {
+    expect(shouldDismissNotificationBanner(-47)).toBe(false)
+    expect(shouldDismissNotificationBanner(-48)).toBe(true)
+    expect(shouldDismissNotificationBanner(20)).toBe(false)
   })
 })

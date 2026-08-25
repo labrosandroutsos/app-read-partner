@@ -17,6 +17,16 @@ export function markNotificationsReadLocally(notifications: AppNotification[], n
   ))
 }
 
+export function notificationMessagePreview(notification: AppNotification, locale: "el" | "en"): string {
+  const preview = notification.payload.message_preview
+  if (typeof preview === "string" && preview.trim()) return preview.trim()
+  return locale === "el" ? "Σου έστειλε ένα νέο μήνυμα." : "Sent you a new message."
+}
+
+export function shouldDismissNotificationBanner(offsetY: number): boolean {
+  return offsetY <= -48
+}
+
 export function notificationCopy(type: NotificationType, actorName: string, locale: "el" | "en") {
   const name = actorName || (locale === "el" ? "Ένας φοιτητής" : "A student")
   if (locale === "el") {
