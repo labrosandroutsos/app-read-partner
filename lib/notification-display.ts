@@ -1,5 +1,7 @@
 import type { AppNotification, NotificationType } from "./types"
 
+export const MESSAGE_BANNER_TIMEOUT_MS = 6_000
+
 export function mergeNotifications(current: AppNotification[], incoming: AppNotification[]): AppNotification[] {
   const merged = new Map(current.map((notification) => [notification.id, notification]))
   for (const notification of incoming) merged.set(notification.id, notification)

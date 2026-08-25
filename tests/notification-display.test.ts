@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { markNotificationsReadLocally, mergeNotifications, notificationCopy, notificationMessagePreview, shouldDismissNotificationBanner } from "../lib/notification-display"
+import { MESSAGE_BANNER_TIMEOUT_MS, markNotificationsReadLocally, mergeNotifications, notificationCopy, notificationMessagePreview, shouldDismissNotificationBanner } from "../lib/notification-display"
 import type { AppNotification, NotificationType } from "../lib/types"
 
 const notification = (id: string, type: NotificationType, createdAt: string, readAt: string | null = null): AppNotification => ({
@@ -46,5 +46,9 @@ describe("notification presentation", () => {
     expect(shouldDismissNotificationBanner(-47)).toBe(false)
     expect(shouldDismissNotificationBanner(-48)).toBe(true)
     expect(shouldDismissNotificationBanner(20)).toBe(false)
+  })
+
+  it("keeps the message banner visible long enough to read", () => {
+    expect(MESSAGE_BANNER_TIMEOUT_MS).toBe(6_000)
   })
 })

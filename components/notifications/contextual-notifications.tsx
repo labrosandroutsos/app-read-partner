@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react"
 import { MessageCircle } from "lucide-react"
 import { markNotificationsRead } from "@/lib/actions"
-import { notificationCopy, notificationMessagePreview, shouldDismissNotificationBanner } from "@/lib/notification-display"
+import { MESSAGE_BANNER_TIMEOUT_MS, notificationCopy, notificationMessagePreview, shouldDismissNotificationBanner } from "@/lib/notification-display"
 import { useRealtimeNotifications } from "@/hooks/use-realtime-notifications"
 import { useTranslation } from "@/lib/i18n"
 import { Button } from "@/components/ui/button"
@@ -33,6 +33,7 @@ export function ContextualNotifications({
   const startY = useRef<number | null>(null)
   const dragY = useRef(0)
   const swiped = useRef(false)
+  const bannerTimer = useRef<number | null>(null)
   const [dragOffset, setDragOffset] = useState(0)
 
   const {
@@ -53,6 +54,29 @@ export function ContextualNotifications({
     setMatchDialog(null)
     if (notification.match_id) onOpenChat(notification.match_id)
   }, [markRead, onOpenChat])
+
+  const clearBannerTimer = useCallback(() => {
+    if (bannerTimer.current === null) return
+    window.clearTimeout(bannerTimer.current)
+    bannerTimer.current = null
+  }, [])
+
+  const scheduleBannerDismiss = useCallback(() => {
+    clearBannerTimer()
+    bannerTimer.current = window.setTimeout(() => {
+      setMessageBanner(null)
+      bannerTimer.current = null
+    }, MESSAGE_BANNER_TIMEOUT_MS)
+  }, [clearBannerTimer])
+
+  useEffect(() => {
+    if (!messageBanner) {
+      clearBannerTimer()
+      return
+    }
+    scheduleBannerDismiss()
+    return clearBannerTimer
+  }, [clearBannerTimer, messageBanner, scheduleBannerDismiss])
 
   useEffect(() => {
     if (!incomingNotification) return
@@ -89,6 +113,7 @@ export function ContextualNotifications({
   }
 
   const onPointerDown = (event: React.PointerEvent<HTMLDivElement>) => {
+    clearBannerTimer()
     startY.current = event.clientY
     dragY.current = 0
     swiped.current = false
@@ -109,6 +134,7 @@ export function ContextualNotifications({
       setMessageBanner(null)
     } else {
       setDragOffset(0)
+      scheduleBannerDismiss()
     }
   }
 
@@ -139,10 +165,14 @@ export function ContextualNotifications({
           onPointerMove={onPointerMove}
           onPointerUp={onPointerUp}
           onPointerCancel={onPointerUp}
+          onMouseEnter={clearBannerTimer}
+          onMouseLeave={scheduleBannerDismiss}
         >
           <button
             type="button"
             onClick={handleBannerClick}
+            onFocus={clearBannerTimer}
+            onBlur={scheduleBannerDismiss}
             className="flex w-full items-center gap-3 rounded-2xl border border-border/80 bg-card/95 px-3 py-3 text-left shadow-xl shadow-black/15 backdrop-blur-xl outline-none ring-primary/30 transition focus-visible:ring-2"
             aria-label={el ? `Άνοιγμα μηνύματος από ${messageActor}` : `Open message from ${messageActor}`}
           >
