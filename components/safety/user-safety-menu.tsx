@@ -146,8 +146,8 @@ export function UserSafetyMenu({ targetUserId, targetName, matchId, onBlocked, o
             <AlertDialogTitle>{el ? `Τερματισμός match με ${targetName};` : `End match with ${targetName}?`}</AlertDialogTitle>
             <AlertDialogDescription>
               {el
-                ? "Η συνομιλία θα κλείσει και οι ενεργές συναντήσεις θα ακυρωθούν. Θα μπορείτε να ξαναβρεθείτε στην αναζήτηση μετά από 5 λεπτά."
-                : "The chat will close and active study sessions will be cancelled. You can discover each other again after 5 minutes."}
+                ? "Η συνομιλία θα κλείσει και οι ενεργές συναντήσεις θα ακυρωθούν. Θα μπορείτε να ξαναβρεθείτε αμέσως στην αναζήτηση."
+                : "The chat will close and active study sessions will be cancelled. You can discover each other again immediately."}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
