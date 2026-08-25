@@ -25,7 +25,7 @@ export function BottomTabBar({ activeTab, onTabChange, unreadChats }: BottomTabB
 
   return (
     <nav
-      className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[430px] bg-card border-t border-border"
+      className="fixed bottom-0 left-1/2 z-50 w-full max-w-[430px] -translate-x-1/2 border-t border-border bg-card"
       role="tablist"
       aria-label="Main navigation"
     >

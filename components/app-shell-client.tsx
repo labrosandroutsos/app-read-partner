@@ -104,7 +104,7 @@ export function AppShellClient({
   }
 
   return (
-    <div className="mx-auto max-w-[430px] min-h-dvh bg-background relative flex flex-col">
+    <div className="relative mx-auto flex h-dvh max-w-[430px] flex-col overflow-hidden bg-background">
       <ContextualNotifications
         userId={userId}
         initialNotifications={notifications}
@@ -112,7 +112,7 @@ export function AppShellClient({
         onOpenChat={handleNotificationChat}
         onIncomingActivity={handleIncomingActivity}
       />
-      <header className="sticky top-0 z-40 flex items-center justify-between px-4 py-3 bg-card/80 backdrop-blur-lg border-b border-border">
+      <header className="sticky top-0 z-40 flex shrink-0 items-center justify-between border-b border-border bg-card/80 px-4 py-3 backdrop-blur-lg">
         <div className="flex items-center gap-2">
           <div className="h-8 w-8 rounded-lg bg-primary flex items-center justify-center">
             <BookOpen className="h-4 w-4 text-primary-foreground" />
@@ -137,7 +137,7 @@ export function AppShellClient({
         </div>
       </header>
 
-      <main className="flex-1 overflow-y-auto pb-20">
+      <main className="min-h-0 flex-1 overflow-y-auto pb-[calc(4.25rem+env(safe-area-inset-bottom))]">
         {activeTab === "partner" && (
           <PartnerScreen
             onGoToChat={handleGoToChat}
