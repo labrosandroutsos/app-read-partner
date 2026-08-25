@@ -10,6 +10,15 @@ export function mergeNotifications(current: AppNotification[], incoming: AppNoti
     .slice(0, 50)
 }
 
+export function newestUnseenUnreadNotification(
+  notifications: AppNotification[],
+  knownNotificationIds: ReadonlySet<string>,
+): AppNotification | null {
+  return notifications.find((notification) => (
+    !notification.read_at && !knownNotificationIds.has(notification.id)
+  )) ?? null
+}
+
 export function markNotificationsReadLocally(notifications: AppNotification[], notificationId?: string | null): AppNotification[] {
   const readAt = new Date().toISOString()
   return notifications.map((notification) => (

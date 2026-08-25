@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { MESSAGE_BANNER_TIMEOUT_MS, markNotificationsReadLocally, mergeNotifications, notificationCopy, notificationMessagePreview, shouldDismissNotificationBanner } from "../lib/notification-display"
+import { MESSAGE_BANNER_TIMEOUT_MS, markNotificationsReadLocally, mergeNotifications, newestUnseenUnreadNotification, notificationCopy, notificationMessagePreview, shouldDismissNotificationBanner } from "../lib/notification-display"
 import type { AppNotification, NotificationType } from "../lib/types"
 
 const notification = (id: string, type: NotificationType, createdAt: string, readAt: string | null = null): AppNotification => ({
@@ -50,5 +50,13 @@ describe("notification presentation", () => {
 
   it("keeps the message banner visible long enough to read", () => {
     expect(MESSAGE_BANNER_TIMEOUT_MS).toBe(6_000)
+  })
+
+  it("recovers the newest unread notification missed by realtime", () => {
+    const known = notification("00000000-0000-4000-8000-000000000020", "message", "2026-08-24T10:00:00Z")
+    const recovered = notification("00000000-0000-4000-8000-000000000021", "message", "2026-08-24T11:00:00Z")
+    const alreadyRead = notification("00000000-0000-4000-8000-000000000022", "message", "2026-08-24T12:00:00Z", "2026-08-24T12:01:00Z")
+    expect(newestUnseenUnreadNotification([alreadyRead, recovered, known], new Set([known.id]))).toEqual(recovered)
+    expect(newestUnseenUnreadNotification([known], new Set([known.id]))).toBeNull()
   })
 })

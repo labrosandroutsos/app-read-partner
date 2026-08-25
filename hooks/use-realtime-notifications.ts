@@ -1,8 +1,8 @@
 "use client"
 
-import { useCallback, useEffect, useState } from "react"
+import { useCallback, useEffect, useRef, useState } from "react"
 import { createClient } from "@/lib/supabase/client"
-import { mergeNotifications, markNotificationsReadLocally } from "@/lib/notification-display"
+import { mergeNotifications, markNotificationsReadLocally, newestUnseenUnreadNotification } from "@/lib/notification-display"
 import type { AppNotification } from "@/lib/types"
 
 export function useRealtimeNotifications(
@@ -11,8 +11,17 @@ export function useRealtimeNotifications(
 ) {
   const [notifications, setNotifications] = useState(initialNotifications)
   const [incomingNotification, setIncomingNotification] = useState<AppNotification | null>(null)
+  const knownNotificationIds = useRef(new Set(initialNotifications.map((notification) => notification.id)))
 
-  useEffect(() => { setNotifications(initialNotifications) }, [initialNotifications])
+  useEffect(() => {
+    const recoveredNotification = newestUnseenUnreadNotification(
+      initialNotifications,
+      knownNotificationIds.current,
+    )
+    setNotifications(initialNotifications)
+    for (const notification of initialNotifications) knownNotificationIds.current.add(notification.id)
+    if (recoveredNotification) setIncomingNotification(recoveredNotification)
+  }, [initialNotifications])
 
   useEffect(() => {
     const supabase = createClient()
@@ -25,7 +34,15 @@ export function useRealtimeNotifications(
         .eq("user_id", userId)
         .order("created_at", { ascending: false })
         .limit(50)
-      if (active && data) setNotifications(data as AppNotification[])
+      if (!active || !data) return
+      const nextNotifications = data as AppNotification[]
+      const recoveredNotification = newestUnseenUnreadNotification(
+        nextNotifications,
+        knownNotificationIds.current,
+      )
+      for (const notification of nextNotifications) knownNotificationIds.current.add(notification.id)
+      setNotifications(nextNotifications)
+      if (recoveredNotification) setIncomingNotification(recoveredNotification)
     }
 
     const syncOne = async (id: string, announce: boolean) => {
@@ -37,6 +54,7 @@ export function useRealtimeNotifications(
         .maybeSingle()
       if (!active || !data) return
       const notification = data as AppNotification
+      knownNotificationIds.current.add(notification.id)
       setNotifications((current) => mergeNotifications(current, [notification]))
       if (announce && !notification.read_at) setIncomingNotification(notification)
     }
@@ -59,7 +77,7 @@ export function useRealtimeNotifications(
       })
 
     void syncAll()
-    const recoveryTimer = window.setInterval(syncAll, 10_000)
+    const recoveryTimer = window.setInterval(syncAll, 4_000)
     const syncWhenVisible = () => {
       if (document.visibilityState === "visible") void syncAll()
     }
