@@ -176,7 +176,7 @@ export function ChatView({ matchId, partner, subject, venue, userId, onBack, moc
       </div>
 
       {isReal && matchId && liveSchedule && (liveSchedule.status === "proposed" || liveSchedule.status === "confirmed") && (
-        <StudyProposalCard matchId={matchId} currentUserId={userId} partnerName={displayName} venues={venues} schedule={liveSchedule} />
+        <StudyProposalCard matchId={matchId} currentUserId={userId} partnerName={displayName} subjectName={displaySubject} venues={venues} schedule={liveSchedule} />
       )}
 
       <ScrollArea className="min-h-0 flex-1 px-4 py-3" ref={scrollRef}>

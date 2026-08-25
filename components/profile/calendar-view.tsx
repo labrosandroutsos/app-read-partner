@@ -10,6 +10,7 @@ import { Calendar } from "@/components/ui/calendar"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
+import { AddToCalendarButton } from "@/components/calendar/add-to-calendar-button"
 import { studySessions as mockSessions, getStudentById } from "@/lib/mock-data"
 import { cn } from "@/lib/utils"
 import type { StudySessionRecord } from "@/lib/types"
@@ -40,6 +41,7 @@ export function CalendarView({ studySessions = [], userId }: CalendarViewProps) 
     return {
       id: session.id,
       startsAt,
+      endsAt: session.ends_at,
       subject: session.subject?.name || 'Subject',
       partnerName: partner?.display_name?.split(' ')[0] || '?',
       partnerInitials: (partner?.display_name || '?').slice(0, 2).toUpperCase(),
@@ -55,6 +57,7 @@ export function CalendarView({ studySessions = [], userId }: CalendarViewProps) 
     return {
       id: session.id,
       startsAt: new Date(`${session.date}T12:00:00`),
+      endsAt: null,
       subject: session.subject,
       partnerName: partner?.name.split(' ')[0] || '?',
       partnerInitials: partner?.initials || '?',
@@ -102,14 +105,57 @@ export function CalendarView({ studySessions = [], userId }: CalendarViewProps) 
           {visibleItems.length === 0 && <p className="rounded-lg border border-dashed p-5 text-center text-sm text-muted-foreground">{el ? "Δεν υπάρχουν συναντήσεις για αυτή την ημέρα." : "No sessions on this day."}</p>}
           {visibleItems.map((session) => {
             const incoming = session.real && session.status === 'proposed' && session.proposedBy !== userId
-            return <Card key={session.id}><CardContent className="space-y-3 p-3">
-              <div className="flex items-center gap-3">
-                <div className={cn("flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-xs font-bold text-white", session.partnerColor)}>{session.partnerInitials}</div>
-                <div className="min-w-0 flex-1"><p className="text-sm font-medium text-foreground">{session.subject}</p><div className="mt-0.5 flex flex-wrap items-center gap-3"><span className="flex items-center gap-1 text-xs text-muted-foreground"><Clock className="h-3 w-3" />{session.startsAt.toLocaleTimeString(locale === 'el' ? 'el-GR' : 'en-GB', { hour: '2-digit', minute: '2-digit' })} · {session.duration}h</span><span className="flex items-center gap-1 text-xs text-muted-foreground"><MapPin className="h-3 w-3" />{session.venue}</span></div></div>
-                <Badge variant={session.status === 'confirmed' ? 'default' : 'outline'}>{session.status === 'confirmed' ? (el ? 'Επιβεβαιωμένη' : 'Confirmed') : (el ? 'Πρόταση' : 'Proposed')}</Badge>
-              </div>
-              {session.real && <div className="flex justify-end gap-2 border-t pt-2">{incoming ? <><Button size="sm" variant="outline" onClick={() => respond(session.id, false)} disabled={isPending}><X className="h-3.5 w-3.5" />{el ? 'Απόρριψη' : 'Decline'}</Button><Button size="sm" onClick={() => respond(session.id, true)} disabled={isPending}>{pendingId === session.id ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Check className="h-3.5 w-3.5" />}{el ? 'Αποδοχή' : 'Accept'}</Button></> : <Button size="sm" variant="outline" className="text-destructive" onClick={() => cancel(session.id)} disabled={isPending}>{pendingId === session.id && <Loader2 className="h-3.5 w-3.5 animate-spin" />}{el ? 'Ακύρωση' : 'Cancel'}</Button>}</div>}
-            </CardContent></Card>
+            const statusLabel = session.status === 'confirmed'
+              ? (el ? 'Επιβεβαιωμένη' : 'Confirmed')
+              : session.status === 'completed'
+                ? (el ? 'Ολοκληρωμένη' : 'Completed')
+                : (el ? 'Πρόταση' : 'Proposed')
+
+            return (
+              <Card key={session.id}>
+                <CardContent className="space-y-3 p-3">
+                  <div className="flex items-center gap-3">
+                    <div className={cn("flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-xs font-bold text-white", session.partnerColor)}>{session.partnerInitials}</div>
+                    <div className="min-w-0 flex-1">
+                      <p className="text-sm font-medium text-foreground">{session.subject}</p>
+                      <div className="mt-0.5 flex flex-wrap items-center gap-3">
+                        <span className="flex items-center gap-1 text-xs text-muted-foreground"><Clock className="h-3 w-3" />{session.startsAt.toLocaleTimeString(locale === 'el' ? 'el-GR' : 'en-GB', { hour: '2-digit', minute: '2-digit' })} · {session.duration}h</span>
+                        <span className="flex items-center gap-1 text-xs text-muted-foreground"><MapPin className="h-3 w-3" />{session.venue}</span>
+                      </div>
+                    </div>
+                    <Badge variant={session.status === 'confirmed' ? 'default' : 'outline'}>{statusLabel}</Badge>
+                  </div>
+
+                  {session.real && session.status !== 'completed' && (
+                    <div className="flex flex-wrap justify-end gap-2 border-t pt-2">
+                      {incoming ? (
+                        <>
+                          <Button size="sm" variant="outline" onClick={() => respond(session.id, false)} disabled={isPending}><X className="h-3.5 w-3.5" />{el ? 'Απόρριψη' : 'Decline'}</Button>
+                          <Button size="sm" onClick={() => respond(session.id, true)} disabled={isPending}>{pendingId === session.id ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Check className="h-3.5 w-3.5" />}{el ? 'Αποδοχή' : 'Accept'}</Button>
+                        </>
+                      ) : (
+                        <>
+                          {session.status === 'confirmed' && session.endsAt && (
+                            <AddToCalendarButton
+                              sessionId={session.id}
+                              startsAt={session.startsAt.toISOString()}
+                              endsAt={session.endsAt}
+                              subjectName={session.subject}
+                              partnerName={session.partnerName}
+                              venueName={session.venue}
+                            />
+                          )}
+                          <Button size="sm" variant="outline" className="text-destructive" onClick={() => cancel(session.id)} disabled={isPending}>
+                            {pendingId === session.id && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
+                            {el ? 'Ακύρωση' : 'Cancel'}
+                          </Button>
+                        </>
+                      )}
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            )
           })}
         </div>
       </div>

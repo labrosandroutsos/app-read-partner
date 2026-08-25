@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation"
 import { toast } from "sonner"
 import { cancelStudySession, respondToStudySession } from "@/lib/actions"
 import { ScheduleSessionDialog } from "@/components/calendar/schedule-session-dialog"
+import { AddToCalendarButton } from "@/components/calendar/add-to-calendar-button"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
@@ -16,11 +17,12 @@ interface StudyProposalCardProps {
   matchId: string
   currentUserId: string
   partnerName: string
+  subjectName: string
   venues: Venue[]
   schedule: StudySessionRecord
 }
 
-export function StudyProposalCard({ matchId, currentUserId, partnerName, venues, schedule }: StudyProposalCardProps) {
+export function StudyProposalCard({ matchId, currentUserId, partnerName, subjectName, venues, schedule }: StudyProposalCardProps) {
   const { locale } = useTranslation()
   const router = useRouter()
   const [isPending, startTransition] = useTransition()
@@ -80,6 +82,16 @@ export function StudyProposalCard({ matchId, currentUserId, partnerName, venues,
             </>
           ) : (
             <>
+              {schedule.status === "confirmed" && schedule.starts_at && schedule.ends_at && (
+                <AddToCalendarButton
+                  sessionId={schedule.id}
+                  startsAt={schedule.starts_at}
+                  endsAt={schedule.ends_at}
+                  subjectName={subjectName}
+                  partnerName={partnerName}
+                  venueName={venueName}
+                />
+              )}
               <ScheduleSessionDialog matchId={matchId} currentUserId={currentUserId} partnerName={partnerName} venues={venues} schedule={schedule} trigger={<Button size="sm" variant="outline"><Pencil className="h-3.5 w-3.5" />{el ? "Αλλαγή" : "Change"}</Button>} />
               {schedule.status === "confirmed" && <Button size="sm" variant="ghost" className="text-destructive" onClick={cancel} disabled={isPending}>{el ? "Ακύρωση" : "Cancel"}</Button>}
             </>
