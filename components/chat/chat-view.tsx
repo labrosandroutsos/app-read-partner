@@ -143,8 +143,8 @@ export function ChatView({ matchId, partner, subject, venue, userId, onBack, moc
       }))
 
   return (
-    <div className="flex flex-col h-[calc(100dvh-8rem)]">
-      <div className="flex items-center gap-3 px-3 py-2 border-b border-border bg-card">
+    <div className="flex h-full min-h-0 flex-col overflow-hidden">
+      <div className="flex shrink-0 items-center gap-3 border-b border-border bg-card px-3 py-2">
         <Button variant="ghost" size="icon" className="h-8 w-8 shrink-0" onClick={onBack} aria-label="Back">
           <ArrowLeft className="h-4 w-4" />
         </Button>
@@ -179,7 +179,7 @@ export function ChatView({ matchId, partner, subject, venue, userId, onBack, moc
         <StudyProposalCard matchId={matchId} currentUserId={userId} partnerName={displayName} venues={venues} schedule={liveSchedule} />
       )}
 
-      <ScrollArea className="flex-1 px-4 py-3" ref={scrollRef}>
+      <ScrollArea className="min-h-0 flex-1 px-4 py-3" ref={scrollRef}>
         <div className="flex flex-col gap-2">
           {messageItems.map((msg) => {
             if (msg.isSystem) {
@@ -210,7 +210,7 @@ export function ChatView({ matchId, partner, subject, venue, userId, onBack, moc
         </div>
       </ScrollArea>
 
-      <div className="flex items-center gap-2 px-4 py-2 overflow-x-auto">
+      <div className="flex shrink-0 items-center gap-2 overflow-x-auto px-4 py-2">
         {quickActions.map((action) => (
           <Button
             key={action.key}
@@ -226,7 +226,7 @@ export function ChatView({ matchId, partner, subject, venue, userId, onBack, moc
         ))}
       </div>
 
-      <div className="flex items-center gap-2 px-4 py-3 border-t border-border bg-card">
+      <div className="flex shrink-0 items-center gap-2 border-t border-border bg-card px-4 py-3">
         <Input
           placeholder={t("chat.input.placeholder")}
           value={input}
@@ -244,6 +244,7 @@ export function ChatView({ matchId, partner, subject, venue, userId, onBack, moc
           {isSending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
         </Button>
       </div>
+      <div className="h-10 shrink-0 md:hidden" aria-hidden="true" />
     </div>
   )
 }

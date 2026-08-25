@@ -9,13 +9,16 @@ import { getStudentById } from "@/lib/mock-data"
 import type { ConversationPreview } from "@/lib/types"
 
 interface ChatListProps {
+  currentUserId?: string
   conversations?: ConversationPreview[]
+  unreadByMatch?: Record<string, number>
   mockConversations?: Conversation[]
   onSelectChat: (id: string) => void
 }
 
-export function ChatList({ conversations, mockConversations, onSelectChat }: ChatListProps) {
-  const { t } = useTranslation()
+export function ChatList({ currentUserId, conversations, unreadByMatch, mockConversations, onSelectChat }: ChatListProps) {
+  const { t, locale } = useTranslation()
+  const el = locale === "el"
 
   const items = conversations && conversations.length > 0
     ? conversations.map(c => ({
@@ -23,7 +26,8 @@ export function ChatList({ conversations, mockConversations, onSelectChat }: Cha
         name: c.partner.display_name || 'Student',
         initials: (c.partner.display_name || 'S').slice(0, 2).toUpperCase(),
         avatarColor: c.partner.avatar_color || 'bg-blue-500',
-        unread: c.unreadCount,
+        unread: unreadByMatch?.[c.match.id] ?? c.unreadCount,
+        incomingProposal: c.schedule?.status === "proposed" && c.schedule.proposed_by !== currentUserId,
         lastActive: new Date(c.lastMessage?.created_at || c.match.matched_at).toLocaleTimeString('el-GR', { hour: '2-digit', minute: '2-digit' }),
         lastMessage: c.lastMessage?.is_system
           ? t(c.lastMessage.text as Parameters<typeof t>[0])
@@ -41,6 +45,7 @@ export function ChatList({ conversations, mockConversations, onSelectChat }: Cha
           initials: partner?.initials || '',
           avatarColor: partner?.avatarColor || 'bg-blue-500',
           unread: conv.unread,
+          incomingProposal: false,
           lastActive: conv.lastActive,
           lastMessage: lastMsg?.isSystem ? t(lastMsg.text as Parameters<typeof t>[0]) : lastMsg?.text || '',
           isSystem: lastMsg?.isSystem ?? false,
@@ -91,7 +96,8 @@ export function ChatList({ conversations, mockConversations, onSelectChat }: Cha
               <p className={cn("text-sm truncate mt-0.5", item.unread > 0 ? "text-foreground font-medium" : "text-muted-foreground")}>
                 {item.lastMessage}
               </p>
-              <div className="flex items-center gap-1.5 mt-1">
+              <div className="flex flex-wrap items-center gap-1.5 mt-1">
+                {item.incomingProposal && <Badge className="h-4 bg-amber-500/15 px-1.5 py-0 text-[10px] text-amber-700 hover:bg-amber-500/15 dark:text-amber-400">{el ? "Νέα πρόταση μελέτης" : "New study proposal"}</Badge>}
                 <Badge variant="outline" className="text-[10px] py-0 px-1.5 h-4">{item.subject}</Badge>
                 <Badge variant="outline" className="text-[10px] py-0 px-1.5 h-4">{item.venue}</Badge>
               </div>

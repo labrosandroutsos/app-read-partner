@@ -1,11 +1,22 @@
 import type { AppNotification, NotificationType } from "./types"
 
+export const MESSAGE_BANNER_TIMEOUT_MS = 6_000
+
 export function mergeNotifications(current: AppNotification[], incoming: AppNotification[]): AppNotification[] {
   const merged = new Map(current.map((notification) => [notification.id, notification]))
   for (const notification of incoming) merged.set(notification.id, notification)
   return Array.from(merged.values())
     .sort((a, b) => b.created_at.localeCompare(a.created_at))
     .slice(0, 50)
+}
+
+export function newestUnseenUnreadNotification(
+  notifications: AppNotification[],
+  knownNotificationIds: ReadonlySet<string>,
+): AppNotification | null {
+  return notifications.find((notification) => (
+    !notification.read_at && !knownNotificationIds.has(notification.id)
+  )) ?? null
 }
 
 export function markNotificationsReadLocally(notifications: AppNotification[], notificationId?: string | null): AppNotification[] {
@@ -15,6 +26,16 @@ export function markNotificationsReadLocally(notifications: AppNotification[], n
       ? notification
       : { ...notification, read_at: readAt }
   ))
+}
+
+export function notificationMessagePreview(notification: AppNotification, locale: "el" | "en"): string {
+  const preview = notification.payload.message_preview
+  if (typeof preview === "string" && preview.trim()) return preview.trim()
+  return locale === "el" ? "Σου έστειλε ένα νέο μήνυμα." : "Sent you a new message."
+}
+
+export function shouldDismissNotificationBanner(offsetY: number): boolean {
+  return offsetY <= -48
 }
 
 export function notificationCopy(type: NotificationType, actorName: string, locale: "el" | "en") {

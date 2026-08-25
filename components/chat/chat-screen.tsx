@@ -10,11 +10,12 @@ interface ChatScreenProps {
   userId: string
   conversations: ConversationPreview[]
   venues: Venue[]
+  unreadByMatch: Record<string, number>
   selectedChatId: string | null
   onSelectedChatIdChange: (matchId: string | null) => void
 }
 
-export function ChatScreen({ userId, conversations, venues, selectedChatId, onSelectedChatIdChange }: ChatScreenProps) {
+export function ChatScreen({ userId, conversations, venues, unreadByMatch, selectedChatId, onSelectedChatIdChange }: ChatScreenProps) {
   const router = useRouter()
 
   const handleSelectChat = (matchId: string) => {
@@ -41,6 +42,6 @@ export function ChatScreen({ userId, conversations, venues, selectedChatId, onSe
   }
 
   return (
-    <ChatList conversations={conversations} onSelectChat={handleSelectChat} />
+    <ChatList currentUserId={userId} conversations={conversations} unreadByMatch={unreadByMatch} onSelectChat={handleSelectChat} />
   )
 }

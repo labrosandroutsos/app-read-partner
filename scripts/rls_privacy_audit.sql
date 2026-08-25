@@ -1,4 +1,4 @@
--- Run after all numbered migrations through 016 in the Supabase SQL editor.
+-- Run after all numbered migrations through 017 in the Supabase SQL editor.
 -- This script is read-only. It raises an error if a privacy invariant is missing.
 
 DO $$

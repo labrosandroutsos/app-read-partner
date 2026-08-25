@@ -6,6 +6,7 @@ const anonymousRpcMigration = readFileSync(new URL("../scripts/013_revoke_anonym
 const advisorMigration = readFileSync(new URL("../scripts/014_security_advisor_hardening.sql", import.meta.url), "utf8")
 const administrationMigration = readFileSync(new URL("../scripts/015_admin_and_moderation.sql", import.meta.url), "utf8")
 const notificationMigration = readFileSync(new URL("../scripts/016_in_app_notifications.sql", import.meta.url), "utf8")
+const contextualNotificationMigration = readFileSync(new URL("../scripts/017_contextual_notification_previews.sql", import.meta.url), "utf8")
 
 describe("privacy hardening migration", () => {
   it("removes anonymous reads from sensitive discovery tables", () => {
@@ -96,5 +97,10 @@ describe("privacy hardening migration", () => {
     expect(notificationMigration).toContain('CREATE TRIGGER create_message_notification')
     expect(notificationMigration).toContain('CREATE TRIGGER create_schedule_notification')
     expect(notificationMigration).toContain('REVOKE ALL ON FUNCTION public.mark_notifications_read(uuid) FROM PUBLIC, anon')
+  })
+
+  it("limits contextual message previews at the database boundary", () => {
+    expect(contextualNotificationMigration).toContain("left(btrim(NEW.text), 160)")
+    expect(contextualNotificationMigration).toContain("jsonb_build_object('message_preview'")
   })
 })
