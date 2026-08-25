@@ -33,6 +33,7 @@ describe("notification presentation", () => {
 
   it("localizes structured event types without storing rendered text", () => {
     expect(notificationCopy("match", "Alex", "en")).toEqual({ title: "New match", body: "You matched with Alex." })
+    expect(notificationCopy("interest", "", "en")).toEqual({ title: "New interest", body: "Someone wants to study with you. Check your available partners." })
     expect(notificationCopy("schedule_proposal", "Άννα", "el").title).toBe("Πρόταση μελέτης")
   })
 

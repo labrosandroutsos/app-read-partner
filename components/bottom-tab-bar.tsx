@@ -10,6 +10,7 @@ interface BottomTabBarProps {
   activeTab: TabId
   onTabChange: (tab: TabId) => void
   unreadChats: number
+  unreadInterests: number
 }
 
 const tabs: { id: TabId; icon: typeof Search; labelKey: string }[] = [
@@ -20,7 +21,7 @@ const tabs: { id: TabId; icon: typeof Search; labelKey: string }[] = [
   { id: "profile", icon: User, labelKey: "tab.profile" },
 ]
 
-export function BottomTabBar({ activeTab, onTabChange, unreadChats }: BottomTabBarProps) {
+export function BottomTabBar({ activeTab, onTabChange, unreadChats, unreadInterests }: BottomTabBarProps) {
   const { t } = useTranslation()
 
   return (
@@ -48,9 +49,9 @@ export function BottomTabBar({ activeTab, onTabChange, unreadChats }: BottomTabB
             >
               <div className="relative">
                 <Icon className="h-5 w-5" strokeWidth={isActive ? 2.5 : 2} />
-                {tab.id === "chat" && unreadChats > 0 && (
+                {((tab.id === "chat" && unreadChats > 0) || (tab.id === "partner" && unreadInterests > 0)) && (
                   <span className="absolute -top-1.5 -right-2 h-4 min-w-4 rounded-full bg-accent text-accent-foreground text-[10px] font-bold flex items-center justify-center px-1">
-                    {unreadChats}
+                    {tab.id === "chat" ? unreadChats : unreadInterests}
                   </span>
                 )}
               </div>

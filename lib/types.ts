@@ -126,7 +126,7 @@ export interface AccessContext {
   suspension: ActiveSuspension | null
 }
 
-export type NotificationType = 'match' | 'message' | 'schedule_proposal'
+export type NotificationType = 'interest' | 'match' | 'message' | 'schedule_proposal'
 
 export interface AppNotification {
   id: string
@@ -256,6 +256,17 @@ export interface PartnerCandidate {
   plannedEnd: string | null
   studyStyle: 'quiet' | 'social' | 'either'
   language: 'el' | 'en' | 'either'
+}
+
+export interface MatchingSearchFeedback {
+  activeMatchCount: number
+  pendingInterestCount: number
+  searchExpiresAt: string | null
+}
+
+export interface MatchingSearchResult {
+  candidates: PartnerCandidate[]
+  feedback: MatchingSearchFeedback
 }
 
 export interface ConversationPreview {

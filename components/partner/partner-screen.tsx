@@ -6,7 +6,8 @@ import { PartnerStack } from "./partner-stack"
 import { createSession, findMatchCandidates } from "@/lib/actions"
 import { toast } from "sonner"
 import { useTranslation } from "@/lib/i18n"
-import type { PartnerCandidate, Profile, Subject, Venue } from "@/lib/types"
+import { getMatchingSearchErrorKind } from "@/lib/matching-feedback"
+import type { MatchingSearchFeedback, PartnerCandidate, Profile, Subject, Venue } from "@/lib/types"
 
 interface PartnerScreenProps {
   onGoToChat: () => void
@@ -17,10 +18,11 @@ interface PartnerScreenProps {
 }
 
 export function PartnerScreen({ onGoToChat, profile, subjects, venues }: PartnerScreenProps) {
-  const { t } = useTranslation()
+  const { t, locale } = useTranslation()
   const [wizardComplete, setWizardComplete] = useState(false)
   const [prefs, setPrefs] = useState<MatchPreferences>({ subject: "", venue: "", duration: "", plannedStart: "", studyStyle: "either", language: "either", maxDistanceKm: 5 })
   const [candidates, setCandidates] = useState<PartnerCandidate[]>([])
+  const [feedback, setFeedback] = useState<MatchingSearchFeedback>({ activeMatchCount: 0, pendingInterestCount: 0, searchExpiresAt: null })
   const [sessionId, setSessionId] = useState<string | null>(null)
   const [isSearching, setIsSearching] = useState(false)
 
@@ -40,14 +42,21 @@ export function PartnerScreen({ onGoToChat, profile, subjects, venues }: Partner
         language: p.language,
         maxDistanceKm: p.maxDistanceKm,
       })
-      const nextCandidates = await findMatchCandidates(session.id)
+      const result = await findMatchCandidates(session.id)
 
       setPrefs(p)
       setSessionId(session.id)
-      setCandidates(nextCandidates)
+      setCandidates(result.candidates)
+      setFeedback(result.feedback)
       setWizardComplete(true)
-    } catch {
-      toast.error(t("partner.search.error"))
+    } catch (error) {
+      const message = typeof error === "object" && error && "message" in error ? String(error.message) : ""
+      const errorKind = getMatchingSearchErrorKind(message)
+      toast.error(errorKind === "student-account"
+        ? (locale === "el" ? "Το matchmaking είναι διαθέσιμο μόνο σε φοιτητικούς λογαριασμούς." : "Matchmaking is available only to student accounts.")
+        : errorKind === "expired"
+          ? (locale === "el" ? "Η αναζήτηση έληξε. Δημιούργησε μια νέα αναζήτηση." : "That search expired. Start a new search.")
+          : t("partner.search.error"))
     } finally {
       setIsSearching(false)
     }
@@ -57,6 +66,7 @@ export function PartnerScreen({ onGoToChat, profile, subjects, venues }: Partner
     setWizardComplete(false)
     setPrefs({ subject: "", venue: "", duration: "", plannedStart: "", studyStyle: "either", language: "either", maxDistanceKm: 5 })
     setCandidates([])
+    setFeedback({ activeMatchCount: 0, pendingInterestCount: 0, searchExpiresAt: null })
     setSessionId(null)
   }
 
@@ -74,6 +84,7 @@ export function PartnerScreen({ onGoToChat, profile, subjects, venues }: Partner
   return (
     <PartnerStack
       candidates={candidates}
+      feedback={feedback}
       matchSubject={prefs.subject}
       onGoToChat={onGoToChat}
       onRestart={handleRestart}

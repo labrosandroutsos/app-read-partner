@@ -1,7 +1,7 @@
 "use client"
 
 import { useCallback, useEffect, useRef, useState } from "react"
-import { MessageCircle } from "lucide-react"
+import { Heart, MessageCircle } from "lucide-react"
 import { markNotificationsRead } from "@/lib/actions"
 import { MESSAGE_BANNER_TIMEOUT_MS, notificationCopy, notificationMessagePreview, shouldDismissNotificationBanner } from "@/lib/notification-display"
 import { useRealtimeNotifications } from "@/hooks/use-realtime-notifications"
@@ -16,6 +16,7 @@ interface ContextualNotificationsProps {
   initialNotifications: AppNotification[]
   activeMatchId: string | null
   onOpenChat: (matchId: string) => void
+  onOpenPartner: (notificationId: string) => void
   onIncomingActivity: (notification: AppNotification, isActiveChat: boolean) => void
 }
 
@@ -24,11 +25,12 @@ export function ContextualNotifications({
   initialNotifications,
   activeMatchId,
   onOpenChat,
+  onOpenPartner,
   onIncomingActivity,
 }: ContextualNotificationsProps) {
   const { locale } = useTranslation()
   const el = locale === "el"
-  const [messageBanner, setMessageBanner] = useState<AppNotification | null>(null)
+  const [activityBanner, setActivityBanner] = useState<AppNotification | null>(null)
   const [matchDialog, setMatchDialog] = useState<AppNotification | null>(null)
   const startY = useRef<number | null>(null)
   const dragY = useRef(0)
@@ -50,10 +52,11 @@ export function ContextualNotifications({
 
   const openNotification = useCallback((notification: AppNotification) => {
     markRead(notification)
-    setMessageBanner(null)
+    setActivityBanner(null)
     setMatchDialog(null)
-    if (notification.match_id) onOpenChat(notification.match_id)
-  }, [markRead, onOpenChat])
+    if (notification.type === "interest") onOpenPartner(notification.id)
+    else if (notification.match_id) onOpenChat(notification.match_id)
+  }, [markRead, onOpenChat, onOpenPartner])
 
   const clearBannerTimer = useCallback(() => {
     if (bannerTimer.current === null) return
@@ -64,19 +67,19 @@ export function ContextualNotifications({
   const scheduleBannerDismiss = useCallback(() => {
     clearBannerTimer()
     bannerTimer.current = window.setTimeout(() => {
-      setMessageBanner(null)
+      setActivityBanner(null)
       bannerTimer.current = null
     }, MESSAGE_BANNER_TIMEOUT_MS)
   }, [clearBannerTimer])
 
   useEffect(() => {
-    if (!messageBanner) {
+    if (!activityBanner) {
       clearBannerTimer()
       return
     }
     scheduleBannerDismiss()
     return clearBannerTimer
-  }, [clearBannerTimer, messageBanner, scheduleBannerDismiss])
+  }, [activityBanner, clearBannerTimer, scheduleBannerDismiss])
 
   useEffect(() => {
     if (!incomingNotification) return
@@ -91,8 +94,8 @@ export function ContextualNotifications({
       markRead(incomingNotification)
       return
     }
-    if (incomingNotification.type === "message") {
-      setMessageBanner(incomingNotification)
+    if (incomingNotification.type === "message" || incomingNotification.type === "interest") {
+      setActivityBanner(incomingNotification)
       setDragOffset(0)
     } else if (incomingNotification.type === "match") {
       setMatchDialog(incomingNotification)
@@ -131,7 +134,7 @@ export function ContextualNotifications({
   const onPointerUp = () => {
     startY.current = null
     if (shouldDismissNotificationBanner(dragY.current)) {
-      setMessageBanner(null)
+      setActivityBanner(null)
     } else {
       setDragOffset(0)
       scheduleBannerDismiss()
@@ -139,19 +142,21 @@ export function ContextualNotifications({
   }
 
   const handleBannerClick = () => {
-    if (!messageBanner || swiped.current) return
-    openNotification(messageBanner)
+    if (!activityBanner || swiped.current) return
+    openNotification(activityBanner)
   }
 
-  const messageActor = messageBanner?.actor?.display_name?.trim() || (el ? "Φοιτητής" : "Student")
-  const messageInitials = messageActor.slice(0, 2).toUpperCase()
+  const isInterestBanner = activityBanner?.type === "interest"
+  const messageActor = activityBanner?.actor?.display_name?.trim() || (el ? "Φοιτητής" : "Student")
+  const messageInitials = isInterestBanner ? "?" : messageActor.slice(0, 2).toUpperCase()
+  const activityCopy = activityBanner ? notificationCopy(activityBanner.type, activityBanner.actor?.display_name ?? "", locale) : null
   const matchCopy = matchDialog
     ? notificationCopy("match", matchDialog.actor?.display_name ?? "", locale)
     : null
 
   return (
     <>
-      {messageBanner && (
+      {activityBanner && activityCopy && (
         <div
           role="status"
           aria-live="polite"
@@ -174,18 +179,18 @@ export function ContextualNotifications({
             onFocus={clearBannerTimer}
             onBlur={scheduleBannerDismiss}
             className="flex w-full items-center gap-3 rounded-2xl border border-border/80 bg-card/95 px-3 py-3 text-left shadow-xl shadow-black/15 backdrop-blur-xl outline-none ring-primary/30 transition focus-visible:ring-2"
-            aria-label={el ? `Άνοιγμα μηνύματος από ${messageActor}` : `Open message from ${messageActor}`}
+            aria-label={isInterestBanner ? activityCopy.title : (el ? `Άνοιγμα μηνύματος από ${messageActor}` : `Open message from ${messageActor}`)}
           >
-            <span className={cn("flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-sm font-bold text-white", messageBanner.actor?.avatar_color || "bg-primary")}>
+            <span className={cn("flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-sm font-bold text-white", activityBanner.actor?.avatar_color || "bg-primary")}>
               {messageInitials}
             </span>
             <span className="min-w-0 flex-1">
               <span className="flex items-center gap-1.5 text-sm font-semibold">
-                <MessageCircle className="h-3.5 w-3.5 text-primary" />
-                {messageActor}
+                {isInterestBanner ? <Heart className="h-3.5 w-3.5 text-primary" /> : <MessageCircle className="h-3.5 w-3.5 text-primary" />}
+                {isInterestBanner ? activityCopy.title : messageActor}
               </span>
               <span className="mt-0.5 block truncate text-sm text-muted-foreground">
-                {notificationMessagePreview(messageBanner, locale)}
+                {isInterestBanner ? activityCopy.body : notificationMessagePreview(activityBanner, locale)}
               </span>
             </span>
             <span className="shrink-0 text-xs font-medium text-primary">{el ? "Άνοιγμα" : "Open"}</span>
