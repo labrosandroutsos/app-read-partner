@@ -13,7 +13,7 @@ import { VenuesScreen } from "@/components/venues/venues-screen"
 import { ProfileScreen } from "@/components/profile/profile-screen"
 import { ContextualNotifications } from "@/components/notifications/contextual-notifications"
 import { Button } from "@/components/ui/button"
-import { markConversationRead } from "@/lib/actions"
+import { markConversationRead, markNotificationsRead } from "@/lib/actions"
 import type { Profile, Subject, Venue, Note, Coupon, StudySessionRecord, ConversationPreview, BlockedUser, AppNotification } from "@/lib/types"
 
 interface AppShellClientProps {
@@ -56,6 +56,9 @@ export function AppShellClient({
   const [unreadByMatch, setUnreadByMatch] = useState<Record<string, number>>(() => Object.fromEntries(
     conversations.map((conversation) => [conversation.match.id, conversation.unreadCount]),
   ))
+  const [unreadInterestIds, setUnreadInterestIds] = useState<string[]>(() => notifications
+    .filter((notification) => notification.type === "interest" && !notification.read_at)
+    .map((notification) => notification.id))
   const [mounted, setMounted] = useState(false)
   const { resolvedTheme, setTheme } = useTheme()
   const router = useRouter()
@@ -70,6 +73,12 @@ export function AppShellClient({
     ))
   }, [conversations])
 
+  useEffect(() => {
+    setUnreadInterestIds(notifications
+      .filter((notification) => notification.type === "interest" && !notification.read_at)
+      .map((notification) => notification.id))
+  }, [notifications])
+
   const pendingProposals = conversations.filter((conversation) => (
     conversation.schedule?.status === "proposed"
     && conversation.schedule.proposed_by !== userId
@@ -83,6 +92,11 @@ export function AppShellClient({
     setActiveTab("chat")
     void markConversationRead(matchId).then(() => router.refresh(), () => router.refresh())
   }
+  const handleNotificationPartner = (notificationId: string) => {
+    setUnreadInterestIds((current) => current.filter((id) => id !== notificationId))
+    setSelectedChatId(null)
+    setActiveTab("partner")
+  }
   const handleIncomingActivity = (notification: AppNotification, isActiveChat: boolean) => {
     if (notification.type === "message" && notification.match_id) {
       const matchId = notification.match_id
@@ -91,6 +105,9 @@ export function AppShellClient({
         [matchId]: isActiveChat ? 0 : (current[matchId] ?? 0) + 1,
       }))
       if (isActiveChat) void markConversationRead(matchId).catch(() => undefined)
+    }
+    if (notification.type === "interest" && !notification.read_at) {
+      setUnreadInterestIds((current) => current.includes(notification.id) ? current : [...current, notification.id])
     }
     router.refresh()
   }
@@ -101,6 +118,11 @@ export function AppShellClient({
   const handleTabChange = (tab: TabId) => {
     setActiveTab(tab)
     if (tab !== "chat") setSelectedChatId(null)
+    if (tab === "partner" && unreadInterestIds.length > 0) {
+      const notificationIds = unreadInterestIds
+      setUnreadInterestIds([])
+      for (const notificationId of notificationIds) void markNotificationsRead(notificationId).catch(() => undefined)
+    }
   }
 
   return (
@@ -110,6 +132,7 @@ export function AppShellClient({
         initialNotifications={notifications}
         activeMatchId={activeTab === "chat" ? selectedChatId : null}
         onOpenChat={handleNotificationChat}
+        onOpenPartner={handleNotificationPartner}
         onIncomingActivity={handleIncomingActivity}
       />
       <header className="sticky top-0 z-40 flex shrink-0 items-center justify-between border-b border-border bg-card/80 px-4 py-3 backdrop-blur-lg">
@@ -188,6 +211,7 @@ export function AppShellClient({
         activeTab={activeTab}
         onTabChange={handleTabChange}
         unreadChats={unreadChats}
+        unreadInterests={unreadInterestIds.length}
       />
     </div>
   )

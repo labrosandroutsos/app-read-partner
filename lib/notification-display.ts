@@ -41,10 +41,12 @@ export function shouldDismissNotificationBanner(offsetY: number): boolean {
 export function notificationCopy(type: NotificationType, actorName: string, locale: "el" | "en") {
   const name = actorName || (locale === "el" ? "Ένας φοιτητής" : "A student")
   if (locale === "el") {
+    if (type === "interest") return { title: "Νέο ενδιαφέρον", body: "Κάποιος θέλει να μελετήσει μαζί σου. Δες τους διαθέσιμους partners." }
     if (type === "match") return { title: "Νέο match", body: `Έγινες match με ${name}.` }
     if (type === "message") return { title: "Νέο μήνυμα", body: `Ο/Η ${name} σου έστειλε μήνυμα.` }
     return { title: "Πρόταση μελέτης", body: `Ο/Η ${name} πρότεινε ώρα μελέτης.` }
   }
+  if (type === "interest") return { title: "New interest", body: "Someone wants to study with you. Check your available partners." }
   if (type === "match") return { title: "New match", body: `You matched with ${name}.` }
   if (type === "message") return { title: "New message", body: `${name} sent you a message.` }
   return { title: "Study proposal", body: `${name} proposed a study time.` }

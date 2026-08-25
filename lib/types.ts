@@ -126,7 +126,7 @@ export interface AccessContext {
   suspension: ActiveSuspension | null
 }
 
-export type NotificationType = 'match' | 'message' | 'schedule_proposal'
+export type NotificationType = 'interest' | 'match' | 'message' | 'schedule_proposal'
 
 export interface AppNotification {
   id: string

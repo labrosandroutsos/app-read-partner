@@ -10,7 +10,9 @@ export function useRealtimeNotifications(
   initialNotifications: AppNotification[],
 ) {
   const [notifications, setNotifications] = useState(initialNotifications)
-  const [incomingNotification, setIncomingNotification] = useState<AppNotification | null>(null)
+  const [incomingNotification, setIncomingNotification] = useState<AppNotification | null>(() => (
+    initialNotifications.find((notification) => notification.type === "interest" && !notification.read_at) ?? null
+  ))
   const knownNotificationIds = useRef(new Set(initialNotifications.map((notification) => notification.id)))
 
   useEffect(() => {
