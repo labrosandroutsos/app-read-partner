@@ -112,7 +112,7 @@ export function ContextualNotifications({
     setMatchDialog(null)
   }
 
-  const onPointerDown = (event: React.PointerEvent<HTMLDivElement>) => {
+  const onPointerDown = (event: React.PointerEvent<HTMLButtonElement>) => {
     clearBannerTimer()
     startY.current = event.clientY
     dragY.current = 0
@@ -120,7 +120,7 @@ export function ContextualNotifications({
     event.currentTarget.setPointerCapture(event.pointerId)
   }
 
-  const onPointerMove = (event: React.PointerEvent<HTMLDivElement>) => {
+  const onPointerMove = (event: React.PointerEvent<HTMLButtonElement>) => {
     if (startY.current === null) return
     const nextOffset = Math.min(0, event.clientY - startY.current)
     dragY.current = nextOffset
@@ -161,16 +161,16 @@ export function ContextualNotifications({
             transform: `translate(-50%, ${dragOffset}px)`,
             transition: startY.current === null ? "transform 180ms ease, opacity 180ms ease" : "none",
           }}
-          onPointerDown={onPointerDown}
-          onPointerMove={onPointerMove}
-          onPointerUp={onPointerUp}
-          onPointerCancel={onPointerUp}
           onMouseEnter={clearBannerTimer}
           onMouseLeave={scheduleBannerDismiss}
         >
           <button
             type="button"
             onClick={handleBannerClick}
+            onPointerDown={onPointerDown}
+            onPointerMove={onPointerMove}
+            onPointerUp={onPointerUp}
+            onPointerCancel={onPointerUp}
             onFocus={clearBannerTimer}
             onBlur={scheduleBannerDismiss}
             className="flex w-full items-center gap-3 rounded-2xl border border-border/80 bg-card/95 px-3 py-3 text-left shadow-xl shadow-black/15 backdrop-blur-xl outline-none ring-primary/30 transition focus-visible:ring-2"
