@@ -8,6 +8,7 @@ import { cn } from "@/lib/utils"
 import { getSubjectById } from "@/lib/mock-data"
 import type { PartnerCandidate, Subject as DBSubject } from "@/lib/types"
 import { UserSafetyMenu } from "@/components/safety/user-safety-menu"
+import { localizeCompatibilityReason } from "@/lib/matching-feedback"
 
 interface PartnerCardProps {
   candidate: PartnerCandidate
@@ -90,6 +91,9 @@ export function PartnerCard({ candidate, matchSubject, style, className, subject
             <Clock className="h-3.5 w-3.5" />
             <span>{candidate.timeOverlap}% {locale === "el" ? "χρονική επικάλυψη" : "time overlap"}</span>
           </div>
+          <p className="pt-1 text-[10px] leading-4 text-muted-foreground">
+            {candidate.compatibilityReasons.slice(1).map((reason) => localizeCompatibilityReason(reason, locale)).join(" · ")}
+          </p>
         </div>
 
         <div className="flex flex-wrap gap-1.5 mt-auto">

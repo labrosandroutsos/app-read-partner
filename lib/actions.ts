@@ -3,7 +3,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
-import type { PartnerCandidate } from '@/lib/types'
+import type { MatchingSearchResult, PartnerCandidate } from '@/lib/types'
 import { calculateMatchCompatibility } from '@/lib/match-compatibility'
 
 const ALLOWED_DURATIONS = new Set(['1h', '2h', '4h'])
@@ -112,7 +112,7 @@ export async function createSession(formData: {
   return data
 }
 
-export async function findMatchCandidates(sessionId: string): Promise<PartnerCandidate[]> {
+export async function findMatchCandidates(sessionId: string): Promise<MatchingSearchResult> {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) throw new Error('Not authenticated')
@@ -180,10 +180,32 @@ export async function findMatchCandidates(sessionId: string): Promise<PartnerCan
     })
   }
 
-  return Array.from(uniqueCandidates.values()).sort((a, b) => {
+  const sortedCandidates = Array.from(uniqueCandidates.values()).sort((a, b) => {
     if (b.compatibilityScore !== a.compatibilityScore) return b.compatibilityScore - a.compatibilityScore
     return a.distance - b.distance
   })
+
+  const [activeMatchesResult, pendingInterestsResult] = await Promise.all([
+    supabase
+      .from('matches')
+      .select('id', { count: 'exact', head: true })
+      .eq('status', 'accepted')
+      .or(`user_a.eq.${user.id},user_b.eq.${user.id}`),
+    supabase
+      .from('matches')
+      .select('id', { count: 'exact', head: true })
+      .eq('status', 'pending')
+      .eq('user_a', user.id),
+  ])
+
+  return {
+    candidates: sortedCandidates,
+    feedback: {
+      activeMatchCount: activeMatchesResult.error ? 0 : activeMatchesResult.count ?? 0,
+      pendingInterestCount: pendingInterestsResult.error ? 0 : pendingInterestsResult.count ?? 0,
+      searchExpiresAt: ownSession.expires_at ?? null,
+    },
+  }
 }
 
 export async function proposeStudySession(formData: {

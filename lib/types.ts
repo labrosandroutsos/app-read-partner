@@ -258,6 +258,17 @@ export interface PartnerCandidate {
   language: 'el' | 'en' | 'either'
 }
 
+export interface MatchingSearchFeedback {
+  activeMatchCount: number
+  pendingInterestCount: number
+  searchExpiresAt: string | null
+}
+
+export interface MatchingSearchResult {
+  candidates: PartnerCandidate[]
+  feedback: MatchingSearchFeedback
+}
+
 export interface ConversationPreview {
   match: Match
   partner: Profile

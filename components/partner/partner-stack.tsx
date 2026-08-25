@@ -2,17 +2,19 @@
 
 import { useState, useRef, useCallback } from "react"
 import { useRouter } from "next/navigation"
-import { Check, X, RotateCcw } from "lucide-react"
+import { Check, Clock3, MessageCircle, RotateCcw, SearchX, Send, X } from "lucide-react"
 import { useTranslation } from "@/lib/i18n"
 import { PartnerCard } from "./partner-card"
 import { MatchAnimation } from "./match-animation"
 import { Button } from "@/components/ui/button"
 import { swipeOnCandidate } from "@/lib/actions"
 import { toast } from "sonner"
-import type { PartnerCandidate, Subject } from "@/lib/types"
+import { getMatchingEmptyStateKind } from "@/lib/matching-feedback"
+import type { MatchingSearchFeedback, PartnerCandidate, Subject } from "@/lib/types"
 
 interface PartnerStackProps {
   candidates: PartnerCandidate[]
+  feedback: MatchingSearchFeedback
   matchSubject: string
   onGoToChat: () => void
   onRestart: () => void
@@ -24,6 +26,7 @@ interface PartnerStackProps {
 
 export function PartnerStack({
   candidates,
+  feedback,
   matchSubject,
   onGoToChat,
   onRestart,
@@ -32,13 +35,14 @@ export function PartnerStack({
   currentUserInitials,
   currentUserColor,
 }: PartnerStackProps) {
-  const { t } = useTranslation()
+  const { t, locale } = useTranslation()
   const router = useRouter()
   const [currentIndex, setCurrentIndex] = useState(0)
   const [matchedPartner, setMatchedPartner] = useState<PartnerCandidate | null>(null)
   const [swipeOffset, setSwipeOffset] = useState(0)
   const [isAnimating, setIsAnimating] = useState(false)
   const [exitDirection, setExitDirection] = useState<"left" | "right" | null>(null)
+  const [sentInterestCount, setSentInterestCount] = useState(0)
   const startX = useRef(0)
   const isDragging = useRef(false)
 
@@ -76,6 +80,9 @@ export function PartnerStack({
           if (result.matched) {
             setMatchedPartner(candidate)
             router.refresh()
+          } else {
+            setSentInterestCount((count) => count + 1)
+            toast.success(locale === "el" ? "Το ενδιαφέρον στάλθηκε. Θα γίνει match όταν σε επιλέξει και ο άλλος φοιτητής." : "Interest sent. You'll match when the other student chooses you too.")
           }
         } catch {
           toast.error(t("partner.swipe.error"))
@@ -90,7 +97,7 @@ export function PartnerStack({
       setExitDirection(null)
       setIsAnimating(false)
     }, 300)
-  }, [candidates, currentIndex, router, sessionId, t])
+  }, [candidates, currentIndex, locale, router, sessionId, t])
 
   const handlePointerUp = useCallback(() => {
     if (!isDragging.current) return
@@ -123,16 +130,63 @@ export function PartnerStack({
   }
 
   if (currentIndex >= candidates.length) {
+    const el = locale === "el"
+    const state = getMatchingEmptyStateKind({
+      initialCandidateCount: candidates.length,
+      activeMatchCount: feedback.activeMatchCount,
+      pendingInterestCount: feedback.pendingInterestCount,
+      sentInterestCount,
+    })
+    const title = state === "waiting"
+      ? (el ? "Το ενδιαφέρον σου στάλθηκε" : "Your interest was sent")
+      : state === "existing-match"
+        ? (el ? "Δεν υπάρχουν νέοι partners" : "No new partners right now")
+        : state === "reviewed-all"
+          ? (el ? "Είδες όλους τους διαθέσιμους partners" : "You've reviewed every available partner")
+          : (el ? "Δεν βρέθηκαν partners ακόμη" : "No partners found yet")
+    const subtitle = state === "waiting"
+      ? (el ? "Η αναζήτηση παραμένει ενεργή. Θα γίνει match μόλις υπάρξει αμοιβαίο ενδιαφέρον." : "Your search remains active. A match will be created as soon as the interest is mutual.")
+      : state === "reviewed-all"
+        ? (el ? "Μπορείς να περιμένεις απάντηση ή να δοκιμάσεις νέα κριτήρια." : "You can wait for a response or try a new set of preferences.")
+        : (el ? "Η αναζήτησή σου παραμένει ενεργή μέχρι τη λήξη της." : "Your search stays active until its scheduled end time.")
+    const expiresAt = feedback.searchExpiresAt ? new Date(feedback.searchExpiresAt) : null
+    const expiryLabel = expiresAt && Number.isFinite(expiresAt.getTime())
+      ? expiresAt.toLocaleString(el ? "el-GR" : "en-GB", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" })
+      : null
+
     return (
-      <div className="flex flex-col items-center justify-center gap-4 py-16 px-6 text-center">
-        <div className="w-16 h-16 rounded-full bg-muted flex items-center justify-center">
-          <RotateCcw className="h-7 w-7 text-muted-foreground" />
+      <div className="flex flex-col items-center justify-center gap-4 px-5 py-10 text-center">
+        <div className="flex h-16 w-16 items-center justify-center rounded-full bg-primary/10">
+          {state === "waiting" ? <Send className="h-7 w-7 text-primary" /> : <SearchX className="h-7 w-7 text-primary" />}
         </div>
-        <h3 className="text-lg font-bold text-foreground">{t("partner.nomore")}</h3>
-        <p className="text-sm text-muted-foreground">{t("partner.nomore.subtitle")}</p>
-        <Button onClick={onRestart} variant="outline">
-          {t("partner.restart")}
-        </Button>
+        <div className="space-y-1">
+          <h3 className="text-lg font-bold text-foreground">{title}</h3>
+          <p className="max-w-sm text-sm text-muted-foreground">{subtitle}</p>
+          {expiryLabel && <p className="text-xs font-medium text-primary">{el ? `Ενεργή έως ${expiryLabel}` : `Active until ${expiryLabel}`}</p>}
+        </div>
+
+        <div className="w-full max-w-sm space-y-2 text-left">
+          {feedback.pendingInterestCount + sentInterestCount > 0 && (
+            <div className="flex gap-3 rounded-xl border bg-card p-3">
+              <Clock3 className="mt-0.5 h-5 w-5 shrink-0 text-amber-500" />
+              <div><p className="text-sm font-medium">{el ? "Αναμονή για αμοιβαίο ενδιαφέρον" : "Waiting for mutual interest"}</p><p className="text-xs text-muted-foreground">{el ? `${feedback.pendingInterestCount + sentInterestCount} ενεργή ${feedback.pendingInterestCount + sentInterestCount === 1 ? "επιλογή" : "επιλογές"}.` : `${feedback.pendingInterestCount + sentInterestCount} pending ${feedback.pendingInterestCount + sentInterestCount === 1 ? "like" : "likes"}.`}</p></div>
+            </div>
+          )}
+          {feedback.activeMatchCount > 0 && (
+            <div className="flex gap-3 rounded-xl border bg-card p-3">
+              <MessageCircle className="mt-0.5 h-5 w-5 shrink-0 text-primary" />
+              <div><p className="text-sm font-medium">{el ? "Οι υπάρχοντες partners δεν εμφανίζονται ξανά" : "Existing partners aren't shown again"}</p><p className="text-xs text-muted-foreground">{el ? "Άνοιξε το Chat για να συνεχίσεις ή τερμάτισε το ενεργό match αν θέλεις να κάνετε νέο match." : "Open Chat to continue, or end the active match if you want to match with that student again."}</p></div>
+            </div>
+          )}
+          <div className="rounded-xl border border-dashed p-3 text-xs text-muted-foreground">
+            {el ? "Για περισσότερα αποτελέσματα, δοκίμασε μεγαλύτερο χρονικό διάστημα, «Οπουδήποτε κοντά» ή πιο ευέλικτες προτιμήσεις." : "For more results, try a longer time window, Anywhere nearby, or more flexible study preferences."}
+          </div>
+        </div>
+
+        <div className="flex w-full max-w-sm gap-2">
+          {feedback.activeMatchCount > 0 && <Button onClick={onGoToChat} className="flex-1"><MessageCircle className="h-4 w-4" />{el ? "Άνοιγμα Chat" : "Open Chat"}</Button>}
+          <Button onClick={onRestart} variant="outline" className="flex-1"><RotateCcw className="h-4 w-4" />{t("partner.restart")}</Button>
+        </div>
       </div>
     )
   }
