@@ -62,7 +62,7 @@ export function UploadDialog({ subjects }: UploadDialogProps) {
       <DialogTrigger asChild>
         <Button
           size="icon"
-          className="fixed bottom-24 right-[calc(50%-200px+16px)] z-30 h-14 w-14 rounded-full shadow-lg"
+          className="fixed bottom-24 right-[max(1rem,calc((100vw-760px)/2+1rem))] z-30 h-14 w-14 rounded-full shadow-lg"
           aria-label={t("notes.upload")}
         >
           <Upload className="h-5 w-5" />

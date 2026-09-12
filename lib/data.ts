@@ -218,9 +218,12 @@ export async function getConversations(userId: string): Promise<ConversationPrev
       .limit(1)
       .maybeSingle()
 
+    // A deleted or inaccessible profile must not crash the chat list.
+    if (!partner) continue
+
     conversations.push({
       match,
-      partner: partner!,
+      partner,
       lastMessage: lastMsg,
       unreadCount: count ?? 0,
       subject: (match as any).subjects ?? null,

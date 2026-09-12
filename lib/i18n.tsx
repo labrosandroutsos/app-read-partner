@@ -1,6 +1,6 @@
 "use client"
 
-import React, { createContext, useContext, useState, useCallback } from "react"
+import React, { createContext, useContext, useState, useCallback, useEffect } from "react"
 
 export type Locale = "el" | "en"
 
@@ -280,6 +280,20 @@ const I18nContext = createContext<I18nContextValue | null>(null)
 export function I18nProvider({ children }: { children: React.ReactNode }) {
   const [locale, setLocale] = useState<Locale>("el")
 
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem("read-partner-locale")
+      if (saved === "el" || saved === "en") setLocale(saved)
+    } catch { /* Storage may be unavailable in private browsing. */ }
+  }, [])
+
+  useEffect(() => { document.documentElement.lang = locale }, [locale])
+
+  const changeLocale = useCallback((next: Locale) => {
+    setLocale(next)
+    try { localStorage.setItem("read-partner-locale", next) } catch { /* Keep the in-memory preference. */ }
+  }, [])
+
   const t = useCallback(
     (key: TranslationKey): string => {
       return translations[locale][key] || key
@@ -288,7 +302,7 @@ export function I18nProvider({ children }: { children: React.ReactNode }) {
   )
 
   return (
-    <I18nContext.Provider value={{ locale, setLocale, t }}>
+    <I18nContext.Provider value={{ locale, setLocale: changeLocale, t }}>
       {children}
     </I18nContext.Provider>
   )

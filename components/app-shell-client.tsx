@@ -126,7 +126,7 @@ export function AppShellClient({
   }
 
   return (
-    <div className="relative mx-auto flex h-dvh max-w-[430px] flex-col overflow-hidden bg-background">
+    <div className="relative mx-auto flex h-dvh max-w-[760px] border-x border-border shadow-sm flex-col overflow-hidden bg-background">
       <ContextualNotifications
         userId={userId}
         initialNotifications={notifications}
@@ -135,7 +135,7 @@ export function AppShellClient({
         onOpenPartner={handleNotificationPartner}
         onIncomingActivity={handleIncomingActivity}
       />
-      <header className="sticky top-0 z-40 flex shrink-0 items-center justify-between border-b border-border bg-card/80 px-4 py-3 backdrop-blur-lg">
+      <header className="sticky top-0 z-40 flex shrink-0 items-center justify-between border-b border-border bg-card/90 px-5 pb-4 pt-[max(1rem,env(safe-area-inset-top))] backdrop-blur-lg">
         <div className="flex items-center gap-2">
           <div className="h-8 w-8 rounded-lg bg-primary flex items-center justify-center">
             <BookOpen className="h-4 w-4 text-primary-foreground" />
@@ -147,7 +147,7 @@ export function AppShellClient({
           <Button
             variant="ghost"
             size="icon"
-            className="h-8 w-8"
+            className="h-11 w-11"
             onClick={() => setTheme(resolvedTheme === "dark" ? "light" : "dark")}
             aria-label="Toggle theme"
           >
@@ -161,7 +161,7 @@ export function AppShellClient({
       </header>
 
       <main className="min-h-0 flex-1 overflow-y-auto pb-[calc(4.25rem+env(safe-area-inset-bottom))]">
-        {activeTab === "partner" && (
+        <div hidden={activeTab !== "partner"}>
           <PartnerScreen
             onGoToChat={handleGoToChat}
             userId={userId}
@@ -169,7 +169,7 @@ export function AppShellClient({
             subjects={subjects}
             venues={venues}
           />
-        )}
+        </div>
         {activeTab === "chat" && (
           <ChatScreen
             userId={userId}

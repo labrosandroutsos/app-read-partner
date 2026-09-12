@@ -29,7 +29,7 @@ export default function LoginPage() {
       msg.includes("NetworkError") ||
       msg.includes("Failed to fetch")
     ) {
-      return "Cannot reach Supabase (network error). In Supabase: Settings → API, copy the current Project URL and anon/public key into .env.local as NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY, then restart npm run dev. If the project was paused, restore it from the dashboard."
+      return "We couldn’t connect. Check your internet connection and try again in a moment."
     }
     return msg || "Something went wrong."
   }
@@ -77,25 +77,34 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-dvh flex items-center justify-center bg-background p-4">
-      <Card className="w-full max-w-[400px]">
+    <div className="min-h-dvh grid items-center gap-6 bg-background px-5 py-7 lg:grid-cols-2 lg:gap-20 lg:px-[max(3rem,calc((100vw-1120px)/2))]">
+      <section className="mx-auto w-full max-w-lg">
+        <div className="mb-5 flex items-center gap-3 text-sm font-semibold tracking-wide"><BookOpen className="h-6 w-6 text-primary" /> READ PARTNER</div>
+        <p className="mb-4 text-xs font-semibold uppercase tracking-[0.2em] text-primary">A little company. A lot more focus.</p>
+        <h1 className="study-title text-4xl leading-[1.08] sm:text-6xl">Good study days<br />start together.</h1>
+        <p className="mt-4 max-w-sm text-base leading-7 text-muted-foreground">Find someone studying what you are. Make a plan, share your notes, and turn “I’ll do it later” into a little progress.</p>
+        <ol className="mt-9 hidden space-y-4 text-sm lg:block">
+          {["Choose a subject and a time that suits you", "Connect when you both want to study together", "Chat and agree on your study session"].map((text, i) => <li key={text} className="flex items-center gap-3"><span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-primary/20 text-primary">{i + 1}</span>{text}</li>)}
+        </ol>
+      </section>
+      <Card className="mx-auto w-full max-w-[440px] border-border/80 py-5 shadow-[0_20px_80px_-30px_rgba(30,60,40,0.22)]">
         <CardHeader className="text-center">
           <div className="mx-auto h-12 w-12 rounded-xl bg-primary flex items-center justify-center mb-2">
             <BookOpen className="h-6 w-6 text-primary-foreground" />
           </div>
-          <CardTitle className="text-2xl font-bold">Read Partner</CardTitle>
+          <CardTitle className="study-title text-3xl">Welcome back</CardTitle>
           <p className="text-sm text-muted-foreground">Sign in to find your study partner</p>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleLogin} className="flex flex-col gap-4">
             {error && (
-              <div className="bg-destructive/10 text-destructive text-sm p-3 rounded-lg">
+              <div role="alert" className="bg-destructive/10 text-destructive text-sm p-3 rounded-lg">
                 {error}
               </div>
             )}
             <div className="flex flex-col gap-2">
               <Label htmlFor="email">Email</Label>
-              <Input id="email" type="email" placeholder="you@university.gr" value={email} onChange={(e) => setEmail(e.target.value)} required />
+              <Input id="email" autoComplete="email" type="email" placeholder="you@university.gr" value={email} onChange={(e) => setEmail(e.target.value)} required />
             </div>
             <div className="flex flex-col gap-2">
               <div className="flex items-center justify-between">
@@ -104,9 +113,9 @@ export default function LoginPage() {
                   Forgot password?
                 </Link>
               </div>
-              <Input id="password" type="password" placeholder="••••••••" value={password} onChange={(e) => setPassword(e.target.value)} required />
+              <Input id="password" autoComplete="current-password" type="password" placeholder="••••••••" value={password} onChange={(e) => setPassword(e.target.value)} required />
             </div>
-            <Button type="submit" className="w-full" disabled={loading}>
+            <Button type="submit" className="h-12 w-full" disabled={loading || oauthLoading}>
               {loading ? "Signing in..." : "Sign In"}
             </Button>
           </form>
@@ -118,7 +127,7 @@ export default function LoginPage() {
             </span>
           </div>
 
-          <Button variant="outline" className="w-full" onClick={handleGoogleLogin} disabled={oauthLoading || loading}>
+          <Button variant="outline" className="h-12 w-full" onClick={handleGoogleLogin} disabled={oauthLoading || loading}>
             {oauthLoading ? (
               <Loader2 className="h-4 w-4 mr-2 animate-spin" />
             ) : (

@@ -26,8 +26,7 @@ export function BottomTabBar({ activeTab, onTabChange, unreadChats, unreadIntere
 
   return (
     <nav
-      className="fixed bottom-0 left-1/2 z-50 w-full max-w-[430px] -translate-x-1/2 border-t border-border bg-card"
-      role="tablist"
+      className="absolute bottom-0 left-0 z-50 w-full border-t border-border bg-card"
       aria-label="Main navigation"
     >
       <div className="flex items-center justify-around px-2 py-1 pb-[max(0.25rem,env(safe-area-inset-bottom))]">
@@ -37,13 +36,12 @@ export function BottomTabBar({ activeTab, onTabChange, unreadChats, unreadIntere
           return (
             <button
               key={tab.id}
-              role="tab"
-              aria-selected={isActive}
+              aria-current={isActive ? "page" : undefined}
               onClick={() => onTabChange(tab.id)}
               className={cn(
-                "flex flex-col items-center gap-0.5 px-3 py-2 rounded-lg transition-colors relative min-w-[56px]",
+                "flex flex-col items-center gap-1 px-2 py-2.5 rounded-lg transition-colors relative min-w-[56px]",
                 isActive
-                  ? "text-primary"
+                  ? "bg-primary/10 text-primary"
                   : "text-muted-foreground hover:text-foreground"
               )}
             >
@@ -55,7 +53,7 @@ export function BottomTabBar({ activeTab, onTabChange, unreadChats, unreadIntere
                   </span>
                 )}
               </div>
-              <span className={cn("text-[10px] leading-tight", isActive ? "font-semibold" : "font-medium")}>
+              <span className={cn("text-xs leading-tight", isActive ? "font-semibold" : "font-medium")}>
                 {t(tab.labelKey as Parameters<typeof t>[0])}
               </span>
               {isActive && (
