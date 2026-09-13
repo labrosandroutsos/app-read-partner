@@ -64,36 +64,36 @@ export function ChatList({ currentUserId, conversations, unreadByMatch, mockConv
     <div className="flex flex-col">
       <ScreenHeading title={t("chat.title")} description={el ? "Μια κουβέντα, ένα πλάνο για διάβασμα." : "A conversation. A plan to study together."} />
       {items.length > 0 && <div className="relative mx-5 mb-5"><Search className="pointer-events-none absolute left-3 top-3.5 h-4 w-4 text-muted-foreground" /><Input className="h-12 bg-card pl-10" value={query} onChange={(event) => setQuery(event.target.value)} aria-label={el ? "Αναζήτηση συνομιλιών" : "Search conversations"} placeholder={el ? "Όνομα ή μάθημα" : "Name or subject"} /></div>}
-      {filtered.length === 0 && <div role="status" className="mx-5 border-t border-border py-8"><MessageCircle className="mb-4 h-7 w-7 text-primary" /><h2 className="text-base font-semibold">{items.length ? (el ? "Δεν βρέθηκε συνομιλία" : "No conversations found") : t("chat.empty")}</h2><p className="mt-2 text-sm leading-6 text-muted-foreground">{items.length ? (el ? "Δοκίμασε άλλο όνομα ή μάθημα." : "Try another name or subject.") : t("chat.empty.subtitle")}</p></div>}
-      <div className="flex flex-col">
+      {filtered.length === 0 && <div role="status" className="mx-5 flex flex-col items-center gap-4 py-14 text-center"><span className="flex h-20 w-20 items-center justify-center rounded-full bg-gradient-to-br from-accent/25 to-primary/10"><MessageCircle className="h-8 w-8 text-primary" /></span><div className="space-y-1"><h2 className="study-title text-xl">{items.length ? (el ? "Δεν βρέθηκε συνομιλία" : "No conversations found") : t("chat.empty")}</h2><p className="max-w-xs text-sm leading-6 text-muted-foreground">{items.length ? (el ? "Δοκίμασε άλλο όνομα ή μάθημα." : "Try another name or subject.") : t("chat.empty.subtitle")}</p></div></div>}
+      <div className="flex flex-col gap-1 px-3">
         {filtered.map((item) => (
           <button
             key={item.id}
             onClick={() => onSelectChat(item.id)}
-            className="flex items-center gap-3 px-5 py-4 hover:bg-muted/50 transition-colors text-left border-b border-border/50 last:border-0"
+            className="flex items-center gap-3 rounded-2xl px-2.5 py-3 text-left transition-all duration-150 ease-[var(--ease-out-quint)] hover:bg-secondary active:scale-[0.99]"
           >
             <div className="relative shrink-0">
-              <div className={cn("w-12 h-12 rounded-full flex items-center justify-center text-sm font-bold text-white", item.avatarColor)}>
+              <div className={cn("flex h-12 w-12 items-center justify-center rounded-full text-sm font-bold text-white shadow-sm ring-2 ring-card", item.avatarColor)}>
                 {item.initials}
               </div>
               {item.unread > 0 && (
-                <span className="absolute -top-0.5 -right-0.5 h-5 min-w-5 rounded-full bg-accent text-accent-foreground text-[10px] font-bold flex items-center justify-center px-1">
+                <span className="absolute -right-0.5 -top-0.5 flex h-5 min-w-5 items-center justify-center rounded-full bg-accent px-1 text-[10px] font-bold text-accent-foreground shadow-sm ring-2 ring-card">
                   {item.unread}
                 </span>
               )}
             </div>
-            <div className="flex-1 min-w-0">
+            <div className="min-w-0 flex-1">
               <div className="flex items-center justify-between">
-                <span className="font-semibold text-sm truncate text-foreground">{item.name}</span>
-                <span className="text-xs text-muted-foreground shrink-0 ml-2">{item.lastActive}</span>
+                <span className="truncate text-[15px] font-semibold text-foreground">{item.name}</span>
+                <span className="ml-2 shrink-0 text-xs text-muted-foreground">{item.lastActive}</span>
               </div>
-              <p className={cn("text-sm truncate mt-0.5", item.unread > 0 ? "text-foreground font-medium" : "text-muted-foreground")}>
+              <p className={cn("mt-0.5 truncate text-sm", item.unread > 0 ? "font-medium text-foreground" : "text-muted-foreground")}>
                 {item.lastMessage || (el ? "Πες ένα γεια και κανονίστε διάβασμα." : "Say hello and plan a study session.")}
               </p>
-              <div className="flex flex-wrap items-center gap-1.5 mt-1">
-                {item.incomingProposal && <Badge className="h-4 bg-amber-500/15 px-1.5 py-0 text-[10px] text-amber-700 hover:bg-amber-500/15 dark:text-amber-400">{el ? "Νέα πρόταση μελέτης" : "New study proposal"}</Badge>}
-                {item.subject && <span className="text-xs text-primary">{item.subject}</span>}
-                {item.venue && <span className="text-xs text-muted-foreground">· {item.venue}</span>}
+              <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
+                {item.incomingProposal && <Badge className="h-5 bg-accent/18 px-2 py-0 text-[10px] font-semibold text-accent-strong hover:bg-accent/18">{el ? "Νέα πρόταση μελέτης" : "New study proposal"}</Badge>}
+                {item.subject && <span className="rounded-full bg-primary/10 px-2 py-0.5 text-[11px] font-medium text-primary">{item.subject}</span>}
+                {item.venue && <span className="text-[11px] text-muted-foreground">· {item.venue}</span>}
               </div>
             </div>
           </button>

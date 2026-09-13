@@ -20,25 +20,29 @@ export function ProfileHeader({ profile, onOpenSettings }: ProfileHeaderProps) {
   const semester = profile?.semester
 
   return (
-    <div className="flex items-center gap-4 px-5 pb-6 relative">
-      <Button
-        variant="ghost"
-        size="icon"
-        className="absolute top-0 right-5 h-11 w-11"
-        onClick={onOpenSettings}
-        aria-label={t("profile.settings")}
-      >
-        <Settings className="h-4 w-4" />
-      </Button>
-
-      <div className={cn("w-14 h-14 shrink-0 rounded-full flex items-center justify-center text-lg font-semibold text-primary-foreground bg-primary")}>
-        {initials}
-      </div>
-      <div className="min-w-0 flex-1 pr-10">
-        <h2 className="text-base font-semibold text-foreground">{displayName}</h2>
-        <p className="text-sm text-muted-foreground">
-          {degree}{degree && semester ? " · " : ""}{semester ? `${t("partner.card.semester")} ${semester}` : ""}
-        </p>
+    <div className="px-5 pb-5">
+      <div className="relative overflow-hidden rounded-[24px] border border-border bg-card shadow-sm">
+        <div className="h-20 bg-gradient-to-br from-primary/20 via-accent/12 to-transparent" />
+        <Button
+          variant="ghost"
+          size="icon"
+          className="absolute right-2 top-2 h-10 w-10"
+          onClick={onOpenSettings}
+          aria-label={t("profile.settings")}
+        >
+          <Settings className="h-4 w-4" />
+        </Button>
+        <div className="flex items-end gap-3 px-4 pb-4 -mt-9">
+          <div className={cn("flex h-[68px] w-[68px] shrink-0 items-center justify-center rounded-full text-xl font-semibold text-primary-foreground shadow-md ring-4 ring-card bg-primary")}>
+            {initials}
+          </div>
+          <div className="min-w-0 flex-1 pb-1">
+            <h2 className="truncate text-lg font-semibold text-foreground">{displayName}</h2>
+            <p className="truncate text-sm text-muted-foreground">
+              {degree}{degree && semester ? " · " : ""}{semester ? `${t("partner.card.semester")} ${semester}` : ""}
+            </p>
+          </div>
+        </div>
       </div>
     </div>
   )

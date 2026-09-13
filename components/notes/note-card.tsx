@@ -82,6 +82,9 @@ export function NoteCard({ preview = false, note, currentUserId, subjects }: Not
   const subjectName = locale === "el" ? note.subjectName : note.subjectNameEn
   const isOwner = currentUserId === note.authorId
   const el = locale === "el"
+  const hue = ((note.subjectId ?? 0) * 47) % 360
+  const tint = `oklch(0.92 0.05 ${hue})`
+  const tintStrong = `oklch(0.42 0.12 ${hue})`
 
   const handleEdit = () => {
     if (!editTitle.trim() || !editSubject || isPending) return
@@ -127,16 +130,16 @@ export function NoteCard({ preview = false, note, currentUserId, subjects }: Not
   }
 
   return (
-    <div className="flex flex-col rounded-xl border border-border bg-card overflow-hidden">
-      {/* Thumbnail */}
-      <div className={cn("relative h-14", note.color)}>
+    <div className="flex flex-col rounded-[20px] border border-border bg-card overflow-hidden shadow-sm transition-shadow hover:shadow-md">
+      {/* Thumbnail — tinted by subject */}
+      <div className="relative h-16" style={{ background: `linear-gradient(135deg, ${tint}, color-mix(in oklch, ${tint} 55%, var(--card)))` }}>
         {note.fileUrl ? (
-          <button type="button" onClick={() => setPreviewOpen(true)} className="flex h-full w-full items-center justify-center hover:bg-black/5" aria-label={el ? "Προεπισκόπηση σημειώσεων" : "Preview notes"}>
-            <FileText className="h-6 w-6 text-primary" />
-            <span className="absolute bottom-2 right-2 rounded-full bg-background/90 p-1.5 shadow"><Eye className="h-3.5 w-3.5" /></span>
+          <button type="button" onClick={() => setPreviewOpen(true)} className="flex h-full w-full items-center justify-center transition-colors hover:bg-black/5" aria-label={el ? "Προεπισκόπηση σημειώσεων" : "Preview notes"}>
+            <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-card/80 shadow-sm" style={{ color: tintStrong }}><FileText className="h-5 w-5" /></span>
+            <span className="absolute bottom-2 right-2 rounded-full bg-background/90 p-1.5 shadow-sm"><Eye className="h-3.5 w-3.5" /></span>
           </button>
         ) : (
-          <div className="flex h-full items-center justify-center"><FileText className="h-6 w-6 text-primary" /></div>
+          <div className="flex h-full items-center justify-center"><span className="flex h-9 w-9 items-center justify-center rounded-xl bg-card/80 shadow-sm" style={{ color: tintStrong }}><FileText className="h-5 w-5" /></span></div>
         )}
         <div className="absolute right-1 top-1">
           <DropdownMenu>
@@ -160,13 +163,13 @@ export function NoteCard({ preview = false, note, currentUserId, subjects }: Not
       </div>
 
       {/* Info */}
-      <div className="p-4 flex flex-col gap-1.5">
-        <h2 className="font-semibold text-base leading-snug text-foreground">{note.title}</h2>
+      <div className="p-4 flex flex-col gap-2">
         {subjectName && (
-          <p className="text-xs text-muted-foreground">
+          <span className="w-fit rounded-full px-2.5 py-0.5 text-[11px] font-semibold" style={{ backgroundColor: tint, color: tintStrong }}>
             {subjectName}
-          </p>
+          </span>
         )}
+        <h2 className="font-semibold text-base leading-snug text-foreground">{note.title}</h2>
         <p className="text-xs text-muted-foreground">{note.authorName}</p>
 
         {/* Actions */}

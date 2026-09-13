@@ -1,15 +1,21 @@
 "use client"
 
 import { useTransition } from "react"
-import { Loader2, LogIn, LogOut, MapPin } from "lucide-react"
+import { Building2, Coffee, Library, Loader2, LogIn, LogOut, MapPin, Navigation, Users } from "lucide-react"
 import { useTranslation } from "@/lib/i18n"
 import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
 import { Card, CardContent } from "@/components/ui/card"
 import { OccupancyBar } from "./occupancy-bar"
 import { cn } from "@/lib/utils"
 import { toggleVenueCheckin } from "@/lib/actions"
 import { toast } from "sonner"
+
+function venueIcon(type: string) {
+  const t = type.toLowerCase()
+  if (t.includes("caf") || t.includes("coffee") || t.includes("καφ")) return Coffee
+  if (t.includes("librar") || t.includes("βιβλ")) return Library
+  return Building2
+}
 
 interface VenueCardProps {
   preview?: boolean
@@ -51,42 +57,57 @@ export function VenueCard({ preview = false, venue, checkedIn, onCheckinChange }
     })
   }
 
+  const Icon = venueIcon(venue.type)
+  const occupancyLabel = venue.occupancy < 50
+    ? (locale === "el" ? "Άνετα" : "Quiet")
+    : venue.occupancy < 80
+    ? (locale === "el" ? "Μέτρια" : "Filling up")
+    : (locale === "el" ? "Γεμάτα" : "Busy")
+
   return (
-    <Card className={cn("overflow-hidden py-0 shadow-none", checkedIn && "border-primary")}>
-      <CardContent className="p-4 flex flex-col gap-3">
-        <div className="flex items-start justify-between">
-          <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-2">
-              <h2 className="font-semibold text-base leading-snug text-foreground">{venue.name}</h2>
-              {venue.discount && (
-                <Badge className="bg-accent text-accent-foreground text-[10px] py-0 px-1.5 shrink-0">
-                  -{venue.discount}%
-                </Badge>
-              )}
+    <Card className={cn("overflow-hidden py-0 transition-shadow hover:shadow-md", checkedIn ? "border-primary shadow-md" : "shadow-sm")}>
+      <CardContent className="flex flex-col gap-3.5 p-4">
+        <div className="flex items-start gap-3">
+          <div className={cn("flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl", venue.is_open ? "bg-primary/10 text-primary" : "bg-muted text-muted-foreground")}>
+            <Icon className="h-5 w-5" />
+          </div>
+          <div className="min-w-0 flex-1">
+            <div className="flex items-start justify-between gap-2">
+              <h2 className="font-semibold text-[15px] leading-snug text-foreground">{venue.name}</h2>
+              <span className={cn("mt-0.5 flex shrink-0 items-center gap-1 text-[11px] font-semibold", venue.is_open ? "text-emerald-600 dark:text-emerald-400" : "text-muted-foreground")}>
+                <span className={cn("h-1.5 w-1.5 rounded-full", venue.is_open ? "bg-emerald-500" : "bg-muted-foreground/50")} />
+                {venue.is_open ? t("venues.open") : t("venues.closed")}
+              </span>
             </div>
-            <div className="flex items-center gap-1 mt-1 text-xs text-muted-foreground">
-              <MapPin className="h-3 w-3 shrink-0" />
-              <span>{venue.address}</span>
+            {venue.address && (
+              <div className="mt-0.5 flex items-center gap-1 text-xs text-muted-foreground">
+                <MapPin className="h-3 w-3 shrink-0" />
+                <span className="truncate">{venue.address}</span>
+              </div>
+            )}
+            <div className="mt-2 flex flex-wrap items-center gap-1.5">
+              <span className="inline-flex items-center gap-1 rounded-full bg-secondary px-2 py-0.5 text-[11px] font-medium text-secondary-foreground">
+                <Navigation className="h-3 w-3" />{venue.distance} {locale === "el" ? "χλμ" : "km"}
+              </span>
+              {venue.discount ? (
+                <span className="inline-flex items-center rounded-full bg-accent/18 px-2 py-0.5 text-[11px] font-bold text-accent-strong">
+                  -{venue.discount}%
+                </span>
+              ) : null}
             </div>
           </div>
-          <Badge
-            variant="outline"
-            className={cn("shrink-0 text-[10px] ml-2", venue.is_open ? "border-emerald-300 text-emerald-600 dark:border-emerald-800 dark:text-emerald-400" : "border-red-300 text-red-600 dark:border-red-800 dark:text-red-400")}
-          >
-            {venue.is_open ? t("venues.open") : t("venues.closed")}
-          </Badge>
         </div>
 
         <div className="flex flex-col gap-1.5">
-          <div className="flex items-center justify-between text-sm">
-            <span className="text-muted-foreground text-xs">{t("venues.occupancy")}</span>
-            <span className={cn("font-semibold text-xs", occupancyColor)}>{venue.occupancy}%</span>
+          <div className="flex items-center justify-between text-xs">
+            <span className="flex items-center gap-1 text-muted-foreground"><Users className="h-3.5 w-3.5" />{t("venues.occupancy")}</span>
+            <span className={cn("font-semibold", occupancyColor)}>{occupancyLabel} · {venue.occupancy}%</span>
           </div>
           <OccupancyBar percentage={venue.occupancy} />
         </div>
 
         {(venue.is_open || checkedIn) && (
-          <Button variant="outline" size="sm" className="h-12 w-full text-sm" onClick={handleCheckin} disabled={isPending || preview}>
+          <Button variant={checkedIn ? "default" : "outline"} size="sm" className="h-11 w-full text-sm" onClick={handleCheckin} disabled={isPending || preview}>
             {isPending ? <Loader2 className="h-3.5 w-3.5 mr-1.5 animate-spin" /> : checkedIn ? <LogOut className="h-3.5 w-3.5 mr-1.5" /> : <LogIn className="h-3.5 w-3.5 mr-1.5" />}
             {checkedIn ? (locale === "el" ? "Check out" : "Check out") : t("venues.checkin")}
           </Button>

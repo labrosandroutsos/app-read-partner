@@ -192,15 +192,15 @@ export function ChatView({ matchId, partner, subject, venue, userId, onBack, moc
               )
             }
             return (
-              <div key={msg.id} className={cn("flex", msg.isMine ? "justify-end" : "justify-start")}>
+              <div key={msg.id} className={cn("flex duration-200 animate-in fade-in slide-in-from-bottom-1", msg.isMine ? "justify-end" : "justify-start")}>
                 <div className={cn(
-                  "max-w-[85%] break-words rounded-2xl px-4 py-3 text-sm leading-6",
+                  "max-w-[82%] break-words rounded-[20px] px-4 py-2.5 text-[15px] leading-6 shadow-sm",
                   msg.isMine
-                    ? "bg-primary text-primary-foreground rounded-br-md"
-                    : "bg-muted text-foreground rounded-bl-md"
+                    ? "rounded-br-md bg-[linear-gradient(160deg,var(--primary-cta),var(--primary-cta-strong))] text-primary-foreground"
+                    : "rounded-bl-md border border-border bg-card text-foreground"
                 )}>
                   <p>{msg.text}</p>
-                  <p className={cn("text-[10px] mt-1", msg.isMine ? "text-primary-foreground/70" : "text-muted-foreground")}>
+                  <p className={cn("mt-1 text-[10px]", msg.isMine ? "text-primary-foreground/70" : "text-muted-foreground")}>
                     {msg.timestamp}
                   </p>
                 </div>
@@ -226,7 +226,7 @@ export function ChatView({ matchId, partner, subject, venue, userId, onBack, moc
         ))}
       </div>
 
-      <div className="flex shrink-0 items-center gap-2 border-t border-border bg-card px-4 py-3">
+      <div className="glass-surface flex shrink-0 items-center gap-2 border-t border-border/70 px-4 py-3">
         <Input
           aria-label={t("chat.input.placeholder")}
           placeholder={t("chat.input.placeholder")}
@@ -238,10 +238,10 @@ export function ChatView({ matchId, partner, subject, venue, userId, onBack, moc
               void handleSend()
             }
           }}
-          className="h-12 flex-1"
+          className="h-12 flex-1 rounded-full bg-card px-4"
           disabled={isSending}
         />
-        <Button aria-label={locale === "el" ? "Αποστολή μηνύματος" : "Send message"} size="icon" className="shrink-0 h-11 w-11 rounded-full" onClick={handleSend} disabled={!input.trim() || isSending}>
+        <Button aria-label={locale === "el" ? "Αποστολή μηνύματος" : "Send message"} size="icon" className="h-12 w-12 shrink-0 rounded-full" onClick={handleSend} disabled={!input.trim() || isSending}>
           {isSending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
         </Button>
       </div>
