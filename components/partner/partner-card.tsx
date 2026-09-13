@@ -35,7 +35,7 @@ export function PartnerCard({ candidate, matchSubject, style, className, subject
   return (
     <div
       className={cn(
-        "absolute inset-0 rounded-2xl bg-card border border-border shadow-lg overflow-hidden select-none touch-none",
+        "absolute inset-0 rounded-[24px] bg-card border border-border shadow-lg overflow-hidden select-none touch-none",
         className
       )}
       style={style}
@@ -43,12 +43,12 @@ export function PartnerCard({ candidate, matchSubject, style, className, subject
       <div className="absolute right-3 top-3 z-30" onPointerDown={(event) => event.stopPropagation()}>
         <UserSafetyMenu targetUserId={candidate.id} targetName={candidate.name} onBlocked={onBlocked} />
       </div>
-      <div className="h-[45%] bg-gradient-to-br from-primary/20 via-primary/10 to-transparent flex flex-col items-center justify-center gap-3 p-6">
-        <div className={cn("w-24 h-24 rounded-full flex items-center justify-center text-3xl font-bold text-card shadow-md", candidate.avatarColor)}>
+      <div className="relative h-[44%] bg-gradient-to-br from-primary/18 via-accent/12 to-transparent flex flex-col items-center justify-center gap-3 p-6">
+        <div className={cn("w-24 h-24 rounded-full flex items-center justify-center text-3xl font-bold shadow-md ring-4 ring-card", candidate.avatarColor)}>
           <span className="text-white">{candidate.initials}</span>
         </div>
         <div className="text-center">
-          <h3 className="text-xl font-bold text-foreground">{candidate.name}</h3>
+          <h3 className="text-xl font-bold tracking-[-0.01em] text-foreground">{candidate.name}</h3>
           <p className="text-sm text-muted-foreground">
             {candidate.degree} &middot; {t("partner.card.semester")} {candidate.semester}
           </p>

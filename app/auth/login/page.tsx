@@ -80,7 +80,7 @@ export default function LoginPage() {
     <div className="min-h-dvh grid items-center gap-6 bg-background px-5 py-7 lg:grid-cols-2 lg:gap-20 lg:px-[max(3rem,calc((100vw-1120px)/2))]">
       <section className="mx-auto w-full max-w-lg">
         <div className="mb-5 flex items-center gap-3 text-sm font-semibold tracking-wide"><BookOpen className="h-6 w-6 text-primary" /> READ PARTNER</div>
-        <h1 className="text-3xl font-semibold leading-tight tracking-tight sm:text-5xl">Good study days<br />start together.</h1>
+        <h1 className="study-title text-4xl leading-[1.1] sm:text-5xl">Good study days<br />start together.</h1>
         <p className="mt-4 max-w-sm text-base leading-7 text-muted-foreground">Find someone studying what you are. Make a plan, share your notes, and turn “I’ll do it later” into a little progress.</p>
         <ol className="mt-9 hidden space-y-4 text-sm lg:block">
           {["Choose a subject and a time that suits you", "Connect when you both want to study together", "Chat and agree on your study session"].map((text, i) => <li key={text} className="flex items-center gap-3"><span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-primary/20 text-primary">{i + 1}</span>{text}</li>)}

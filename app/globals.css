@@ -8,21 +8,27 @@
   --foreground: oklch(0.25 0.025 160);
   --card: oklch(1 0 0);
   --card-foreground: oklch(0.25 0.025 160);
+  --card-elevated: oklch(1 0 0);
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.25 0.025 160);
   --primary: oklch(0.43 0.075 165);
   --primary-foreground: oklch(0.99 0 0);
+  /* Livelier interactive green for large CTA fills so buttons feel energetic. */
+  --primary-cta: oklch(0.52 0.11 162);
+  --primary-cta-strong: oklch(0.45 0.10 164);
+  --primary-hover: oklch(0.47 0.10 163);
   --secondary: oklch(0.94 0.018 100);
   --secondary-foreground: oklch(0.25 0.02 250);
   --muted: oklch(0.945 0.012 85);
   --muted-foreground: oklch(0.46 0.025 160);
-  --accent: oklch(0.75 0.16 65);
-  --accent-foreground: oklch(0.25 0.05 65);
+  --accent: oklch(0.78 0.15 68);
+  --accent-foreground: oklch(0.28 0.06 60);
+  --accent-strong: oklch(0.74 0.16 60);
   --destructive: oklch(0.577 0.245 27.325);
-  --destructive-foreground: oklch(0.577 0.245 27.325);
-  --border: oklch(0.88 0.018 100);
+  --destructive-foreground: oklch(0.99 0 0);
+  --border: oklch(0.90 0.014 95);
   --input: oklch(0.88 0.018 100);
-  --ring: oklch(0.43 0.075 165);
+  --ring: oklch(0.52 0.11 162);
   --chart-1: oklch(0.43 0.075 165);
   --chart-2: oklch(0.75 0.16 65);
   --chart-3: oklch(0.55 0.12 170);
@@ -37,60 +43,95 @@
   --sidebar-accent-foreground: oklch(0.25 0.02 250);
   --sidebar-border: oklch(0.88 0.018 100);
   --sidebar-ring: oklch(0.43 0.075 165);
+
+  /* Warm-tinted, layered elevation. Pure-black shadows read grey/dirty on cream. */
+  --shadow-2xs: 0 1px 2px oklch(0.40 0.03 160 / 0.05);
+  --shadow-xs: 0 1px 2px oklch(0.40 0.03 160 / 0.05);
+  --shadow-sm: 0 1px 2px oklch(0.40 0.03 160 / 0.06), 0 1px 1px oklch(0.40 0.03 160 / 0.04);
+  --shadow: 0 1px 2px oklch(0.40 0.03 160 / 0.06), 0 2px 6px -1px oklch(0.40 0.03 160 / 0.07);
+  --shadow-md: 0 2px 4px -1px oklch(0.40 0.03 160 / 0.06), 0 6px 12px -2px oklch(0.40 0.03 160 / 0.09);
+  --shadow-lg: 0 4px 8px -2px oklch(0.40 0.03 160 / 0.06), 0 14px 28px -6px oklch(0.40 0.03 160 / 0.12);
+  --shadow-xl: 0 8px 16px -4px oklch(0.40 0.03 160 / 0.08), 0 24px 44px -8px oklch(0.40 0.03 160 / 0.16);
+  /* Colored glow for the single hero CTA per screen. */
+  --shadow-cta: 0 2px 4px oklch(0.45 0.10 162 / 0.22), 0 10px 22px -6px oklch(0.52 0.11 162 / 0.38);
 }
 
 .dark {
-  --background: oklch(0.17 0.01 250);
-  --foreground: oklch(0.96 0.005 250);
-  --card: oklch(0.22 0.015 250);
-  --card-foreground: oklch(0.96 0.005 250);
-  --popover: oklch(0.22 0.015 250);
-  --popover-foreground: oklch(0.96 0.005 250);
-  --primary: oklch(0.77 0.09 160);
-  --primary-foreground: oklch(0.19 0.025 160);
-  --secondary: oklch(0.28 0.02 250);
-  --secondary-foreground: oklch(0.96 0.005 250);
-  --muted: oklch(0.28 0.015 250);
-  --muted-foreground: oklch(0.65 0.02 250);
-  --accent: oklch(0.75 0.16 65);
-  --accent-foreground: oklch(0.15 0.03 65);
-  --destructive: oklch(0.396 0.141 25.723);
-  --destructive-foreground: oklch(0.637 0.237 25.331);
-  --border: oklch(0.32 0.02 250);
-  --input: oklch(0.32 0.02 250);
-  --ring: oklch(0.77 0.09 160);
-  --chart-1: oklch(0.77 0.09 160);
-  --chart-2: oklch(0.75 0.16 65);
+  /* Warm green-charcoal — a cream/green app should stay in-family at night,
+     not turn cold blue. Easier on the eyes for evening study sessions. */
+  --background: oklch(0.19 0.010 160);
+  --foreground: oklch(0.94 0.008 95);
+  --card: oklch(0.23 0.012 160);
+  --card-foreground: oklch(0.94 0.008 95);
+  --card-elevated: oklch(0.26 0.014 160);
+  --popover: oklch(0.26 0.014 160);
+  --popover-foreground: oklch(0.94 0.008 95);
+  --primary: oklch(0.74 0.12 162);
+  --primary-foreground: oklch(0.18 0.03 165);
+  --primary-cta: oklch(0.74 0.12 162);
+  --primary-cta-strong: oklch(0.67 0.12 163);
+  --primary-hover: oklch(0.70 0.12 162);
+  --secondary: oklch(0.28 0.014 160);
+  --secondary-foreground: oklch(0.94 0.008 95);
+  --muted: oklch(0.27 0.012 160);
+  --muted-foreground: oklch(0.68 0.015 150);
+  --accent: oklch(0.80 0.15 70);
+  --accent-foreground: oklch(0.20 0.04 65);
+  --accent-strong: oklch(0.80 0.15 70);
+  --destructive: oklch(0.60 0.18 25);
+  --destructive-foreground: oklch(0.98 0.01 90);
+  --border: oklch(0.30 0.014 160);
+  --input: oklch(0.30 0.014 160);
+  --ring: oklch(0.74 0.12 162);
+  --chart-1: oklch(0.74 0.12 162);
+  --chart-2: oklch(0.80 0.15 70);
   --chart-3: oklch(0.60 0.14 170);
   --chart-4: oklch(0.65 0.18 340);
   --chart-5: oklch(0.70 0.14 130);
-  --sidebar: oklch(0.20 0.015 250);
-  --sidebar-foreground: oklch(0.96 0.005 250);
-  --sidebar-primary: oklch(0.77 0.09 160);
-  --sidebar-primary-foreground: oklch(0.99 0 0);
-  --sidebar-accent: oklch(0.28 0.02 250);
-  --sidebar-accent-foreground: oklch(0.96 0.005 250);
-  --sidebar-border: oklch(0.32 0.02 250);
-  --sidebar-ring: oklch(0.77 0.09 160);
+  --sidebar: oklch(0.21 0.012 160);
+  --sidebar-foreground: oklch(0.94 0.008 95);
+  --sidebar-primary: oklch(0.74 0.12 162);
+  --sidebar-primary-foreground: oklch(0.18 0.03 165);
+  --sidebar-accent: oklch(0.28 0.014 160);
+  --sidebar-accent-foreground: oklch(0.94 0.008 95);
+  --sidebar-border: oklch(0.30 0.014 160);
+  --sidebar-ring: oklch(0.74 0.12 162);
+
+  /* On dark, elevation comes from surface lightness + a top inner highlight;
+     drop shadows are nearly invisible, so keep them deep and quiet. */
+  --shadow-2xs: 0 1px 2px oklch(0 0 0 / 0.30);
+  --shadow-xs: 0 1px 2px oklch(0 0 0 / 0.30);
+  --shadow-sm: 0 1px 2px oklch(0 0 0 / 0.34), 0 1px 1px oklch(0 0 0 / 0.28);
+  --shadow: 0 1px 2px oklch(0 0 0 / 0.34), 0 2px 6px -1px oklch(0 0 0 / 0.34);
+  --shadow-md: 0 2px 4px -1px oklch(0 0 0 / 0.36), 0 6px 12px -2px oklch(0 0 0 / 0.42);
+  --shadow-lg: 0 4px 8px -2px oklch(0 0 0 / 0.40), 0 14px 28px -6px oklch(0 0 0 / 0.50);
+  --shadow-xl: 0 8px 16px -4px oklch(0 0 0 / 0.44), 0 24px 44px -8px oklch(0 0 0 / 0.58);
+  --shadow-cta: 0 2px 4px oklch(0 0 0 / 0.34), 0 10px 22px -6px oklch(0.74 0.12 162 / 0.30);
 }
 
 @theme inline {
-  --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  --font-sans: var(--font-sans), -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  --font-serif: var(--font-serif), Georgia, 'Times New Roman', serif;
   --font-mono: 'Geist Mono', 'Geist Mono Fallback', monospace;
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
   --color-card-foreground: var(--card-foreground);
+  --color-card-elevated: var(--card-elevated);
   --color-popover: var(--popover);
   --color-popover-foreground: var(--popover-foreground);
   --color-primary: var(--primary);
   --color-primary-foreground: var(--primary-foreground);
+  --color-primary-cta: var(--primary-cta);
+  --color-primary-cta-strong: var(--primary-cta-strong);
+  --color-primary-hover: var(--primary-hover);
   --color-secondary: var(--secondary);
   --color-secondary-foreground: var(--secondary-foreground);
   --color-muted: var(--muted);
   --color-muted-foreground: var(--muted-foreground);
   --color-accent: var(--accent);
   --color-accent-foreground: var(--accent-foreground);
+  --color-accent-strong: var(--accent-strong);
   --color-destructive: var(--destructive);
   --color-destructive-foreground: var(--destructive-foreground);
   --color-border: var(--border);
@@ -101,10 +142,11 @@
   --color-chart-3: var(--chart-3);
   --color-chart-4: var(--chart-4);
   --color-chart-5: var(--chart-5);
-  --radius-sm: calc(var(--radius) - 4px);
-  --radius-md: calc(var(--radius) - 2px);
+  --radius-sm: calc(var(--radius) - 6px);
+  --radius-md: calc(var(--radius) - 4px);
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 4px);
+  --radius-2xl: calc(var(--radius) + 8px);
   --color-sidebar: var(--sidebar);
   --color-sidebar-foreground: var(--sidebar-foreground);
   --color-sidebar-primary: var(--sidebar-primary);
@@ -113,25 +155,83 @@
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
+
+  --shadow-2xs: var(--shadow-2xs);
+  --shadow-xs: var(--shadow-xs);
+  --shadow-sm: var(--shadow-sm);
+  --shadow: var(--shadow);
+  --shadow-md: var(--shadow-md);
+  --shadow-lg: var(--shadow-lg);
+  --shadow-xl: var(--shadow-xl);
+
+  /* Motion tokens — physical for gestures, quick-out for exits. */
+  --ease-out-quint: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-out-back: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease-in-out-soft: cubic-bezier(0.65, 0, 0.35, 1);
 }
 
 @layer base {
   * {
     @apply border-border outline-ring/50;
   }
+  html {
+    -webkit-tap-highlight-color: transparent;
+    -webkit-text-size-adjust: 100%;
+    overscroll-behavior-y: none;
+  }
   body {
     @apply bg-background text-foreground;
+    /* Soft radial warmth from the top reads cozy on a phone. */
+    background-image: radial-gradient(120% 80% at 50% -10%, oklch(0.985 0.02 78), transparent 60%);
+    background-attachment: fixed;
+    overscroll-behavior-y: none;
   }
 }
 
 @layer base {
   button { color: inherit; }
   button, a, input, select, textarea { -webkit-tap-highlight-color: transparent; }
+  button, a, [role="button"] { -webkit-touch-callout: none; }
   button:focus-visible, a:focus-visible { outline: 2px solid var(--ring); outline-offset: 4px; }
   input, textarea, select { font-size: max(1rem, 16px); }
   ::selection { background: var(--primary); color: var(--primary-foreground); }
 }
-.study-title { font-family: Georgia, 'Times New Roman', serif; letter-spacing: -0.03em; font-weight: 400; }
+
+/* Very subtle film grain kills the "flat digital" feel on the cream ground. */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.03;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+.dark body::before { opacity: 0.05; mix-blend-mode: overlay; }
+
+.study-title {
+  font-family: var(--font-serif);
+  letter-spacing: -0.02em;
+  font-weight: 500;
+}
+
+/* Frosted system chrome (tab bar, sticky headers, sheets) — content scrolls under it. */
+.glass-surface {
+  background: color-mix(in oklch, var(--card) 78%, transparent);
+  backdrop-filter: blur(20px) saturate(160%);
+  -webkit-backdrop-filter: blur(20px) saturate(160%);
+}
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .glass-surface { background: var(--card); }
+}
+
+@keyframes sparkle-rise {
+  0% { transform: translateY(0) scale(0.4); opacity: 0; }
+  25% { opacity: 1; }
+  100% { transform: translateY(-90px) scale(1); opacity: 0; }
+}
+.sparkle { animation: sparkle-rise 750ms var(--ease-out-quint) forwards; }
+
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; scroll-behavior: auto !important; }
 }

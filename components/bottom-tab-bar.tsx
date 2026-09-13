@@ -2,6 +2,7 @@
 
 import { Search, MessageCircle, FileText, Building2, User } from "lucide-react"
 import { useTranslation } from "@/lib/i18n"
+import { haptic } from "@/lib/haptics"
 import { cn } from "@/lib/utils"
 
 export type TabId = "partner" | "chat" | "notes" | "venues" | "profile"
@@ -26,37 +27,43 @@ export function BottomTabBar({ activeTab, onTabChange, unreadChats, unreadIntere
 
   return (
     <nav
-      className="absolute bottom-0 left-0 z-50 w-full border-t border-border bg-card"
+      className="glass-surface absolute bottom-0 left-0 z-50 w-full border-t border-border/70"
       aria-label="Main navigation"
     >
-      <div className="flex items-center justify-around px-2 py-1 pb-[max(0.25rem,env(safe-area-inset-bottom))]">
+      <div className="flex items-center justify-around px-2 py-1 pb-[max(0.35rem,env(safe-area-inset-bottom))]">
         {tabs.map((tab) => {
           const isActive = activeTab === tab.id
           const Icon = tab.icon
+          const showBadge = (tab.id === "chat" && unreadChats > 0) || (tab.id === "partner" && unreadInterests > 0)
           return (
             <button
               key={tab.id}
               aria-current={isActive ? "page" : undefined}
-              onClick={() => onTabChange(tab.id)}
+              onClick={() => { haptic("select"); onTabChange(tab.id) }}
               className={cn(
-                "flex flex-col items-center gap-1 px-2 py-2.5 rounded-lg transition-colors relative min-w-[56px]",
-                isActive
-                  ? "text-primary"
-                  : "text-muted-foreground hover:text-foreground"
+                "group relative flex min-w-[56px] flex-col items-center gap-1 rounded-xl px-2 py-2 transition-colors",
+                isActive ? "text-primary" : "text-muted-foreground hover:text-foreground"
               )}
             >
-              <div className="relative">
-                <Icon className="h-5 w-5" strokeWidth={isActive ? 2.5 : 2} />
-                {((tab.id === "chat" && unreadChats > 0) || (tab.id === "partner" && unreadInterests > 0)) && (
-                  <span className="absolute -top-1.5 -right-2 h-4 min-w-4 rounded-full bg-accent text-accent-foreground text-[10px] font-bold flex items-center justify-center px-1">
+              <span
+                className={cn(
+                  "relative flex h-9 w-14 items-center justify-center rounded-full transition-all duration-200 ease-[var(--ease-out-back)]",
+                  isActive ? "bg-primary/12" : "bg-transparent"
+                )}
+              >
+                <Icon
+                  className={cn("h-[22px] w-[22px] transition-transform duration-200 ease-[var(--ease-out-back)]", isActive && "scale-110")}
+                  strokeWidth={isActive ? 2.4 : 2}
+                />
+                {showBadge && (
+                  <span className="absolute right-2 top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-accent px-1 text-[10px] font-bold text-accent-foreground shadow-sm">
                     {tab.id === "chat" ? unreadChats : unreadInterests}
                   </span>
                 )}
-              </div>
-              <span className={cn("text-xs leading-tight", isActive ? "font-semibold" : "font-medium")}>
+              </span>
+              <span className={cn("text-[11px] leading-tight", isActive ? "font-semibold" : "font-medium")}>
                 {t(tab.labelKey as Parameters<typeof t>[0])}
               </span>
-
             </button>
           )
         })}

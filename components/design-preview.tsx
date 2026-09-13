@@ -2,6 +2,8 @@
 
 import { useState } from "react"
 import { DailyWizard } from "@/components/partner/daily-wizard"
+import { PartnerStack } from "@/components/partner/partner-stack"
+import type { PartnerCandidate } from "@/lib/types"
 import { BottomTabBar, type TabId } from "@/components/bottom-tab-bar"
 import { StudyHeader } from "@/components/study-header"
 import { ChatList } from "@/components/chat/chat-list"
@@ -28,19 +30,29 @@ const sampleNotes: Note[] = [
   { id: "preview-note-2", title: "Δομές δεδομένων: επανάληψη εξεταστικής", subject_id: 2, author_id: "preview", file_url: null, likes_count: 8, downloads_count: 16, created_at: "2026-09-01", subject: sampleSubjects[1], author: sampleProfile },
 ]
 
+const sampleCandidates: PartnerCandidate[] = [
+  { id: "c1", sessionId: "s1", name: "Δημήτρης", initials: "ΔΠ", degree: "Πληροφορική", semester: 4, subjects: ["1", "2"], avatarColor: "bg-blue-500", distance: 1.2, timeOverlap: 80, compatibilityScore: 88, compatibilityReasons: ["Ίδιο μάθημα", "Κοντινή ώρα", "Ήσυχη μελέτη"], plannedStart: "2026-09-14T18:00:00", plannedEnd: "2026-09-14T20:00:00", studyStyle: "quiet", language: "el" },
+  { id: "c2", sessionId: "s2", name: "Μαρία", initials: "ΜΚ", degree: "Μαθηματικά", semester: 2, subjects: ["1", "5"], avatarColor: "bg-rose-500", distance: 2.6, timeOverlap: 65, compatibilityScore: 74, compatibilityReasons: ["Ίδιο μάθημα", "Παρόμοιο πρόγραμμα"], plannedStart: "2026-09-15T10:00:00", plannedEnd: "2026-09-15T12:00:00", studyStyle: "social", language: "either" },
+  { id: "c3", sessionId: "s3", name: "Γιώργος", initials: "ΓΑ", degree: "Φυσική", semester: 6, subjects: ["5", "1"], avatarColor: "bg-emerald-500", distance: 0.8, timeOverlap: 92, compatibilityScore: 95, compatibilityReasons: ["Ίδιο μάθημα", "Μεγάλη επικάλυψη", "Ίδια γλώσσα"], plannedStart: "2026-09-14T16:00:00", plannedEnd: "2026-09-14T18:00:00", studyStyle: "either", language: "el" },
+]
+
 // Explicit, local-only fixtures. Backend mutations are disabled in sample tabs.
 export function DesignPreview() {
   const [tab, setTab] = useState<TabId>("partner")
   const [complete, setComplete] = useState(false)
   const [chatId, setChatId] = useState<string | null>(null)
   const [empty, setEmpty] = useState(false)
+  const [deck, setDeck] = useState(false)
   const selectedChat = !empty && sampleChats.find((chat) => chat.id === chatId)
   return <div className="relative mx-auto flex h-dvh max-w-[760px] flex-col overflow-hidden border-x bg-background">
     <StudyHeader />
     <div className="flex shrink-0 items-center justify-between px-5 py-1 text-[11px] text-muted-foreground"><span>Preview · sample data · nothing saved</span><Button variant="ghost" className="h-11 text-xs" aria-pressed={empty} onClick={() => setEmpty(!empty)}>{empty ? "Show samples" : "Empty states"}</Button></div>
     <main className="min-h-0 flex-1 overflow-y-auto pb-[calc(4.25rem+env(safe-area-inset-bottom))]">
       <div hidden={tab !== "partner"}>
-        {complete ? <div className="space-y-4 p-6"><h1 className="text-2xl font-semibold">You’re ready to find a partner.</h1><p>This preview stops before matchmaking. No search was created.</p><Button onClick={() => setComplete(false)}>Try again</Button></div> : <DailyWizard subjects={empty ? [] : sampleSubjects} onComplete={() => setComplete(true)} />}
+        <div className="flex justify-end px-5 pt-2"><Button variant="ghost" className="h-9 text-xs" aria-pressed={deck} onClick={() => setDeck(!deck)}>{deck ? "Show wizard" : "Preview swipe deck"}</Button></div>
+        {deck
+          ? <PartnerStack candidates={empty ? [] : sampleCandidates} feedback={{ activeMatchCount: 1, pendingInterestCount: 2, searchExpiresAt: "2026-09-16T20:00:00" }} matchSubject="1" subjects={sampleSubjects} onGoToChat={() => setTab("chat")} onRestart={() => setDeck(false)} sessionId={null} currentUserInitials="ΕΛ" currentUserColor="bg-primary" />
+          : complete ? <div className="space-y-4 p-6"><h1 className="text-2xl font-semibold">You’re ready to find a partner.</h1><p>This preview stops before matchmaking. No search was created.</p><Button onClick={() => setComplete(false)}>Try again</Button></div> : <DailyWizard subjects={empty ? [] : sampleSubjects} onComplete={() => setComplete(true)} />}
       </div>
       {tab === "chat" && (selectedChat ? <ChatView key={selectedChat.id} userId="preview" mockConversation={selectedChat} onBack={() => setChatId(null)} /> : <ChatList mockConversations={empty ? [] : sampleChats} onSelectChat={setChatId} />)}
       {tab === "notes" && <NotesScreen preview notes={empty ? [] : sampleNotes} subjects={sampleSubjects} />}

@@ -83,8 +83,8 @@ export function DailyWizard({ onComplete, subjects = [], venues = [], isSubmitti
       </ol>
 
       <div className="mb-6" aria-live="polite" aria-atomic="true">
-        <h1 className="text-[28px] font-semibold leading-tight tracking-[-0.03em]">{headings[step]}</h1>
-        <p className="mt-2 text-sm leading-6 text-muted-foreground">{descriptions[step]}</p>
+        <h1 className="study-title text-[30px] leading-tight text-foreground">{headings[step]}</h1>
+        <p className="mt-2 text-[15px] leading-6 text-muted-foreground">{descriptions[step]}</p>
       </div>
 
       <fieldset disabled={isSubmitting} className="min-w-0 flex-1">
@@ -95,10 +95,13 @@ export function DailyWizard({ onComplete, subjects = [], venues = [], isSubmitti
             <div className="grid grid-cols-2 gap-3">
               {visibleSubjects.map((subject) => {
                 const selected = selectedSubject === String(subject.id)
-                return <label key={subject.id} className={cn("relative flex min-h-[72px] cursor-pointer items-center gap-2 rounded-xl border bg-card px-3.5 py-4 text-sm transition-colors focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2", selected ? "border-primary bg-primary/5 font-semibold" : "border-border hover:border-primary/50")}>
+                const hue = (Number(subject.id) * 47) % 360
+                const label = subjectName(subject)
+                return <label key={subject.id} className={cn("relative flex min-h-[60px] cursor-pointer items-center gap-2 rounded-2xl border bg-card px-2.5 py-2.5 shadow-sm transition-all duration-150 ease-[var(--ease-out-quint)] active:scale-[0.98] focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2", selected ? "border-primary bg-primary/[0.06] font-semibold shadow-md" : "border-border hover:border-primary/40")}>
                   <input className="sr-only" type="radio" name="study-subject" value={subject.id} checked={selected} onChange={() => setSelectedSubject(String(subject.id))} />
-                  <span className="min-w-0 flex-1 break-words">{subjectName(subject)}</span>
-                  <span className={cn("flex h-4 w-4 shrink-0 items-center justify-center rounded-full border", selected ? "border-primary bg-primary text-primary-foreground" : "border-input")} aria-hidden="true">{selected && <Check className="h-3 w-3" />}</span>
+                  <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-xs font-bold" style={{ backgroundColor: `oklch(0.92 0.05 ${hue})`, color: `oklch(0.42 0.12 ${hue})` }} aria-hidden="true">{label.charAt(0)}</span>
+                  <span className="min-w-0 flex-1 pr-3 text-[13.5px] leading-tight hyphens-auto">{label}</span>
+                  {selected && <span className="absolute right-2 top-2 flex h-4 w-4 items-center justify-center rounded-full bg-primary text-primary-foreground" aria-hidden="true"><Check className="h-2.5 w-2.5" /></span>}
                 </label>
               })}
             </div>
