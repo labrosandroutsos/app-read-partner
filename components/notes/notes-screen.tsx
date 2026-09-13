@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import { ScreenHeading } from "@/components/screen-heading"
 import { FileText } from "lucide-react"
 import { useTranslation } from "@/lib/i18n"
 import { NoteCard } from "./note-card"
@@ -9,20 +10,13 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import type { Note as DBNote, Subject } from "@/lib/types"
 
 interface NotesScreenProps {
+  preview?: boolean
   userId?: string
   notes?: DBNote[]
   subjects?: Subject[]
 }
 
-const noteColors = [
-  "bg-blue-100 dark:bg-blue-900/30",
-  "bg-emerald-100 dark:bg-emerald-900/30",
-  "bg-violet-100 dark:bg-violet-900/30",
-  "bg-rose-100 dark:bg-rose-900/30",
-  "bg-amber-100 dark:bg-amber-900/30",
-]
-
-export function NotesScreen({ userId = "", notes: dbNotes = [], subjects: dbSubjects = [] }: NotesScreenProps) {
+export function NotesScreen({ preview = false, userId = "", notes: dbNotes = [], subjects: dbSubjects = [] }: NotesScreenProps) {
   const { t, locale } = useTranslation()
   const [filterSubject, setFilterSubject] = useState("all")
   const subjectList = dbSubjects
@@ -39,7 +33,7 @@ export function NotesScreen({ userId = "", notes: dbNotes = [], subjects: dbSubj
         authorName: (n as any).author?.display_name || 'Unknown',
         likes: n.likes_count,
         downloads: n.downloads_count,
-        color: noteColors[Math.abs(n.title.length) % noteColors.length],
+        color: "bg-secondary",
         liked: n.liked_by_me ?? false,
         fileUrl: n.file_url,
       }))
@@ -50,13 +44,11 @@ export function NotesScreen({ userId = "", notes: dbNotes = [], subjects: dbSubj
 
   return (
     <div className="relative">
-      <div className="px-4 py-3 flex items-center justify-between">
-        <h2 className="text-xl font-bold text-foreground">{t("notes.title")}</h2>
-      </div>
-
-      <div className="px-4 pb-3">
+      <ScreenHeading title={t("notes.title")} description={locale === "el" ? "Κράτα ό,τι σε βοηθά. Μοιράσου ό,τι ξέρεις." : "Keep what helps. Share what you know."} />
+      <div className="px-5 pb-5">{preview ? <p className="text-xs text-muted-foreground">{locale === "el" ? "Δείγμα βιβλιοθήκης · οι ενέργειες είναι ανενεργές" : "Sample library · actions are disabled"}</p> : <UploadDialog subjects={subjectList} />}</div>
+      <div className="px-5 pb-5">
         <Select value={filterSubject} onValueChange={setFilterSubject}>
-          <SelectTrigger className="w-full">
+          <SelectTrigger aria-label={t("notes.filter")} className="data-[size=default]:h-12 w-full bg-card">
             <SelectValue placeholder={t("notes.filter")} />
           </SelectTrigger>
           <SelectContent>
@@ -70,21 +62,20 @@ export function NotesScreen({ userId = "", notes: dbNotes = [], subjects: dbSubj
         </Select>
       </div>
 
-      <div className="px-4 pb-4 grid grid-cols-2 gap-3">
+      <div className="px-5 pb-5 grid grid-cols-1 gap-4 sm:grid-cols-2">
         {filtered.map((note) => (
-          <NoteCard key={note.id} note={note} currentUserId={userId} subjects={subjectList} />
+          <NoteCard preview={preview} key={note.id} note={note} currentUserId={userId} subjects={subjectList} />
         ))}
       </div>
 
       {filtered.length === 0 && (
-        <div className="mx-4 mt-6 rounded-xl border border-dashed border-border px-6 py-10 text-center">
-          <FileText className="mx-auto mb-3 h-9 w-9 text-muted-foreground" />
+        <div className="mx-5 border-t border-border py-8">
+          <FileText className="mb-4 h-7 w-7 text-muted-foreground" />
           <p className="font-medium text-foreground">{t("notes.empty")}</p>
           <p className="mt-1 text-sm text-muted-foreground">{t("notes.empty.help")}</p>
         </div>
       )}
 
-      <UploadDialog subjects={subjectList} />
     </div>
   )
 }

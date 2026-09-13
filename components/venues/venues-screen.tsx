@@ -1,76 +1,38 @@
 "use client"
 
-import { useMemo, useState } from "react"
-import { List, Map } from "lucide-react"
+import { useState } from "react"
+import { MapPin } from "lucide-react"
 import { useTranslation } from "@/lib/i18n"
+import { ScreenHeading } from "@/components/screen-heading"
 import { Button } from "@/components/ui/button"
 import { VenueCard } from "./venue-card"
 import { useRealtimeVenues } from "@/hooks/use-realtime-venues"
-import { cn } from "@/lib/utils"
-import type { Venue as DBVenue } from "@/lib/types"
-import { venues as mockVenues } from "@/lib/mock-data"
+import type { Venue } from "@/lib/types"
 
+const EMPTY_VENUES: Venue[] = []
 interface VenuesScreenProps {
-  venues?: DBVenue[]
+  venues?: Venue[]
   initialActiveVenueId?: string | null
+  preview?: boolean
 }
 
-export function VenuesScreen({ venues: dbVenues, initialActiveVenueId = null }: VenuesScreenProps) {
-  const { t } = useTranslation()
-  const [view, setView] = useState<"list" | "map">("list")
+export function VenuesScreen({ venues = EMPTY_VENUES, initialActiveVenueId = null, preview = false }: VenuesScreenProps) {
+  const { t, locale } = useTranslation()
+  const el = locale === "el"
+  const [onlyOpen, setOnlyOpen] = useState(false)
   const [activeVenueId, setActiveVenueId] = useState<string | null>(initialActiveVenueId)
-
-  const hasDB = dbVenues && dbVenues.length > 0
-  const initialVenueList = useMemo(() => hasDB
-    ? dbVenues
-    : mockVenues.map(v => ({
-        id: v.id, name: v.name, address: v.address, occupancy: v.occupancy,
-        discount: v.discount, is_open: v.isOpen, type: v.type, distance: v.distance,
-      })), [dbVenues, hasDB])
-  const venueList = useRealtimeVenues(initialVenueList)
-
-  const sortedVenues = [...venueList].sort((a, b) => a.distance - b.distance)
-
-  return (
-    <div>
-      <div className="px-4 py-3 flex items-center justify-between">
-        <h2 className="text-xl font-bold text-foreground">{t("venues.title")}</h2>
-        <div className="flex items-center border border-border rounded-lg overflow-hidden">
-          <Button
-            variant="ghost"
-            size="sm"
-            className={cn("h-8 px-3 rounded-none text-xs", view === "list" && "bg-muted")}
-            onClick={() => setView("list")}
-          >
-            <List className="h-3.5 w-3.5 mr-1" />
-            {t("venues.list")}
-          </Button>
-          <Button
-            variant="ghost"
-            size="sm"
-            className={cn("h-8 px-3 rounded-none text-xs", view === "map" && "bg-muted")}
-            onClick={() => setView("map")}
-          >
-            <Map className="h-3.5 w-3.5 mr-1" />
-            {t("venues.map")}
-          </Button>
-        </div>
-      </div>
-
-      {view === "list" ? (
-        <div className="px-4 pb-4 flex flex-col gap-3">
-          {sortedVenues.map((venue) => (
-            <VenueCard key={venue.id} venue={venue} checkedIn={activeVenueId === venue.id} onCheckinChange={(active) => setActiveVenueId(active ? venue.id : null)} />
-          ))}
-        </div>
-      ) : (
-        <div className="mx-4 mb-4 h-80 rounded-xl bg-muted border border-border flex items-center justify-center">
-          <div className="text-center text-muted-foreground">
-            <Map className="h-12 w-12 mx-auto mb-2 opacity-40" />
-            <p className="text-sm">{t("venues.map.placeholder")}</p>
-          </div>
-        </div>
-      )}
+  const venueList = useRealtimeVenues(venues, !preview)
+  const sortedVenues = [...venueList].filter((venue) => !onlyOpen || venue.is_open || venue.id === activeVenueId)
+    .sort((a, b) => Number(b.id === activeVenueId) - Number(a.id === activeVenueId) || Number(b.is_open) - Number(a.is_open) || a.name.localeCompare(b.name, locale))
+  return <div>
+    <ScreenHeading title={t("venues.title")} description={el ? "Βρες τον χώρο για το επόμενο διάβασμά σου." : "Find a place for your next study session."} />
+    <div className="mx-5 mb-5 flex items-center gap-2">
+      <Button variant={!onlyOpen ? "default" : "outline"} aria-pressed={!onlyOpen} onClick={() => setOnlyOpen(false)}>{el ? "Όλοι οι χώροι" : "All places"}</Button>
+      <Button variant={onlyOpen ? "default" : "outline"} aria-pressed={onlyOpen} onClick={() => setOnlyOpen(true)}>{el ? "Ανοιχτά τώρα" : "Open now"}</Button>
     </div>
-  )
+    <div className="space-y-4 px-5 pb-5">
+      {sortedVenues.map((venue) => <VenueCard preview={preview} key={venue.id} venue={venue} checkedIn={activeVenueId === venue.id} onCheckinChange={(active) => setActiveVenueId(active ? venue.id : null)} />)}
+      {sortedVenues.length === 0 && <div role="status" className="border-t border-border py-8"><MapPin className="mb-4 h-7 w-7 text-primary" /><h2 className="font-semibold">{el ? "Δεν υπάρχουν διαθέσιμοι χώροι" : "No places to show"}</h2><p className="mt-2 text-sm leading-6 text-muted-foreground">{onlyOpen ? (el ? "Δες όλους τους χώρους ή δοκίμασε αργότερα." : "View all places or check back later.") : (el ? "Οι χώροι μελέτης θα εμφανιστούν εδώ όταν προστεθούν." : "Study venues will appear here when they’re added.")}</p></div>}
+    </div>
+  </div>
 }

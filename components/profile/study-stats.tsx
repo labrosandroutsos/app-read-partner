@@ -1,7 +1,6 @@
 "use client"
 
 import { useTranslation } from "@/lib/i18n"
-import { subjectStats as mockStats } from "@/lib/mock-data"
 import { Progress } from "@/components/ui/progress"
 
 interface StudyStatsProps {
@@ -11,7 +10,7 @@ interface StudyStatsProps {
 export function StudyStats({ stats }: StudyStatsProps) {
   const { t } = useTranslation()
 
-  const data = stats && stats.length > 0 ? stats : mockStats
+  const data = stats ?? []
   const maxHours = Math.max(...data.map((s) => s.hours), 1)
   const totalHours = data.reduce((sum, s) => sum + s.hours, 0)
 

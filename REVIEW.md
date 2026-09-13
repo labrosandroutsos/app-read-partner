@@ -83,3 +83,14 @@ The four-step matching wizard is now three steps: subject, time, and place. Opti
 The application and local preview now share a header. Privacy preferences open from a labeled header control on those two surfaces; the floating control remains available elsewhere. This resolves the previously noted overlap on the study flow. Navigation has one active-state treatment, the font stack favors the platform UI font, and the login removes duplicated branding/decorative text.
 
 Previous four-step validation notes describe the first commit. The follow-up was checked as a three-step flow at 375 × 667, including completion in the non-persistent preview and dark-mode preferences. Physical iOS Safari and authenticated backend journeys remain outside this validation.
+
+
+## Other-tab rollout — 13 September 2026
+
+Extended the approved mobile direction to Chat, Notes, Venues, and Profile using a shared screen heading, consistent margins and type, and larger action targets. Chat adds local name/subject search and roomier message bubbles, with accessible composer labels. Notes uses readable single-column phone cards, a labeled upload button, a labeled subject filter, and larger like/download/menu targets. Venues replaces the nonfunctional map-placeholder switch with an open-now filter; checked-in venues remain reachable for checkout and are sorted first. Profile opens its calendar first, localizes the calendar, and uses scrollable settings with a correctly selected System theme option.
+
+Removed implicit sample-data fallbacks from live venue lists, profile identity, study statistics, past partners, coupons, and calendar sessions. Empty backend results now remain empty instead of appearing populated by imaginary records. Explicit sample content belongs only in the development preview.
+
+The development preview now covers all tabs, including in-memory sample chat, note cards with backend actions disabled, venue filters with check-ins disabled and realtime subscriptions off, and profile settings with account mutations disabled. Its Empty states control makes the new-account experience inspectable. No real messages or backend records were changed during review.
+
+Validation: final TypeScript check, all 57 existing tests, and the production build passed. Browser inspection covered all four sample tabs at 390 × 844 in dark mode, the open-now filter, and chat detail/composer. Physical iPhone keyboard behavior and authenticated network actions still need device/account testing.

@@ -4,7 +4,6 @@ import { QrCode, Tag } from "lucide-react"
 import { useTranslation } from "@/lib/i18n"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { coupons as mockCoupons } from "@/lib/mock-data"
 import type { Coupon, Venue } from "@/lib/types"
 
 interface CouponsListProps {
@@ -13,23 +12,15 @@ interface CouponsListProps {
 }
 
 export function CouponsList({ coupons, venues }: CouponsListProps) {
-  const { t } = useTranslation()
+  const { t, locale } = useTranslation()
 
-  const hasReal = coupons && coupons.length > 0
-
-  const items = hasReal
-    ? coupons.map(c => ({
-        id: c.id,
-        venue: (c as any).venue?.name || venues?.find(v => v.id === c.venue_id)?.name || 'Venue',
-        discount: c.discount,
-        expiresAt: c.expires_at || '',
-      }))
-    : mockCoupons.map(c => ({
-        id: c.id,
-        venue: c.venue,
-        discount: c.discount,
-        expiresAt: c.expiresAt,
-      }))
+  const items = (coupons ?? []).map(c => ({
+    id: c.id,
+    venue: venues?.find(v => v.id === c.venue_id)?.name || (locale === "el" ? "Χώρος" : "Venue"),
+    discount: c.discount,
+    expiresAt: c.expires_at || "",
+  }))
+  if (!items.length) return <p className="text-sm leading-6 text-muted-foreground">{locale === "el" ? "Δεν έχεις διαθέσιμα κουπόνια ακόμα." : "You don’t have any coupons yet."}</p>
 
   return (
     <div className="flex flex-col gap-3">

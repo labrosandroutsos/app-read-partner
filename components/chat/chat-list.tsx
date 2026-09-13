@@ -1,6 +1,9 @@
 "use client"
 
-import { MessageCircle } from "lucide-react"
+import { useState } from "react"
+import { ScreenHeading } from "@/components/screen-heading"
+import { Input } from "@/components/ui/input"
+import { MessageCircle, Search } from "lucide-react"
 import { useTranslation } from "@/lib/i18n"
 import { Badge } from "@/components/ui/badge"
 import { cn } from "@/lib/utils"
@@ -19,6 +22,7 @@ interface ChatListProps {
 export function ChatList({ currentUserId, conversations, unreadByMatch, mockConversations, onSelectChat }: ChatListProps) {
   const { t, locale } = useTranslation()
   const el = locale === "el"
+  const [query, setQuery] = useState("")
 
   const items = conversations && conversations.length > 0
     ? conversations.map(c => ({
@@ -33,7 +37,7 @@ export function ChatList({ currentUserId, conversations, unreadByMatch, mockConv
           ? t(c.lastMessage.text as Parameters<typeof t>[0])
           : c.lastMessage?.text || '',
         isSystem: c.lastMessage?.is_system ?? false,
-        subject: c.subject?.name || '',
+        subject: (el ? c.subject?.name : c.subject?.name_en) || '',
         venue: c.venue?.name || '',
       }))
     : (mockConversations || []).map(conv => {
@@ -54,29 +58,19 @@ export function ChatList({ currentUserId, conversations, unreadByMatch, mockConv
         }
       })
 
-  if (items.length === 0) {
-    return (
-      <div className="flex flex-col items-center justify-center gap-3 py-20 px-6 text-center">
-        <div className="w-14 h-14 rounded-full bg-muted flex items-center justify-center">
-          <MessageCircle className="h-7 w-7 text-muted-foreground" />
-        </div>
-        <h3 className="text-lg font-bold text-foreground">{t("chat.empty")}</h3>
-        <p className="text-sm text-muted-foreground">{t("chat.empty.subtitle")}</p>
-      </div>
-    )
-  }
+  const filtered = items.filter((item) => `${item.name} ${item.subject}`.toLocaleLowerCase(locale).includes(query.toLocaleLowerCase(locale).trim()))
 
   return (
     <div className="flex flex-col">
-      <div className="px-4 py-3">
-        <h2 className="text-xl font-bold text-foreground">{t("chat.title")}</h2>
-      </div>
+      <ScreenHeading title={t("chat.title")} description={el ? "Μια κουβέντα, ένα πλάνο για διάβασμα." : "A conversation. A plan to study together."} />
+      {items.length > 0 && <div className="relative mx-5 mb-5"><Search className="pointer-events-none absolute left-3 top-3.5 h-4 w-4 text-muted-foreground" /><Input className="h-12 bg-card pl-10" value={query} onChange={(event) => setQuery(event.target.value)} aria-label={el ? "Αναζήτηση συνομιλιών" : "Search conversations"} placeholder={el ? "Όνομα ή μάθημα" : "Name or subject"} /></div>}
+      {filtered.length === 0 && <div role="status" className="mx-5 border-t border-border py-8"><MessageCircle className="mb-4 h-7 w-7 text-primary" /><h2 className="text-base font-semibold">{items.length ? (el ? "Δεν βρέθηκε συνομιλία" : "No conversations found") : t("chat.empty")}</h2><p className="mt-2 text-sm leading-6 text-muted-foreground">{items.length ? (el ? "Δοκίμασε άλλο όνομα ή μάθημα." : "Try another name or subject.") : t("chat.empty.subtitle")}</p></div>}
       <div className="flex flex-col">
-        {items.map((item) => (
+        {filtered.map((item) => (
           <button
             key={item.id}
             onClick={() => onSelectChat(item.id)}
-            className="flex items-center gap-3 px-4 py-3 hover:bg-muted/50 transition-colors text-left border-b border-border/50 last:border-0"
+            className="flex items-center gap-3 px-5 py-4 hover:bg-muted/50 transition-colors text-left border-b border-border/50 last:border-0"
           >
             <div className="relative shrink-0">
               <div className={cn("w-12 h-12 rounded-full flex items-center justify-center text-sm font-bold text-white", item.avatarColor)}>
@@ -94,12 +88,12 @@ export function ChatList({ currentUserId, conversations, unreadByMatch, mockConv
                 <span className="text-xs text-muted-foreground shrink-0 ml-2">{item.lastActive}</span>
               </div>
               <p className={cn("text-sm truncate mt-0.5", item.unread > 0 ? "text-foreground font-medium" : "text-muted-foreground")}>
-                {item.lastMessage}
+                {item.lastMessage || (el ? "Πες ένα γεια και κανονίστε διάβασμα." : "Say hello and plan a study session.")}
               </p>
               <div className="flex flex-wrap items-center gap-1.5 mt-1">
                 {item.incomingProposal && <Badge className="h-4 bg-amber-500/15 px-1.5 py-0 text-[10px] text-amber-700 hover:bg-amber-500/15 dark:text-amber-400">{el ? "Νέα πρόταση μελέτης" : "New study proposal"}</Badge>}
-                <Badge variant="outline" className="text-[10px] py-0 px-1.5 h-4">{item.subject}</Badge>
-                <Badge variant="outline" className="text-[10px] py-0 px-1.5 h-4">{item.venue}</Badge>
+                {item.subject && <span className="text-xs text-primary">{item.subject}</span>}
+                {item.venue && <span className="text-xs text-muted-foreground">· {item.venue}</span>}
               </div>
             </div>
           </button>

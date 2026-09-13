@@ -4,12 +4,13 @@ import { useEffect, useState } from "react"
 import { createClient } from "@/lib/supabase/client"
 import type { Venue } from "@/lib/types"
 
-export function useRealtimeVenues(initialVenues: Venue[]) {
+export function useRealtimeVenues(initialVenues: Venue[], enabled = true) {
   const [venues, setVenues] = useState(initialVenues)
 
   useEffect(() => setVenues(initialVenues), [initialVenues])
 
   useEffect(() => {
+    if (!enabled) return
     const supabase = createClient()
     const channel = supabase
       .channel("venue-details")
@@ -19,7 +20,7 @@ export function useRealtimeVenues(initialVenues: Venue[]) {
       })
       .subscribe()
     return () => { void supabase.removeChannel(channel) }
-  }, [])
+  }, [enabled])
 
   return venues
 }

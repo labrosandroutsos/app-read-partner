@@ -2,6 +2,7 @@
 
 import { useMemo, useState, useTransition } from "react"
 import { Check, Clock, Loader2, MapPin, X } from "lucide-react"
+import { el as greekCalendar, enGB } from "date-fns/locale"
 import { useRouter } from "next/navigation"
 import { toast } from "sonner"
 import { cancelStudySession, respondToStudySession } from "@/lib/actions"
@@ -11,7 +12,6 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { AddToCalendarButton } from "@/components/calendar/add-to-calendar-button"
-import { studySessions as mockSessions, getStudentById } from "@/lib/mock-data"
 import { cn } from "@/lib/utils"
 import type { StudySessionRecord } from "@/lib/types"
 
@@ -31,9 +31,8 @@ export function CalendarView({ studySessions = [], userId }: CalendarViewProps) 
   const [date, setDate] = useState<Date | undefined>(new Date())
   const [pendingId, setPendingId] = useState<string | null>(null)
   const [isPending, startTransition] = useTransition()
-  const hasReal = studySessions.length > 0
 
-  const items = useMemo(() => hasReal ? studySessions.filter((session) => session.status !== 'cancelled').map((session) => {
+  const items = useMemo(() => studySessions.filter((session) => session.status !== 'cancelled').map((session) => {
     const partner = session.user_id === userId
       ? session.partner
       : session.owner
@@ -42,7 +41,7 @@ export function CalendarView({ studySessions = [], userId }: CalendarViewProps) 
       id: session.id,
       startsAt,
       endsAt: session.ends_at,
-      subject: session.subject?.name || 'Subject',
+      subject: (el ? session.subject?.name : session.subject?.name_en) || (el ? 'Μάθημα' : 'Subject'),
       partnerName: partner?.display_name?.split(' ')[0] || '?',
       partnerInitials: (partner?.display_name || '?').slice(0, 2).toUpperCase(),
       partnerColor: partner?.avatar_color || 'bg-primary',
@@ -52,23 +51,7 @@ export function CalendarView({ studySessions = [], userId }: CalendarViewProps) 
       proposedBy: session.proposed_by,
       real: true,
     }
-  }) : mockSessions.map((session) => {
-    const partner = getStudentById(session.partnerId)
-    return {
-      id: session.id,
-      startsAt: new Date(`${session.date}T12:00:00`),
-      endsAt: null,
-      subject: session.subject,
-      partnerName: partner?.name.split(' ')[0] || '?',
-      partnerInitials: partner?.initials || '?',
-      partnerColor: partner?.avatarColor || 'bg-primary',
-      venue: session.venue,
-      duration: session.duration,
-      status: 'confirmed' as const,
-      proposedBy: null,
-      real: false,
-    }
-  }), [el, hasReal, studySessions, userId])
+  }), [el, studySessions, userId])
 
   const visibleItems = date ? items.filter((session) => sameDay(session.startsAt, date)) : items
   const respond = (sessionId: string, accept: boolean) => {
@@ -98,7 +81,7 @@ export function CalendarView({ studySessions = [], userId }: CalendarViewProps) 
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="flex justify-center"><Calendar mode="single" selected={date} onSelect={setDate} modifiers={{ hasSession: items.map((session) => session.startsAt) }} modifiersStyles={{ hasSession: { fontWeight: 700, textDecoration: 'underline' } }} className="rounded-md border" /></div>
+      <div className="flex justify-center"><Calendar locale={el ? greekCalendar : enGB} mode="single" selected={date} onSelect={setDate} modifiers={{ hasSession: items.map((session) => session.startsAt) }} modifiersStyles={{ hasSession: { fontWeight: 700, textDecoration: 'underline' } }} className="rounded-xl border bg-card [--cell-size:2.5rem]" /></div>
       <div>
         <h4 className="mb-2 text-sm font-semibold text-foreground">{date ? date.toLocaleDateString(locale === 'el' ? 'el-GR' : 'en-GB', { weekday: 'long', day: 'numeric', month: 'long' }) : t("profile.calendar.upcoming")}</h4>
         <div className="flex flex-col gap-2">

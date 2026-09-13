@@ -12,6 +12,7 @@ import { toggleVenueCheckin } from "@/lib/actions"
 import { toast } from "sonner"
 
 interface VenueCardProps {
+  preview?: boolean
   venue: {
     id: string
     name: string
@@ -26,7 +27,7 @@ interface VenueCardProps {
   onCheckinChange: (active: boolean) => void
 }
 
-export function VenueCard({ venue, checkedIn, onCheckinChange }: VenueCardProps) {
+export function VenueCard({ preview = false, venue, checkedIn, onCheckinChange }: VenueCardProps) {
   const { t, locale } = useTranslation()
   const [isPending, startTransition] = useTransition()
 
@@ -51,12 +52,12 @@ export function VenueCard({ venue, checkedIn, onCheckinChange }: VenueCardProps)
   }
 
   return (
-    <Card className={cn("overflow-hidden transition-all", !venue.is_open && "opacity-60")}>
+    <Card className={cn("overflow-hidden py-0 shadow-none", checkedIn && "border-primary")}>
       <CardContent className="p-4 flex flex-col gap-3">
         <div className="flex items-start justify-between">
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2">
-              <h4 className="font-semibold text-sm truncate text-foreground">{venue.name}</h4>
+              <h2 className="font-semibold text-base leading-snug text-foreground">{venue.name}</h2>
               {venue.discount && (
                 <Badge className="bg-accent text-accent-foreground text-[10px] py-0 px-1.5 shrink-0">
                   -{venue.discount}%
@@ -65,7 +66,7 @@ export function VenueCard({ venue, checkedIn, onCheckinChange }: VenueCardProps)
             </div>
             <div className="flex items-center gap-1 mt-1 text-xs text-muted-foreground">
               <MapPin className="h-3 w-3 shrink-0" />
-              <span className="truncate">{venue.address}</span>
+              <span>{venue.address}</span>
             </div>
           </div>
           <Badge
@@ -85,7 +86,7 @@ export function VenueCard({ venue, checkedIn, onCheckinChange }: VenueCardProps)
         </div>
 
         {(venue.is_open || checkedIn) && (
-          <Button variant="outline" size="sm" className="w-full text-xs" onClick={handleCheckin} disabled={isPending}>
+          <Button variant="outline" size="sm" className="h-12 w-full text-sm" onClick={handleCheckin} disabled={isPending || preview}>
             {isPending ? <Loader2 className="h-3.5 w-3.5 mr-1.5 animate-spin" /> : checkedIn ? <LogOut className="h-3.5 w-3.5 mr-1.5" /> : <LogIn className="h-3.5 w-3.5 mr-1.5" />}
             {checkedIn ? (locale === "el" ? "Check out" : "Check out") : t("venues.checkin")}
           </Button>

@@ -33,12 +33,13 @@ interface NoteCardData {
 }
 
 interface NoteCardProps {
+  preview?: boolean
   note: NoteCardData
   currentUserId: string
   subjects: Subject[]
 }
 
-export function NoteCard({ note, currentUserId, subjects }: NoteCardProps) {
+export function NoteCard({ preview = false, note, currentUserId, subjects }: NoteCardProps) {
   const { locale } = useTranslation()
   const router = useRouter()
   const [liked, setLiked] = useState(note.liked)
@@ -126,21 +127,21 @@ export function NoteCard({ note, currentUserId, subjects }: NoteCardProps) {
   }
 
   return (
-    <div className="flex flex-col rounded-xl border border-border bg-card overflow-hidden hover:shadow-md transition-shadow">
+    <div className="flex flex-col rounded-xl border border-border bg-card overflow-hidden">
       {/* Thumbnail */}
-      <div className={cn("relative h-28", note.color)}>
+      <div className={cn("relative h-14", note.color)}>
         {note.fileUrl ? (
           <button type="button" onClick={() => setPreviewOpen(true)} className="flex h-full w-full items-center justify-center hover:bg-black/5" aria-label={el ? "Προεπισκόπηση σημειώσεων" : "Preview notes"}>
-            <FileText className="h-10 w-10 text-muted-foreground/40" />
+            <FileText className="h-6 w-6 text-primary" />
             <span className="absolute bottom-2 right-2 rounded-full bg-background/90 p-1.5 shadow"><Eye className="h-3.5 w-3.5" /></span>
           </button>
         ) : (
-          <div className="flex h-full items-center justify-center"><FileText className="h-10 w-10 text-muted-foreground/40" /></div>
+          <div className="flex h-full items-center justify-center"><FileText className="h-6 w-6 text-primary" /></div>
         )}
         <div className="absolute right-1 top-1">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="secondary" size="icon" className="h-7 w-7 rounded-full bg-background/90" aria-label={el ? "Επιλογές σημειώσεων" : "Note options"}>
+              <Button variant="secondary" size="icon" disabled={preview} className="h-11 w-11 bg-transparent" aria-label={el ? "Επιλογές σημειώσεων" : "Note options"}>
                 <EllipsisVertical className="h-3.5 w-3.5" />
               </Button>
             </DropdownMenuTrigger>
@@ -159,8 +160,8 @@ export function NoteCard({ note, currentUserId, subjects }: NoteCardProps) {
       </div>
 
       {/* Info */}
-      <div className="p-3 flex flex-col gap-1.5">
-        <h4 className="font-semibold text-sm leading-tight line-clamp-2 text-foreground">{note.title}</h4>
+      <div className="p-4 flex flex-col gap-1.5">
+        <h2 className="font-semibold text-base leading-snug text-foreground">{note.title}</h2>
         {subjectName && (
           <p className="text-xs text-muted-foreground">
             {subjectName}
@@ -172,9 +173,10 @@ export function NoteCard({ note, currentUserId, subjects }: NoteCardProps) {
         <div className="flex items-center justify-between mt-1 pt-2 border-t border-border/50">
           <button
             onClick={handleLike}
-            disabled={isPending}
-            className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors"
-            aria-label="Like"
+            disabled={isPending || preview}
+            aria-pressed={liked}
+            className="flex min-h-11 items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
+            aria-label={el ? "Μου αρέσει" : "Like"}
           >
             <Heart className={cn("h-3.5 w-3.5", liked && "fill-red-500 text-red-500")} />
             <span>{likeCount}</span>
@@ -191,13 +193,13 @@ export function NoteCard({ note, currentUserId, subjects }: NoteCardProps) {
               if (!note.fileUrl) event.preventDefault()
             }}
             className={cn(
-              "flex items-center gap-1 text-xs transition-colors",
+              "flex min-h-11 items-center gap-2 text-sm transition-colors",
               note.fileUrl ? "text-muted-foreground hover:text-foreground" : "cursor-not-allowed text-muted-foreground/40",
             )}
             aria-label={locale === "el" ? "Λήψη σημειώσεων" : "Download notes"}
           >
             <Download className="h-3.5 w-3.5" />
-            <span>{note.downloads}</span>
+            <span>{el ? "Λήψη" : "Download"}</span>
           </a>
         </div>
       </div>

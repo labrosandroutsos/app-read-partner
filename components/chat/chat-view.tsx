@@ -32,7 +32,7 @@ interface ChatViewProps {
 }
 
 export function ChatView({ matchId, partner, subject, venue, userId, onBack, mockConversation, venues = [], schedule = null }: ChatViewProps) {
-  const { t } = useTranslation()
+  const { t, locale } = useTranslation()
   const [input, setInput] = useState("")
   const [isSending, setIsSending] = useState(false)
   const [pendingQuickAction, setPendingQuickAction] = useState<string | null>(null)
@@ -145,7 +145,7 @@ export function ChatView({ matchId, partner, subject, venue, userId, onBack, moc
   return (
     <div className="flex h-full min-h-0 flex-col overflow-hidden">
       <div className="flex shrink-0 items-center gap-3 border-b border-border bg-card px-3 py-2">
-        <Button variant="ghost" size="icon" className="h-8 w-8 shrink-0" onClick={onBack} aria-label="Back">
+        <Button variant="ghost" size="icon" className="h-11 w-11 shrink-0" onClick={onBack} aria-label={locale === "el" ? "Πίσω στις συνομιλίες" : "Back to conversations"}>
           <ArrowLeft className="h-4 w-4" />
         </Button>
         <div className={cn("w-9 h-9 rounded-full flex items-center justify-center text-xs font-bold text-white shrink-0", displayColor)}>
@@ -194,7 +194,7 @@ export function ChatView({ matchId, partner, subject, venue, userId, onBack, moc
             return (
               <div key={msg.id} className={cn("flex", msg.isMine ? "justify-end" : "justify-start")}>
                 <div className={cn(
-                  "max-w-[78%] rounded-2xl px-3.5 py-2 text-sm",
+                  "max-w-[85%] break-words rounded-2xl px-4 py-3 text-sm leading-6",
                   msg.isMine
                     ? "bg-primary text-primary-foreground rounded-br-md"
                     : "bg-muted text-foreground rounded-bl-md"
@@ -216,7 +216,7 @@ export function ChatView({ matchId, partner, subject, venue, userId, onBack, moc
             key={action.key}
             variant="outline"
             size="sm"
-            className="shrink-0 text-xs rounded-full h-7"
+            className="shrink-0 text-xs rounded-full h-11"
             onClick={() => handleQuickAction(action.key, action.label)}
             disabled={isSending}
           >
@@ -228,6 +228,7 @@ export function ChatView({ matchId, partner, subject, venue, userId, onBack, moc
 
       <div className="flex shrink-0 items-center gap-2 border-t border-border bg-card px-4 py-3">
         <Input
+          aria-label={t("chat.input.placeholder")}
           placeholder={t("chat.input.placeholder")}
           value={input}
           onChange={(e) => setInput(e.target.value)}
@@ -237,10 +238,10 @@ export function ChatView({ matchId, partner, subject, venue, userId, onBack, moc
               void handleSend()
             }
           }}
-          className="flex-1"
+          className="h-12 flex-1"
           disabled={isSending}
         />
-        <Button size="icon" className="shrink-0 h-10 w-10 rounded-full" onClick={handleSend} disabled={!input.trim() || isSending}>
+        <Button aria-label={locale === "el" ? "Αποστολή μηνύματος" : "Send message"} size="icon" className="shrink-0 h-11 w-11 rounded-full" onClick={handleSend} disabled={!input.trim() || isSending}>
           {isSending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
         </Button>
       </div>
