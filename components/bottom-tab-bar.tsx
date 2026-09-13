@@ -41,7 +41,7 @@ export function BottomTabBar({ activeTab, onTabChange, unreadChats, unreadIntere
               className={cn(
                 "flex flex-col items-center gap-1 px-2 py-2.5 rounded-lg transition-colors relative min-w-[56px]",
                 isActive
-                  ? "bg-primary/10 text-primary"
+                  ? "text-primary"
                   : "text-muted-foreground hover:text-foreground"
               )}
             >
@@ -56,9 +56,7 @@ export function BottomTabBar({ activeTab, onTabChange, unreadChats, unreadIntere
               <span className={cn("text-xs leading-tight", isActive ? "font-semibold" : "font-medium")}>
                 {t(tab.labelKey as Parameters<typeof t>[0])}
               </span>
-              {isActive && (
-                <span className="absolute -top-px left-1/2 -translate-x-1/2 w-8 h-0.5 bg-primary rounded-full" />
-              )}
+
             </button>
           )
         })}

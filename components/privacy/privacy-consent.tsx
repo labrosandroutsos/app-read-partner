@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react"
 import Link from "next/link"
+import { usePathname } from "next/navigation"
 import { Analytics } from "@vercel/analytics/next"
 import { ShieldCheck, X } from "lucide-react"
 import { Button } from "@/components/ui/button"
@@ -9,6 +10,8 @@ import { useTranslation } from "@/lib/i18n"
 import { createPrivacyConsent, parsePrivacyConsent, PRIVACY_CONSENT_KEY, type PrivacyConsent } from "@/lib/privacy-consent"
 
 export function PrivacyConsentManager() {
+  const pathname = usePathname()
+  const hasHeaderControl = pathname === "/app" || pathname === "/design-preview"
   const { locale } = useTranslation()
   const el = locale === "el"
   const [ready, setReady] = useState(false)
@@ -18,6 +21,12 @@ export function PrivacyConsentManager() {
   useEffect(() => {
     setPreferences(parsePrivacyConsent(window.localStorage.getItem(PRIVACY_CONSENT_KEY)))
     setReady(true)
+  }, [])
+
+  useEffect(() => {
+    const openPreferences = () => setPreferencesOpen(true)
+    window.addEventListener("read-partner:privacy", openPreferences)
+    return () => window.removeEventListener("read-partner:privacy", openPreferences)
   }, [])
 
   const choose = (analytics: boolean) => {
@@ -37,7 +46,7 @@ export function PrivacyConsentManager() {
     <>
       {ready && preferences?.analytics && <Analytics />}
 
-      {ready && preferences && !panelOpen && (
+      {ready && preferences && !panelOpen && !hasHeaderControl && (
         <Button
           type="button"
           variant="outline"

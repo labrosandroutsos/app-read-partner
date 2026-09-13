@@ -72,3 +72,14 @@ The note preview/download implementation accepts legacy HTTP(S) file URLs. Audit
 ## How to review together
 
 Run `npm run dev` and visit `/design-preview`. Start with the phone-sized layout. Ask her to find a partner without instructions, then ask what she expects after the final button. Use `/auth/login` to review the first impression. The preview is intentionally a UI exercise; it does not create searches or fake successful matches.
+
+
+## Impeccable follow-up — 13 September 2026
+
+Applied the installed Impeccable 4.3.1 skill's Operate/distill/polish guidance to the existing direction. The context launcher could not initialize its engine; a temporary-cache engine download also failed. No automated Impeccable detector results are claimed.
+
+The four-step matching wizard is now three steps: subject, time, and place. Optional language, study-style, and distance controls remain in an expandable preferences section. Replaced the oversized introductory heading, decorative icon container, and wrapping step labels with compact task headings and short numbered steps. Subjects use labeled native radio inputs, with search when there are more than eight subjects. Duration selection announces its active state. Final submission rechecks the current time so an idle form cannot rely on an earlier validation result.
+
+The application and local preview now share a header. Privacy preferences open from a labeled header control on those two surfaces; the floating control remains available elsewhere. This resolves the previously noted overlap on the study flow. Navigation has one active-state treatment, the font stack favors the platform UI font, and the login removes duplicated branding/decorative text.
+
+Previous four-step validation notes describe the first commit. The follow-up was checked as a three-step flow at 375 × 667, including completion in the non-persistent preview and dark-mode preferences. Physical iOS Safari and authenticated backend journeys remain outside this validation.

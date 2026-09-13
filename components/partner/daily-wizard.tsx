@@ -1,10 +1,9 @@
 "use client"
 
 import { useMemo, useState } from "react"
-import { BookOpen, ChevronLeft, ChevronRight, Clock, MapPin, SlidersHorizontal } from "lucide-react"
+import { ArrowRight, Check, ChevronLeft, MapPin, Search, SlidersHorizontal } from "lucide-react"
 import { useTranslation } from "@/lib/i18n"
 import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
@@ -30,10 +29,7 @@ interface DailyWizardProps {
 }
 
 function localDateValue(date: Date) {
-  const year = date.getFullYear()
-  const month = String(date.getMonth() + 1).padStart(2, "0")
-  const day = String(date.getDate()).padStart(2, "0")
-  return `${year}-${month}-${day}`
+  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`
 }
 
 export function DailyWizard({ onComplete, subjects = [], venues = [], isSubmitting = false }: DailyWizardProps) {
@@ -44,6 +40,7 @@ export function DailyWizard({ onComplete, subjects = [], venues = [], isSubmitti
   const maxDate = useMemo(() => new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000), [now])
   const [step, setStep] = useState(0)
   const [selectedSubject, setSelectedSubject] = useState("")
+  const [subjectQuery, setSubjectQuery] = useState("")
   const [selectedDate, setSelectedDate] = useState(localDateValue(defaultStart))
   const [selectedTime, setSelectedTime] = useState(`${String(defaultStart.getHours()).padStart(2, "0")}:${String(defaultStart.getMinutes()).padStart(2, "0")}`)
   const [selectedDuration, setSelectedDuration] = useState("2h")
@@ -51,80 +48,99 @@ export function DailyWizard({ onComplete, subjects = [], venues = [], isSubmitti
   const [maxDistanceKm, setMaxDistanceKm] = useState(5)
   const [studyStyle, setStudyStyle] = useState("either")
   const [language, setLanguage] = useState("either")
-
-  const subjectItems = subjects.map((subject) => ({ id: String(subject.id), name: subject.name, nameEn: subject.name_en }))
+  const [showPreferences, setShowPreferences] = useState(false)
   const venueItems = venues.filter((venue) => venue.is_open)
+  const subjectName = (subject: Subject) => el ? subject.name : subject.name_en
+  const chosenSubject = subjects.find((subject) => String(subject.id) === selectedSubject)
+  const visibleSubjects = subjects.filter((subject) => `${subject.name} ${subject.name_en}`.toLocaleLowerCase(locale).includes(subjectQuery.toLocaleLowerCase(locale).trim()))
   const validDate = isFutureStudyTime(selectedDate, selectedTime, localDateValue(maxDate))
-  const canProceed = [
-    Boolean(selectedSubject),
-    validDate && Boolean(selectedDuration),
-    Boolean(selectedVenue && maxDistanceKm >= 0.5),
-    Boolean(studyStyle && language),
-  ][step]
+  const canProceed = [Boolean(selectedSubject), validDate && Boolean(selectedDuration), Boolean(selectedVenue && studyStyle && language)][step]
+  const stepLabels = el ? ["Μάθημα", "Ώρα", "Τοποθεσία"] : ["Subject", "Time", "Place"]
+  const headings = el ? ["Τι θα διαβάσεις;", "Πότε σε βολεύει;", "Πού θα βρεθείτε;"] : ["What are you studying?", "When works for you?", "Where will you meet?"]
+  const descriptions = el
+    ? ["Βρες παρέα για το επόμενο διάβασμά σου.", "Διάλεξε ώρα και διάρκεια για το διάβασμά σου.", "Διάλεξε χώρο ή αποφασίστε μαζί στη συνομιλία."]
+    : ["Find a little company for your next study session.", "Pick a start time and how long you’d like to study.", "Choose a place, or decide together in the chat."]
 
   const handleNext = () => {
     if (!canProceed || isSubmitting) return
-    if (step === 3 && !validDate) { setStep(1); return }
-    if (step < 3) return setStep((current) => current + 1)
-    void onComplete({
-      subject: selectedSubject,
-      venue: selectedVenue,
-      duration: selectedDuration,
-      plannedStart: new Date(`${selectedDate}T${selectedTime}:00`).toISOString(),
-      studyStyle,
-      language,
-      maxDistanceKm,
-    })
+    if (step < 2) { setStep(step + 1); return }
+    if (!isFutureStudyTime(selectedDate, selectedTime, localDateValue(maxDate))) { setStep(1); return }
+    void onComplete({ subject: selectedSubject, venue: selectedVenue, duration: selectedDuration,
+      plannedStart: new Date(`${selectedDate}T${selectedTime}:00`).toISOString(), studyStyle, language, maxDistanceKm })
   }
 
-  const titles = [t("partner.wizard.subject"), el ? "Ημερομηνία και ώρα" : "Date and time", t("partner.wizard.venue"), el ? "Προτιμήσεις μελέτης" : "Study preferences"]
-  const StepIcon = [BookOpen, Clock, MapPin, SlidersHorizontal][step]
-
   return (
-    <div className="mx-auto flex max-w-xl flex-col gap-6 px-5 py-7">
-      <div className="border-b border-border pb-6">
-        <p className="mb-2 text-xs font-semibold uppercase tracking-[0.18em] text-primary">{el ? "ΜΑΖΙ, ΠΙΟ ΕΥΚΟΛΑ" : "MAKE ROOM FOR FOCUS"}</p>
-        <h1 className="study-title text-4xl leading-tight">{el ? "Πάμε για διάβασμα;" : "Your next study day."}</h1>
-        <p className="mt-3 text-sm leading-6 text-muted-foreground">{el ? "Διάλεξε τι και πότε θέλεις να διαβάσεις. Αν το θέλετε και οι δύο, θα ανοίξει μια συνομιλία." : "Choose what and when you’d like to study. When you both want to connect, a chat opens."}</p>
-      </div>
-      <ol aria-label={el ? "Βήματα αναζήτησης" : "Search steps"} className="grid grid-cols-4 gap-2">
-        {titles.map((title, index) => <li key={title} aria-current={index === step ? "step" : undefined} className="space-y-2"><div className={cn("h-1 rounded-full", index <= step ? "bg-primary" : "bg-border")} /><span className={cn("text-[11px] leading-tight", index === step ? "font-semibold text-primary" : "text-muted-foreground")}>{index + 1}. {title}</span></li>)}
+    <div className="mx-auto flex min-h-full max-w-xl flex-col px-5 pt-5">
+      <ol aria-label={el ? "Βήματα αναζήτησης" : "Search steps"} className="mb-6 flex items-center gap-2">
+        {stepLabels.map((label, index) => (
+          <li key={label} aria-current={index === step ? "step" : undefined} className="flex min-w-0 flex-1 items-center gap-2">
+            <span className={cn("flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-xs font-semibold", index <= step ? "bg-primary text-primary-foreground" : "bg-secondary text-muted-foreground")}>
+              {index < step ? <Check className="h-3.5 w-3.5" aria-hidden="true" /> : index + 1}
+            </span>
+            <span className={cn("text-xs", index === step ? "font-semibold text-foreground" : "text-muted-foreground")}>{label}</span>
+          </li>
+        ))}
       </ol>
-      <div className="flex items-center gap-3">
-        <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-primary/10"><StepIcon className="h-5 w-5 text-primary" /></div>
-        <h2 className="text-lg font-semibold text-foreground">{titles[step]}</h2>
+
+      <div className="mb-6" aria-live="polite" aria-atomic="true">
+        <h1 className="text-[28px] font-semibold leading-tight tracking-[-0.03em]">{headings[step]}</h1>
+        <p className="mt-2 text-sm leading-6 text-muted-foreground">{descriptions[step]}</p>
       </div>
-      {step === 0 && <div className="grid grid-cols-2 gap-2">{subjectItems.map((subject) => <button type="button" key={subject.id} aria-pressed={selectedSubject === subject.id} className={cn("min-h-14 rounded-xl border px-3 py-3 text-left text-sm transition-colors", selectedSubject === subject.id ? "border-primary bg-primary/10 font-semibold text-primary" : "border-border bg-card hover:border-primary/50")} onClick={() => setSelectedSubject(subject.id)}>{el ? subject.name : subject.nameEn}</button>)}{subjectItems.length === 0 && <p role="status" className="col-span-2 rounded-xl border border-dashed p-4 text-sm text-muted-foreground">{el ? "Δεν υπάρχουν διαθέσιμα μαθήματα. Δοκίμασε ξανά αργότερα." : "No subjects are available yet. Please try again later."}</p>}</div>}
 
-      {step === 1 && (
-        <div className="space-y-4 rounded-xl border p-4">
-          <div className="grid grid-cols-2 gap-3">
-            <div className="space-y-2"><Label htmlFor="match-date">{el ? "Ημερομηνία" : "Date"}</Label><Input id="match-date" type="date" min={localDateValue(now)} max={localDateValue(maxDate)} value={selectedDate} onChange={(event) => setSelectedDate(event.target.value)} /></div>
-            <div className="space-y-2"><Label htmlFor="match-time">{el ? "Έναρξη" : "Start time"}</Label><Input id="match-time" type="time" value={selectedTime} onChange={(event) => setSelectedTime(event.target.value)} /></div>
+      <fieldset disabled={isSubmitting} className="min-w-0 flex-1">
+        <legend className="sr-only">{headings[step]}</legend>
+        {step === 0 && (
+          <div>
+            {subjects.length > 8 && <div className="relative mb-4"><Search className="pointer-events-none absolute left-3 top-3.5 h-4 w-4 text-muted-foreground" /><Input className="h-12 pl-10" aria-label={el ? "Αναζήτηση μαθήματος" : "Search subjects"} placeholder={el ? "Αναζήτηση μαθήματος" : "Search subjects"} value={subjectQuery} onChange={(event) => setSubjectQuery(event.target.value)} /></div>}
+            <div className="grid grid-cols-2 gap-3">
+              {visibleSubjects.map((subject) => {
+                const selected = selectedSubject === String(subject.id)
+                return <label key={subject.id} className={cn("relative flex min-h-[72px] cursor-pointer items-center gap-2 rounded-xl border bg-card px-3.5 py-4 text-sm transition-colors focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2", selected ? "border-primary bg-primary/5 font-semibold" : "border-border hover:border-primary/50")}>
+                  <input className="sr-only" type="radio" name="study-subject" value={subject.id} checked={selected} onChange={() => setSelectedSubject(String(subject.id))} />
+                  <span className="min-w-0 flex-1 break-words">{subjectName(subject)}</span>
+                  <span className={cn("flex h-4 w-4 shrink-0 items-center justify-center rounded-full border", selected ? "border-primary bg-primary text-primary-foreground" : "border-input")} aria-hidden="true">{selected && <Check className="h-3 w-3" />}</span>
+                </label>
+              })}
+            </div>
+            {visibleSubjects.length === 0 && <p role="status" className="py-6 text-sm text-muted-foreground">{subjects.length === 0 ? (el ? "Δεν υπάρχουν διαθέσιμα μαθήματα. Δοκίμασε αργότερα." : "No subjects are available yet. Try again later.") : (el ? "Δεν βρέθηκε μάθημα. Δοκίμασε άλλη αναζήτηση." : "No subjects found. Try another search.")}</p>}
           </div>
-          {!validDate && <p role="status" className="text-sm text-destructive">{el ? "Διάλεξε μελλοντική ώρα μέσα στις επόμενες 30 ημέρες." : "Choose a future time within the next 30 days."}</p>}
-          <div className="space-y-2"><Label>{el ? "Διάρκεια" : "Duration"}</Label><div className="grid grid-cols-3 gap-2">{["1h", "2h", "4h"].map((duration) => <Button key={duration} type="button" variant={selectedDuration === duration ? "default" : "outline"} onClick={() => setSelectedDuration(duration)}>{duration}</Button>)}</div></div>
-        </div>
-      )}
+        )}
 
-      {step === 2 && (
-        <div className="flex flex-col gap-3">
-          <button type="button" aria-pressed={selectedVenue === "anywhere"} className={cn("rounded-xl border bg-card text-left transition-colors", selectedVenue === "anywhere" && "border-primary bg-primary/5")} onClick={() => setSelectedVenue("anywhere")}><span className="flex items-center gap-3 p-4"><MapPin className="h-5 w-5 text-primary" /><span className="font-medium text-sm">{t("partner.wizard.venue.anywhere")}</span></span></button>
-          {venueItems.filter((venue) => venue.distance <= maxDistanceKm).map((venue) => <button type="button" aria-pressed={selectedVenue === venue.id} key={venue.id} className={cn("rounded-xl border bg-card text-left transition-colors", selectedVenue === venue.id && "border-primary bg-primary/5")} onClick={() => setSelectedVenue(venue.id)}><span className="flex items-center gap-3 p-4"><MapPin className="h-5 w-5 text-muted-foreground" /><span className="min-w-0 flex-1"><span className="block truncate text-sm font-medium">{venue.name}</span><span className="block text-xs text-muted-foreground">{venue.distance} km</span></span>{venue.discount && <Badge variant="secondary">-{venue.discount}%</Badge>}</span></button>)}
-          <div className="space-y-2 rounded-xl border p-3"><div className="flex justify-between text-sm"><Label htmlFor="match-distance">{el ? "Μέγιστη απόσταση" : "Maximum distance"}</Label><span>{maxDistanceKm} km</span></div><input id="match-distance" type="range" min="1" max="20" step="1" value={maxDistanceKm} onChange={(event) => { const distance = Number(event.target.value); setMaxDistanceKm(distance); if (venueItems.some((venue) => venue.id === selectedVenue && venue.distance > distance)) setSelectedVenue("anywhere") }} className="w-full accent-primary" /></div>
-        </div>
-      )}
+        {step === 1 && (
+          <div className="space-y-6">
+            <p className="flex items-center gap-2 text-sm font-medium"><Check className="h-4 w-4 text-primary" aria-hidden="true" />{chosenSubject && subjectName(chosenSubject)}</p>
+            <div className="grid grid-cols-2 gap-3">
+              <div className="min-w-0 space-y-2"><Label htmlFor="match-date">{el ? "Ημερομηνία" : "Date"}</Label><Input className="h-12 min-w-0 bg-card" id="match-date" type="date" min={localDateValue(now)} max={localDateValue(maxDate)} value={selectedDate} onChange={(event) => setSelectedDate(event.target.value)} /></div>
+              <div className="min-w-0 space-y-2"><Label htmlFor="match-time">{el ? "Έναρξη" : "Start time"}</Label><Input className="h-12 min-w-0 bg-card" id="match-time" type="time" value={selectedTime} onChange={(event) => setSelectedTime(event.target.value)} /></div>
+            </div>
+            {!validDate && <p role="status" className="text-sm text-destructive">{el ? "Διάλεξε μελλοντική ώρα μέσα στις επόμενες 30 ημέρες." : "Choose a future time within the next 30 days."}</p>}
+            <fieldset className="space-y-3"><legend className="mb-3 text-sm font-medium">{el ? "Για πόση ώρα;" : "How long?"}</legend><div className="grid grid-cols-3 gap-2">{["1h", "2h", "4h"].map((duration) => <Button key={duration} type="button" aria-pressed={selectedDuration === duration} variant={selectedDuration === duration ? "default" : "outline"} className="h-12" onClick={() => setSelectedDuration(duration)}>{duration[0]} {el ? (duration === "1h" ? "ώρα" : "ώρες") : (duration === "1h" ? "hour" : "hours")}</Button>)}</div></fieldset>
+          </div>
+        )}
 
-      {step === 3 && (
-        <div className="space-y-4 rounded-xl border p-4">
-          <div className="space-y-2"><Label htmlFor="study-style">{el ? "Στυλ μελέτης" : "Study style"}</Label><Select value={studyStyle} onValueChange={setStudyStyle}><SelectTrigger id="study-style"><SelectValue /></SelectTrigger><SelectContent><SelectItem value="quiet">{el ? "Ήσυχη συγκέντρωση" : "Quiet focus"}</SelectItem><SelectItem value="social">{el ? "Συζήτηση και συνεργασία" : "Social and collaborative"}</SelectItem><SelectItem value="either">{el ? "Οποιοδήποτε" : "Either"}</SelectItem></SelectContent></Select></div>
-          <div className="space-y-2"><Label htmlFor="study-language">{el ? "Γλώσσα" : "Language"}</Label><Select value={language} onValueChange={setLanguage}><SelectTrigger id="study-language"><SelectValue /></SelectTrigger><SelectContent><SelectItem value="el">Ελληνικά</SelectItem><SelectItem value="en">English</SelectItem><SelectItem value="either">{el ? "Οποιαδήποτε" : "Either"}</SelectItem></SelectContent></Select></div>
-        </div>
-      )}
+        {step === 2 && (
+          <div className="space-y-5">
+            <div className="divide-y divide-border overflow-hidden rounded-xl border border-border bg-card">
+              {[{ id: "anywhere", name: el ? "Αποφασίζουμε μαζί" : "Decide together" }, ...venueItems.filter((venue) => venue.distance <= maxDistanceKm)].map((venue) => <label key={venue.id} className="flex min-h-16 cursor-pointer items-center gap-3 px-4 py-3 focus-within:bg-secondary">
+                <MapPin className="h-5 w-5 shrink-0 text-muted-foreground" aria-hidden="true" /><span className="flex-1 text-sm font-medium">{venue.name}</span>
+                <input className="h-5 w-5 accent-primary" type="radio" name="study-venue" value={venue.id} checked={selectedVenue === venue.id} onChange={() => setSelectedVenue(venue.id)} />
+              </label>)}
+            </div>
+            <button type="button" aria-expanded={showPreferences} aria-controls="matching-preferences" className="flex min-h-11 w-full items-center gap-2 text-left text-sm font-medium text-primary" onClick={() => setShowPreferences(!showPreferences)}><SlidersHorizontal className="h-4 w-4" />{el ? "Προτιμήσεις αναζήτησης" : "Search preferences"}<span className="ml-auto text-xs">{showPreferences ? (el ? "Κλείσιμο" : "Hide") : (el ? "Αλλαγή" : "Edit")}</span></button>
+            {!showPreferences && <p className="-mt-3 text-xs leading-5 text-muted-foreground">{el ? "Γλώσσα, τρόπος μελέτης και φίλτρο απόστασης." : "Language, study style, and distance filter."}</p>}
+            <div id="matching-preferences" hidden={!showPreferences} className="space-y-4">
+              <div className="space-y-2"><Label htmlFor="study-style">{el ? "Τρόπος μελέτης" : "Study style"}</Label><Select value={studyStyle} onValueChange={setStudyStyle}><SelectTrigger id="study-style" className="data-[size=default]:h-12 w-full bg-card"><SelectValue /></SelectTrigger><SelectContent><SelectItem value="quiet">{el ? "Ήσυχη συγκέντρωση" : "Quiet focus"}</SelectItem><SelectItem value="social">{el ? "Συζήτηση και συνεργασία" : "Social and collaborative"}</SelectItem><SelectItem value="either">{el ? "Χωρίς προτίμηση" : "No preference"}</SelectItem></SelectContent></Select></div>
+              <div className="space-y-2"><Label htmlFor="study-language">{el ? "Γλώσσα" : "Language"}</Label><Select value={language} onValueChange={setLanguage}><SelectTrigger id="study-language" className="data-[size=default]:h-12 w-full bg-card"><SelectValue /></SelectTrigger><SelectContent><SelectItem value="el">Ελληνικά</SelectItem><SelectItem value="en">English</SelectItem><SelectItem value="either">{el ? "Χωρίς προτίμηση" : "No preference"}</SelectItem></SelectContent></Select></div>
+              <div><div className="flex justify-between text-sm"><Label htmlFor="match-distance">{el ? "Φίλτρο απόστασης" : "Distance filter"}</Label><span>{maxDistanceKm} km</span></div><input id="match-distance" type="range" min="1" max="20" step="1" value={maxDistanceKm} onChange={(event) => { const distance = Number(event.target.value); setMaxDistanceKm(distance); if (venueItems.some((venue) => venue.id === selectedVenue && venue.distance > distance)) setSelectedVenue("anywhere") }} className="h-11 w-full accent-primary" /></div>
+            </div>
+            <p className="border-t border-border pt-4 text-xs leading-5 text-muted-foreground">{el ? "Η συνομιλία ανοίγει μόνο όταν επιλέξετε ο ένας τον άλλο." : "A chat opens only when you both choose to connect."}</p>
+          </div>
+        )}
+      </fieldset>
 
-      <div className="mt-2 flex items-center gap-3">
-        {step > 0 && <Button variant="outline" disabled={isSubmitting} onClick={() => setStep((current) => current - 1)} className="h-12 flex-1"><ChevronLeft className="mr-1 h-4 w-4" />{t("partner.wizard.back")}</Button>}
-        <Button onClick={handleNext} disabled={!canProceed || isSubmitting} className="h-12 flex-1">{step === 3 && isSubmitting ? t("partner.search.loading") : step === 3 ? t("partner.wizard.find") : t("partner.wizard.next")}{step < 3 && <ChevronRight className="ml-1 h-4 w-4" />}</Button>
+      <div className="sticky bottom-0 mt-6 flex items-center gap-3 bg-background py-4">
+        {step > 0 && <Button type="button" variant="outline" disabled={isSubmitting} onClick={() => setStep(step - 1)} className="h-12 px-4"><ChevronLeft className="h-4 w-4" />{t("partner.wizard.back")}</Button>}
+        <Button type="button" onClick={handleNext} disabled={!canProceed || isSubmitting} className="h-12 flex-1">{isSubmitting ? t("partner.search.loading") : step === 2 ? (el ? "Βρες παρέα" : "Find a partner") : (el ? "Συνέχεια" : "Continue")}<ArrowRight className="h-4 w-4" aria-hidden="true" /></Button>
       </div>
     </div>
   )

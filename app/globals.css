@@ -75,7 +75,7 @@
 }
 
 @theme inline {
-  --font-sans: 'Inter', 'Inter Fallback', system-ui, sans-serif;
+  --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
   --font-mono: 'Geist Mono', 'Geist Mono Fallback', monospace;
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -131,7 +131,7 @@
   input, textarea, select { font-size: max(1rem, 16px); }
   ::selection { background: var(--primary); color: var(--primary-foreground); }
 }
-.study-title { font-family: Georgia, 'Times New Roman', serif; letter-spacing: -0.045em; font-weight: 400; }
+.study-title { font-family: Georgia, 'Times New Roman', serif; letter-spacing: -0.03em; font-weight: 400; }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; scroll-behavior: auto !important; }
 }

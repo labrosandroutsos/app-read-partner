@@ -1,18 +1,15 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { useTheme } from "next-themes"
 import { useRouter } from "next/navigation"
-import { BookOpen, Moon, Sun } from "lucide-react"
 import { BottomTabBar, type TabId } from "@/components/bottom-tab-bar"
-import { LanguageToggle } from "@/components/language-toggle"
+import { StudyHeader } from "@/components/study-header"
 import { PartnerScreen } from "@/components/partner/partner-screen"
 import { ChatScreen } from "@/components/chat/chat-screen"
 import { NotesScreen } from "@/components/notes/notes-screen"
 import { VenuesScreen } from "@/components/venues/venues-screen"
 import { ProfileScreen } from "@/components/profile/profile-screen"
 import { ContextualNotifications } from "@/components/notifications/contextual-notifications"
-import { Button } from "@/components/ui/button"
 import { markConversationRead, markNotificationsRead } from "@/lib/actions"
 import type { Profile, Subject, Venue, Note, Coupon, StudySessionRecord, ConversationPreview, BlockedUser, AppNotification } from "@/lib/types"
 
@@ -59,13 +56,7 @@ export function AppShellClient({
   const [unreadInterestIds, setUnreadInterestIds] = useState<string[]>(() => notifications
     .filter((notification) => notification.type === "interest" && !notification.read_at)
     .map((notification) => notification.id))
-  const [mounted, setMounted] = useState(false)
-  const { resolvedTheme, setTheme } = useTheme()
   const router = useRouter()
-
-  useEffect(() => {
-    setMounted(true)
-  }, [])
 
   useEffect(() => {
     setUnreadByMatch(Object.fromEntries(
@@ -135,33 +126,10 @@ export function AppShellClient({
         onOpenPartner={handleNotificationPartner}
         onIncomingActivity={handleIncomingActivity}
       />
-      <header className="sticky top-0 z-40 flex shrink-0 items-center justify-between border-b border-border bg-card/90 px-5 pb-4 pt-[max(1rem,env(safe-area-inset-top))] backdrop-blur-lg">
-        <div className="flex items-center gap-2">
-          <div className="h-8 w-8 rounded-lg bg-primary flex items-center justify-center">
-            <BookOpen className="h-4 w-4 text-primary-foreground" />
-          </div>
-          <span className="font-bold text-base text-foreground tracking-tight">Read Partner</span>
-        </div>
-        <div className="flex items-center gap-1">
-          <LanguageToggle />
-          <Button
-            variant="ghost"
-            size="icon"
-            className="h-11 w-11"
-            onClick={() => setTheme(resolvedTheme === "dark" ? "light" : "dark")}
-            aria-label="Toggle theme"
-          >
-            {mounted ? (
-              resolvedTheme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />
-            ) : (
-              <span className="h-4 w-4" />
-            )}
-          </Button>
-        </div>
-      </header>
+      <StudyHeader />
 
       <main className="min-h-0 flex-1 overflow-y-auto pb-[calc(4.25rem+env(safe-area-inset-bottom))]">
-        <div hidden={activeTab !== "partner"}>
+        <div hidden={activeTab !== "partner"} className="min-h-full">
           <PartnerScreen
             onGoToChat={handleGoToChat}
             userId={userId}
