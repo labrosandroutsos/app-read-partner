@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { DailyWizard } from "@/components/partner/daily-wizard"
 import { PartnerStack } from "@/components/partner/partner-stack"
 import type { PartnerCandidate } from "@/lib/types"
@@ -43,10 +43,36 @@ export function DesignPreview() {
   const [chatId, setChatId] = useState<string | null>(null)
   const [empty, setEmpty] = useState(false)
   const [deck, setDeck] = useState(false)
+  const [palette, setPalette] = useState("green")
+  useEffect(() => {
+    if (palette === "green") delete document.documentElement.dataset.palette
+    else document.documentElement.dataset.palette = palette
+    return () => { delete document.documentElement.dataset.palette }
+  }, [palette])
   const selectedChat = !empty && sampleChats.find((chat) => chat.id === chatId)
   return <div className="relative mx-auto flex h-dvh max-w-[760px] flex-col overflow-hidden border-x bg-background">
     <StudyHeader />
     <div className="flex shrink-0 items-center justify-between px-5 py-1 text-[11px] text-muted-foreground"><span>Preview · sample data · nothing saved</span><Button variant="ghost" className="h-11 text-xs" aria-pressed={empty} onClick={() => setEmpty(!empty)}>{empty ? "Show samples" : "Empty states"}</Button></div>
+    <div className="flex shrink-0 items-center gap-2 border-b border-border/60 px-5 py-2">
+      <span className="text-[11px] font-medium text-muted-foreground">Colour</span>
+      {[
+        { id: "green", swatch: "oklch(0.52 0.11 162)", label: "Green" },
+        { id: "terracotta", swatch: "oklch(0.62 0.15 42)", label: "Terracotta" },
+        { id: "indigo", swatch: "oklch(0.55 0.16 265)", label: "Indigo" },
+        { id: "berry", swatch: "oklch(0.58 0.19 15)", label: "Berry" },
+        { id: "violet", swatch: "oklch(0.56 0.17 300)", label: "Violet" },
+      ].map((p) => (
+        <button
+          key={p.id}
+          onClick={() => setPalette(p.id)}
+          aria-pressed={palette === p.id}
+          aria-label={p.label}
+          title={p.label}
+          className={`h-7 w-7 rounded-full border transition-transform active:scale-90 ${palette === p.id ? "ring-2 ring-foreground ring-offset-2 ring-offset-background scale-105" : "border-border"}`}
+          style={{ backgroundColor: p.swatch }}
+        />
+      ))}
+    </div>
     <main className="min-h-0 flex-1 overflow-y-auto pb-[calc(4.25rem+env(safe-area-inset-bottom))]">
       <div hidden={tab !== "partner"}>
         <div className="flex justify-end px-5 pt-2"><Button variant="ghost" className="h-9 text-xs" aria-pressed={deck} onClick={() => setDeck(!deck)}>{deck ? "Show wizard" : "Preview swipe deck"}</Button></div>

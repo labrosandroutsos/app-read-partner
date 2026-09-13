@@ -56,7 +56,7 @@ export function DailyWizard({ onComplete, subjects = [], venues = [], isSubmitti
   const validDate = isFutureStudyTime(selectedDate, selectedTime, localDateValue(maxDate))
   const canProceed = [Boolean(selectedSubject), validDate && Boolean(selectedDuration), Boolean(selectedVenue && studyStyle && language)][step]
   const stepLabels = el ? ["Μάθημα", "Ώρα", "Τοποθεσία"] : ["Subject", "Time", "Place"]
-  const headings = el ? ["Τι θα διαβάσεις;", "Πότε σε βολεύει;", "Πού θα βρεθείτε;"] : ["What are you studying?", "When works for you?", "Where will you meet?"]
+  const headings = el ? ["Τι θα διαβάσεις;", "Διάλεξε μέρα και ώρα", "Πού θα βρεθείτε;"] : ["What are you studying?", "Pick a day and time", "Where will you meet?"]
   const descriptions = el
     ? ["Βρες παρέα για το επόμενο διάβασμά σου.", "Διάλεξε ώρα και διάρκεια για το διάβασμά σου.", "Διάλεξε χώρο ή αποφασίστε μαζί στη συνομιλία."]
     : ["Find a little company for your next study session.", "Pick a start time and how long you’d like to study.", "Choose a place, or decide together in the chat."]
