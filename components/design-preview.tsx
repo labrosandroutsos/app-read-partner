@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import { DailyWizard } from "@/components/partner/daily-wizard"
 import { PartnerStack } from "@/components/partner/partner-stack"
 import type { PartnerCandidate } from "@/lib/types"
@@ -38,6 +38,7 @@ const sampleCandidates: PartnerCandidate[] = [
 
 // Explicit, local-only fixtures. Backend mutations are disabled in sample tabs.
 export function DesignPreview() {
+  const scrollRef = useRef<HTMLElement>(null)
   const [tab, setTab] = useState<TabId>("partner")
   const [complete, setComplete] = useState(false)
   const [chatId, setChatId] = useState<string | null>(null)
@@ -50,6 +51,10 @@ export function DesignPreview() {
     return () => { delete document.documentElement.dataset.palette }
   }, [palette])
   const selectedChat = !empty && sampleChats.find((chat) => chat.id === chatId)
+  useEffect(() => {
+    scrollRef.current?.scrollTo({ top: 0, left: 0, behavior: "instant" })
+  }, [tab])
+
   return <div className="relative mx-auto flex h-dvh max-w-[760px] flex-col overflow-hidden border-x bg-background">
     <StudyHeader />
     <div className="flex shrink-0 items-center justify-between px-5 py-1 text-[11px] text-muted-foreground"><span>Preview · sample data · nothing saved</span><Button variant="ghost" className="h-11 text-xs" aria-pressed={empty} onClick={() => setEmpty(!empty)}>{empty ? "Show samples" : "Empty states"}</Button></div>
@@ -73,7 +78,7 @@ export function DesignPreview() {
         />
       ))}
     </div>
-    <main className="min-h-0 flex-1 overflow-y-auto">
+    <main ref={scrollRef} className="app-scroll-region min-h-0 flex-1 overflow-y-auto">
       <div hidden={tab !== "partner"}>
         <div className="flex justify-end px-5 pt-2"><Button variant="ghost" className="h-9 text-xs" aria-pressed={deck} onClick={() => setDeck(!deck)}>{deck ? "Show wizard" : "Preview swipe deck"}</Button></div>
         {deck

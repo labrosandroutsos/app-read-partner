@@ -66,3 +66,13 @@ Local dev needs `.env.local` with `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SU
 
 ## OAuth origin correction — 2026-09-20
 The native Google callback reached the existing web code exchange, but Next's server request URL used localhost while the WebView was using 127.0.0.1. Absolute redirects opened Safari outside the authenticated WebView. `/auth/callback` now returns relative 303 redirects, with validated internal next paths and no-store/no-referrer headers. Added eight regression cases; all 76 web tests, typecheck and production build pass. The user's existing Google session now opens the live app inside the simulator.
+
+## Scroll and gesture follow-up
+
+The user confirmed click-and-drag scrolls in the iPhone simulator; ordinary Mac trackpad scrolling was the reported blocker. No native scroll workaround is required.
+
+- Main scroll regions retain iOS momentum scrolling and contain overscroll.
+- Switching tabs resets the shared scroll container to the top, preserving the mounted partner wizard.
+- Partner cards allow vertical touch panning; vertical intent and pointer cancellation reset the card without sending a like/skip.
+- Shared dialogs now have a viewport height limit and scroll overflow, so long forms remain reachable.
+- Validation: web typecheck and 76 tests pass; native typecheck and 4 auth tests pass. Browser Profile scroll reached 489px and switching to Notes reset to 0px. Physical-device touch verification remains outstanding.

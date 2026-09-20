@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import { useRouter } from "next/navigation"
 import { BottomTabBar, type TabId } from "@/components/bottom-tab-bar"
 import { StudyHeader } from "@/components/study-header"
@@ -48,6 +48,7 @@ export function AppShellClient({
   activeVenueId,
   notifications,
 }: AppShellClientProps) {
+  const scrollRef = useRef<HTMLElement>(null)
   const [activeTab, setActiveTab] = useState<TabId>("partner")
   const [selectedChatId, setSelectedChatId] = useState<string | null>(null)
   const [unreadByMatch, setUnreadByMatch] = useState<Record<string, number>>(() => Object.fromEntries(
@@ -116,6 +117,10 @@ export function AppShellClient({
     }
   }
 
+  useEffect(() => {
+    scrollRef.current?.scrollTo({ top: 0, left: 0, behavior: "instant" })
+  }, [activeTab])
+
   return (
     <div className="relative mx-auto flex h-dvh max-w-[760px] border-x border-border shadow-sm flex-col overflow-hidden bg-background">
       <ContextualNotifications
@@ -128,7 +133,7 @@ export function AppShellClient({
       />
       <StudyHeader />
 
-      <main className="min-h-0 flex-1 overflow-y-auto">
+      <main ref={scrollRef} className="app-scroll-region min-h-0 flex-1 overflow-y-auto">
         <div hidden={activeTab !== "partner"} className="min-h-full">
           <PartnerScreen
             onGoToChat={handleGoToChat}

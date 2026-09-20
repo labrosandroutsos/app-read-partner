@@ -66,7 +66,7 @@ export function PartnerStack({
   }, [])
 
   const handlePointerDown = useCallback((e: React.PointerEvent) => {
-    if (isAnimating) return
+    if (isAnimating || !e.isPrimary || e.button !== 0) return
     measure()
     isDragging.current = true
     startX.current = e.clientX
@@ -74,13 +74,20 @@ export function PartnerStack({
     lastX.current = e.clientX
     lastTime.current = performance.now()
     velocity.current = 0
-    ;(e.target as HTMLElement).setPointerCapture(e.pointerId)
+    ;e.currentTarget.setPointerCapture(e.pointerId)
   }, [isAnimating, measure])
 
   const handlePointerMove = useCallback((e: React.PointerEvent) => {
     if (!isDragging.current) return
     const dx = e.clientX - startX.current
     const dy = e.clientY - startY.current
+    // Let vertical gestures scroll the page without selecting a partner.
+    if (Math.abs(dy) > Math.abs(dx) && Math.abs(dy) > 8) {
+      isDragging.current = false
+      velocity.current = 0
+      setSwipeOffset({ x: 0, y: 0 })
+      return
+    }
     const now = performance.now()
     const dt = now - lastTime.current
     if (dt > 0) velocity.current = (e.clientX - lastX.current) / dt
@@ -314,7 +321,12 @@ export function PartnerStack({
           onPointerDown={handlePointerDown}
           onPointerMove={handlePointerMove}
           onPointerUp={handlePointerUp}
-          onPointerCancel={handlePointerUp}
+          onPointerCancel={() => {
+            // Browser scrolling and interrupted touches must never commit a swipe.
+            isDragging.current = false
+            velocity.current = 0
+            setSwipeOffset({ x: 0, y: 0 })
+          }}
         >
           <PartnerCard
             candidate={candidates[currentIndex]}

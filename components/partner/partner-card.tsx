@@ -35,7 +35,7 @@ export function PartnerCard({ candidate, matchSubject, style, className, subject
   return (
     <div
       className={cn(
-        "absolute inset-0 rounded-[24px] bg-card border border-border shadow-lg overflow-hidden select-none touch-none",
+        "absolute inset-0 rounded-[24px] bg-card border border-border shadow-lg overflow-hidden select-none touch-pan-y",
         className
       )}
       style={style}
