@@ -63,3 +63,6 @@ Local dev needs `.env.local` with `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SU
 - Callback allows only `readpartner://auth/callback`, plus the exact loopback Expo Go callback in development. It passes only an authorization code and request state, with no-store/no-referrer headers. The original WebView still exchanges the code using its PKCE cookie at `/auth/callback`.
 - Deploy these routes together with the native `ios/simulator-setup` changes. Supabase must allow the `/auth/native-callback**` redirect for the deployed/local origin. Provider login requires manual account-based verification.
 - Automated checks: 68 web tests, TypeScript and production build pass.
+
+## OAuth origin correction — 2026-09-20
+The native Google callback reached the existing web code exchange, but Next's server request URL used localhost while the WebView was using 127.0.0.1. Absolute redirects opened Safari outside the authenticated WebView. `/auth/callback` now returns relative 303 redirects, with validated internal next paths and no-store/no-referrer headers. Added eight regression cases; all 76 web tests, typecheck and production build pass. The user's existing Google session now opens the live app inside the simulator.
