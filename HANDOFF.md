@@ -57,3 +57,9 @@ Local dev needs `.env.local` with `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SU
 - Verified preview chat at 375 × 667 and 390 × 844: composer above navigation, no horizontal overflow. These are browser viewport checks, not physical-device or authenticated-flow tests.
 - Validation: 57 tests pass, typecheck and production build pass.
 - Remote branch was fetched and matched the handoff commit before this follow-up. Main remains untouched.
+
+## Native OAuth follow-up — 2026-09-20
+- Added `/api/native/auth-config` (public Supabase origin only) and `/auth/native-callback` for the iOS authentication browser handoff.
+- Callback allows only `readpartner://auth/callback`, plus the exact loopback Expo Go callback in development. It passes only an authorization code and request state, with no-store/no-referrer headers. The original WebView still exchanges the code using its PKCE cookie at `/auth/callback`.
+- Deploy these routes together with the native `ios/simulator-setup` changes. Supabase must allow the `/auth/native-callback**` redirect for the deployed/local origin. Provider login requires manual account-based verification.
+- Automated checks: 68 web tests, TypeScript and production build pass.
