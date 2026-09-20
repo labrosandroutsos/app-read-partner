@@ -76,3 +76,7 @@ The user confirmed click-and-drag scrolls in the iPhone simulator; ordinary Mac 
 - Partner cards allow vertical touch panning; vertical intent and pointer cancellation reset the card without sending a like/skip.
 - Shared dialogs now have a viewport height limit and scroll overflow, so long forms remain reachable.
 - Validation: web typecheck and 76 tests pass; native typecheck and 4 auth tests pass. Browser Profile scroll reached 489px and switching to Notes reset to 0px. Physical-device touch verification remains outstanding.
+
+## Simulated matching flow
+
+Development-only `/design-preview` now completes the subject/time/place wizard into fictional candidates, simulates a reciprocal like, shows the match celebration, and opens a local practice chat with the same person. A demo-match button reopens it from the chat list. Preview cards hide live report/block actions. No auth accounts, likes, matches, or messages are created in Supabase. Reload resets the simulation; chat messages are ephemeral. Typecheck and 76 tests pass; verified match celebration, matching identity in chat, and a local practice message. Simulator is left on Sample preview at the wizard.

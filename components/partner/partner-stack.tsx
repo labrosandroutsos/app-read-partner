@@ -19,6 +19,7 @@ interface PartnerStackProps {
   matchSubject: string
   onGoToChat: () => void
   onRestart: () => void
+  onPreviewMatch?: (candidate: PartnerCandidate) => void
   sessionId?: string | null
   subjects?: Subject[]
   currentUserInitials: string
@@ -34,6 +35,7 @@ export function PartnerStack({
   onGoToChat,
   onRestart,
   sessionId,
+  onPreviewMatch,
   subjects,
   currentUserInitials,
   currentUserColor,
@@ -110,6 +112,18 @@ export function PartnerStack({
     window.setTimeout(async () => {
       if (direction === "right") {
         const candidate = candidates[currentIndex]
+        if (onPreviewMatch && candidate) {
+          // Development preview: simulate reciprocity without a backend mutation.
+          onPreviewMatch(candidate)
+          setMatchedPartner(candidate)
+          setCurrentIndex((prev) => prev + 1)
+          setSwipeOffset({ x: 0, y: 0 })
+          setExitDirection(null)
+          setIsAnimating(false)
+          setCanRewind(false)
+          rewindIndex.current = null
+          return
+        }
         if (!sessionId || !candidate?.sessionId) {
           toast.error(t("partner.swipe.error"))
           setSwipeOffset({ x: 0, y: 0 })
@@ -148,7 +162,7 @@ export function PartnerStack({
       setExitDirection(null)
       setIsAnimating(false)
     }, 300)
-  }, [candidates, currentIndex, el, isAnimating, router, sessionId, t])
+  }, [candidates, currentIndex, el, isAnimating, router, sessionId, t, onPreviewMatch])
 
   const handlePointerUp = useCallback(() => {
     if (!isDragging.current) return
@@ -290,6 +304,7 @@ export function PartnerStack({
       <div ref={cardAreaRef} className="relative mx-auto w-full max-w-sm aspect-[3/4] max-h-[500px]">
         {candidates[currentIndex + 2] && (
           <PartnerCard
+            preview={Boolean(onPreviewMatch)}
             key={candidates[currentIndex + 2].id}
             candidate={candidates[currentIndex + 2]}
             matchSubject={matchSubject}
@@ -299,6 +314,7 @@ export function PartnerStack({
         )}
         {candidates[currentIndex + 1] && (
           <PartnerCard
+            preview={Boolean(onPreviewMatch)}
             key={candidates[currentIndex + 1].id}
             candidate={candidates[currentIndex + 1]}
             matchSubject={matchSubject}
@@ -329,6 +345,7 @@ export function PartnerStack({
           }}
         >
           <PartnerCard
+            preview={Boolean(onPreviewMatch)}
             candidate={candidates[currentIndex]}
             matchSubject={matchSubject}
             subjects={subjects}

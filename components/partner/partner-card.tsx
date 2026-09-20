@@ -11,6 +11,7 @@ import { UserSafetyMenu } from "@/components/safety/user-safety-menu"
 import { localizeCompatibilityReason } from "@/lib/matching-feedback"
 
 interface PartnerCardProps {
+  preview?: boolean
   candidate: PartnerCandidate
   matchSubject: string
   style?: React.CSSProperties
@@ -19,7 +20,7 @@ interface PartnerCardProps {
   onBlocked?: () => void
 }
 
-export function PartnerCard({ candidate, matchSubject, style, className, subjects, onBlocked }: PartnerCardProps) {
+export function PartnerCard({ preview = false, candidate, matchSubject, style, className, subjects, onBlocked }: PartnerCardProps) {
   const { t, locale } = useTranslation()
 
   // Try DB subjects first, fallback to mock
@@ -40,9 +41,9 @@ export function PartnerCard({ candidate, matchSubject, style, className, subject
       )}
       style={style}
     >
-      <div className="absolute right-3 top-3 z-30" onPointerDown={(event) => event.stopPropagation()}>
+      {!preview && <div className="absolute right-3 top-3 z-30" onPointerDown={(event) => event.stopPropagation()}>
         <UserSafetyMenu targetUserId={candidate.id} targetName={candidate.name} onBlocked={onBlocked} />
-      </div>
+      </div>}
       <div className="relative h-[44%] bg-gradient-to-br from-primary/18 via-accent/12 to-transparent flex flex-col items-center justify-center gap-3 p-6">
         <div className={cn("w-24 h-24 rounded-full flex items-center justify-center text-3xl font-bold shadow-md ring-4 ring-card", candidate.avatarColor)}>
           <span className="text-white">{candidate.initials}</span>

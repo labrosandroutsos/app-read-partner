@@ -26,12 +26,13 @@ interface ChatViewProps {
   venue?: Venue | null
   userId: string
   onBack: () => void
+  previewPartner?: { name: string; initials: string; avatarColor: string }
   mockConversation?: Conversation
   venues?: Venue[]
   schedule?: StudySessionRecord | null
 }
 
-export function ChatView({ matchId, partner, subject, venue, userId, onBack, mockConversation, venues = [], schedule = null }: ChatViewProps) {
+export function ChatView({ matchId, partner, subject, venue, userId, onBack, mockConversation, previewPartner, venues = [], schedule = null }: ChatViewProps) {
   const { t, locale } = useTranslation()
   const [input, setInput] = useState("")
   const [isSending, setIsSending] = useState(false)
@@ -44,7 +45,7 @@ export function ChatView({ matchId, partner, subject, venue, userId, onBack, moc
   const liveSchedule = useRealtimeSchedule(matchId ?? null, schedule)
 
   // Mock fallback
-  const mockPartner = mockConversation ? getStudentById(mockConversation.partnerId) : null
+  const mockPartner = previewPartner ?? (mockConversation ? getStudentById(mockConversation.partnerId) : null)
   const [mockMessages, setMockMessages] = useState<MockMessage[]>(mockConversation?.messages ?? [])
 
   const isReal = !!matchId && !!partner

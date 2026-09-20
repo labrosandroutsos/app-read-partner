@@ -40,7 +40,10 @@ const sampleCandidates: PartnerCandidate[] = [
 export function DesignPreview() {
   const scrollRef = useRef<HTMLElement>(null)
   const [tab, setTab] = useState<TabId>("partner")
-  const [complete, setComplete] = useState(false)
+  const [plannedStart, setPlannedStart] = useState(() => new Date(Date.now() + 86400000).toISOString())
+  const [durationHours, setDurationHours] = useState(2)
+  const [matchSubject, setMatchSubject] = useState("1")
+  const [simulatedPartner, setSimulatedPartner] = useState<PartnerCandidate | null>(null)
   const [chatId, setChatId] = useState<string | null>(null)
   const [empty, setEmpty] = useState(false)
   const [deck, setDeck] = useState(false)
@@ -57,7 +60,7 @@ export function DesignPreview() {
 
   return <div className="relative mx-auto flex h-dvh max-w-[760px] flex-col overflow-hidden border-x bg-background">
     <StudyHeader />
-    <div className="flex shrink-0 items-center justify-between px-5 py-1 text-[11px] text-muted-foreground"><span>Preview · sample data · nothing saved</span><Button variant="ghost" className="h-11 text-xs" aria-pressed={empty} onClick={() => setEmpty(!empty)}>{empty ? "Show samples" : "Empty states"}</Button></div>
+    <div className="flex shrink-0 items-center justify-between px-5 py-1 text-[11px] text-muted-foreground"><span>Simulation · fictional users · nothing saved</span><Button variant="ghost" className="h-11 text-xs" aria-pressed={empty} onClick={() => setEmpty(!empty)}>{empty ? "Show samples" : "Empty states"}</Button></div>
     <div className="flex shrink-0 items-center gap-2 border-b border-border/60 px-5 py-2">
       <span className="text-[11px] font-medium text-muted-foreground">Colour</span>
       {[
@@ -82,10 +85,10 @@ export function DesignPreview() {
       <div hidden={tab !== "partner"}>
         <div className="flex justify-end px-5 pt-2"><Button variant="ghost" className="h-9 text-xs" aria-pressed={deck} onClick={() => setDeck(!deck)}>{deck ? "Show wizard" : "Preview swipe deck"}</Button></div>
         {deck
-          ? <PartnerStack candidates={empty ? [] : sampleCandidates} feedback={{ activeMatchCount: 1, pendingInterestCount: 2, searchExpiresAt: "2026-09-16T20:00:00" }} matchSubject="1" subjects={sampleSubjects} onGoToChat={() => setTab("chat")} onRestart={() => setDeck(false)} sessionId={null} currentUserInitials="ΕΛ" currentUserColor="bg-primary" />
-          : complete ? <div className="space-y-4 p-6"><h1 className="text-2xl font-semibold">You’re ready to find a partner.</h1><p>This preview stops before matchmaking. No search was created.</p><Button onClick={() => setComplete(false)}>Try again</Button></div> : <DailyWizard subjects={empty ? [] : sampleSubjects} onComplete={() => setComplete(true)} />}
+          ? <PartnerStack candidates={empty ? [] : sampleCandidates.map(candidate => ({ ...candidate, subjects: [matchSubject], plannedStart, plannedEnd: new Date(new Date(plannedStart).getTime() + durationHours * 3600000).toISOString() }))} feedback={{ activeMatchCount: 1, pendingInterestCount: 2, searchExpiresAt: "2026-09-16T20:00:00" }} matchSubject={matchSubject} subjects={sampleSubjects} onPreviewMatch={setSimulatedPartner} onGoToChat={() => { setChatId("simulated-match"); setTab("chat") }} onRestart={() => setDeck(false)} sessionId={null} currentUserInitials="ΕΛ" currentUserColor="bg-primary" />
+          : <DailyWizard subjects={empty ? [] : sampleSubjects} venues={sampleVenues} onComplete={(prefs) => { setMatchSubject(prefs.subject); setPlannedStart(prefs.plannedStart); setDurationHours(Number.parseFloat(prefs.duration) || 2); setSimulatedPartner(null); setDeck(true); scrollRef.current?.scrollTo({ top: 0 }) }} />}
       </div>
-      {tab === "chat" && (selectedChat ? <ChatView key={selectedChat.id} userId="preview" mockConversation={selectedChat} onBack={() => setChatId(null)} /> : <ChatList mockConversations={empty ? [] : sampleChats} onSelectChat={setChatId} />)}
+      {tab === "chat" && (chatId === "simulated-match" && simulatedPartner ? <ChatView key={simulatedPartner.id} userId="preview" previewPartner={simulatedPartner} mockConversation={{ id: "simulated-match", partnerId: simulatedPartner.id, subject: sampleSubjects.find(s => String(s.id) === matchSubject)?.name ?? "", venue: "Demo", unread: 0, lastActive: "now", messages: [{ id: "welcome", senderId: simulatedPartner.id, text: "Γεια! Ταιριάξαμε 🎉 Θέλεις να διαβάσουμε μαζί; (Προσομοίωση — κανένα μήνυμα δεν αποστέλλεται.)", timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) }] }} onBack={() => setChatId(null)} /> : selectedChat ? <ChatView key={selectedChat.id} userId="preview" mockConversation={selectedChat} onBack={() => setChatId(null)} /> : <>{simulatedPartner && <Button variant="outline" className="mx-5 mt-4" onClick={() => setChatId("simulated-match")}>Demo match · {simulatedPartner.name}</Button>}<ChatList mockConversations={empty ? [] : sampleChats} onSelectChat={setChatId} /></>)}
       {tab === "notes" && <NotesScreen preview notes={empty ? [] : sampleNotes} subjects={sampleSubjects} />}
       {tab === "venues" && <VenuesScreen preview venues={empty ? [] : sampleVenues} />}
       {tab === "profile" && <ProfileScreen preview userId="preview" email="" authProvider="email" profile={empty ? null : sampleProfile} studyStats={empty ? [] : [{subject:"Μαθηματικά",hours:6},{subject:"Πληροφορική",hours:3}]} pastPartners={[]} coupons={[]} studySessions={[]} subjects={sampleSubjects} venues={sampleVenues} blockedUsers={[]} />}
