@@ -43,11 +43,17 @@
 
 ## Open items / suggested next steps
 1. **Real-device iOS pass** — verify safe-area insets, standalone PWA, and the swipe gesture on an actual iPhone.
-2. **Chat composer bottom spacing** — still uses Codex's original hard-coded `h-10` spacer (`components/chat/chat-view.tsx`), not the safe-area inset; left as-is because the authenticated chat layout couldn't be tested here. Make it `env(safe-area-inset-bottom)`-aware and verify.
-3. **Alternate palettes** — keep as a dev tuning tool or delete (see Colour decision above).
+2. **Chat composer bottom spacing** — fixed in the Codex follow-up below. Authenticated iPhone keyboard/safe-area verification remains open.
+3. **Alternate palettes** — retained as a developer preview tuning tool; green remains the production default.
 4. **Fonts** — an alternate Greek-capable type pairing was offered but not explored; current is Manrope + Piazzolla.
 5. **theme-color / manifest** — already green; no change needed for the green decision.
 6. Decide whether to open a PR into `main` (none opened yet).
 
 ## Env note
 Local dev needs `.env.local` with `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY` (see `.env.example`). `/design-preview` renders with placeholder values since it uses local fixtures.
+
+## Codex follow-up — 2026-09-20
+- Bottom navigation now reserves its actual height in the flex layout. Its existing safe-area padding is the single owner of the bottom inset. Removed estimated shell padding and the redundant chat spacer in both app and preview layouts.
+- Verified preview chat at 375 × 667 and 390 × 844: composer above navigation, no horizontal overflow. These are browser viewport checks, not physical-device or authenticated-flow tests.
+- Validation: 57 tests pass, typecheck and production build pass.
+- Remote branch was fetched and matched the handoff commit before this follow-up. Main remains untouched.

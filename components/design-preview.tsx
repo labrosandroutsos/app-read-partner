@@ -73,7 +73,7 @@ export function DesignPreview() {
         />
       ))}
     </div>
-    <main className="min-h-0 flex-1 overflow-y-auto pb-[calc(4.25rem+env(safe-area-inset-bottom))]">
+    <main className="min-h-0 flex-1 overflow-y-auto">
       <div hidden={tab !== "partner"}>
         <div className="flex justify-end px-5 pt-2"><Button variant="ghost" className="h-9 text-xs" aria-pressed={deck} onClick={() => setDeck(!deck)}>{deck ? "Show wizard" : "Preview swipe deck"}</Button></div>
         {deck

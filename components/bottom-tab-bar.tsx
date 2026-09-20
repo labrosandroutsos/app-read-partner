@@ -27,7 +27,7 @@ export function BottomTabBar({ activeTab, onTabChange, unreadChats, unreadIntere
 
   return (
     <nav
-      className="glass-surface absolute bottom-0 left-0 z-50 w-full border-t border-border/70"
+      className="glass-surface relative z-50 w-full shrink-0 border-t border-border/70"
       aria-label="Main navigation"
     >
       <div className="flex items-center justify-around px-2 py-1 pb-[max(0.35rem,env(safe-area-inset-bottom))]">

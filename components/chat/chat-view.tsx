@@ -245,7 +245,6 @@ export function ChatView({ matchId, partner, subject, venue, userId, onBack, moc
           {isSending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
         </Button>
       </div>
-      <div className="h-10 shrink-0 md:hidden" aria-hidden="true" />
     </div>
   )
 }

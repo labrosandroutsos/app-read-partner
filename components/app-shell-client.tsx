@@ -128,7 +128,7 @@ export function AppShellClient({
       />
       <StudyHeader />
 
-      <main className="min-h-0 flex-1 overflow-y-auto pb-[calc(4.25rem+env(safe-area-inset-bottom))]">
+      <main className="min-h-0 flex-1 overflow-y-auto">
         <div hidden={activeTab !== "partner"} className="min-h-full">
           <PartnerScreen
             onGoToChat={handleGoToChat}

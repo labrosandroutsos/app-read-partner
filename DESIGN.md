@@ -63,3 +63,6 @@ All calls no-op under reduced motion.
 `/design-preview` (dev only) renders every tab with sample data. It now also has a
 **"Preview swipe deck"** toggle to try the card stack without a backend session, plus the
 existing **"Empty states"** toggle.
+
+### 2026-09-20 — Navigation and composer layout
+Bottom navigation participates in the shell flex layout and owns the bottom safe-area inset. Removed estimated content padding and the fixed chat spacer so the composer meets navigation naturally at every viewport height. Applied to both authenticated shell and developer preview.
