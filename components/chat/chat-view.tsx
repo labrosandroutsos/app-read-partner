@@ -52,7 +52,7 @@ export function ChatView({ matchId, partner, subject, venue, userId, onBack, moc
   const displayName = isReal ? (partner.display_name || 'Student') : (mockPartner?.name || '')
   const displayInitials = isReal ? (partner.display_name || 'S').slice(0, 2).toUpperCase() : (mockPartner?.initials || '')
   const displayColor = isReal ? (partner.avatar_color || 'bg-blue-500') : (mockPartner?.avatarColor || 'bg-blue-500')
-  const displaySubject = isReal ? (subject?.name || '') : (mockConversation?.subject || '')
+  const displaySubject = isReal ? (subject?.name || (locale === 'el' ? 'Παρέα για διάβασμα' : 'Study together')) : (mockConversation?.subject || '')
   const displayVenue = isReal ? (venue?.name || '') : (mockConversation?.venue || '')
 
   useEffect(() => {

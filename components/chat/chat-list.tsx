@@ -37,7 +37,7 @@ export function ChatList({ currentUserId, conversations, unreadByMatch, mockConv
           ? t(c.lastMessage.text as Parameters<typeof t>[0])
           : c.lastMessage?.text || '',
         isSystem: c.lastMessage?.is_system ?? false,
-        subject: (el ? c.subject?.name : c.subject?.name_en) || '',
+        subject: (el ? c.subject?.name : c.subject?.name_en) || (el ? 'Παρέα για διάβασμα' : 'Study together'),
         venue: c.venue?.name || '',
       }))
     : (mockConversations || []).map(conv => {

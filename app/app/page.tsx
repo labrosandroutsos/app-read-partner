@@ -1,4 +1,4 @@
-import { isCatalogueReady, getCurriculumSubjects } from '@/lib/academic-data'
+import { isCatalogueReady, getCurriculumSubjects, isGeneralStudyReady } from '@/lib/academic-data'
 import { AcademicSetup } from '@/components/academics/academic-setup'
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
@@ -24,10 +24,10 @@ export default async function AppPage({ searchParams }: { searchParams: Promise<
 
   const profile = await getProfile(user.id)
   const catalogueReady = await isCatalogueReady()
-  if (catalogueReady && !profile?.curriculum_id && catalogue !== 'later') return <AcademicSetup profile={profile} />
+  if (catalogueReady && !profile?.department_id && catalogue !== 'later') return <AcademicSetup profile={profile} />
 
   const [subjects, venues, conversations, notes, coupons, studySessions, studyStats, pastPartners, blockedUsers, activeVenueId, notifications] = await Promise.all([
-    profile?.curriculum_id ? getCurriculumSubjects(profile.curriculum_id) : getSubjects().then(items => items.filter(subject => !subject.department_id)),
+    profile?.curriculum_id ? getCurriculumSubjects(profile.curriculum_id) : profile?.department_id ? Promise.resolve([]) : getSubjects().then(items => items.filter(subject => !subject.department_id)),
     getVenues(),
     getConversations(user.id),
     getNotes(user.id),
@@ -40,8 +40,10 @@ export default async function AppPage({ searchParams }: { searchParams: Promise<
     getNotifications(user.id),
   ])
 
+  const generalStudyAvailable = Boolean(profile?.department_id) && await isGeneralStudyReady()
   return (
     <AppShellClient
+      generalStudyAvailable={generalStudyAvailable}
       userId={user.id}
       email={user.email ?? ''}
       authProvider={typeof user.app_metadata.provider === 'string' ? user.app_metadata.provider : 'email'}
@@ -49,7 +51,7 @@ export default async function AppPage({ searchParams }: { searchParams: Promise<
       subjects={subjects}
       venues={venues}
       conversations={conversations}
-      notes={profile?.curriculum_id ? notes.filter(n => subjects.some(s => s.id === n.subject_id)) : notes}
+      notes={profile?.department_id ? notes.filter(n => subjects.some(s => s.id === n.subject_id)) : notes}
       coupons={coupons}
       studySessions={studySessions}
       studyStats={studyStats}

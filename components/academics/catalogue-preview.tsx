@@ -3,8 +3,8 @@ import { useState } from 'react'
 import { AcademicSetup } from './academic-setup'
 import { SemesterSelect } from './semester-select'
 import {
-  civilCatalogue,
-  civilPreviewSubjects,
+  catalogueFor,
+  departments,
   filterCourses,
   academicTracks,
 } from '@/lib/academic-catalogue'
@@ -13,11 +13,14 @@ import { NotesScreen } from '@/components/notes/notes-screen'
 import { StudyHeader } from '@/components/study-header'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import type { Subject } from '@/lib/types'
 import { useTranslation } from '@/lib/i18n'
 export function CataloguePreview() {
   const { locale } = useTranslation()
   const el = locale === 'el'
   const [currentSemester, setCurrentSemester] = useState<number | null>(null)
+  const [departmentId, setDepartmentId] = useState('upatras-civil')
+  const [entryYear, setEntryYear] = useState(2026)
   const [semester, setSemester] = useState('all')
   const [query, setQuery] = useState('')
   const [tab, setTab] = useState('courses')
@@ -31,25 +34,42 @@ export function CataloguePreview() {
             : 'Preview · profile is not saved'}
         </p>
         <AcademicSetup
-          onPreviewComplete={(n) => {
+          onPreviewComplete={(n, department, year) => {
+            setDepartmentId(department)
+            setEntryYear(year)
+            setQuery('')
+            setComplete(false)
+            setTab('courses')
             setCurrentSemester(n)
             setSemester(n <= 10 ? String(n) : 'all')
           }}
         />
       </>
     )
-  const courses = filterCourses(civilPreviewSubjects, semester, query)
+  const catalogue = catalogueFor(departmentId, entryYear)
+  const department = departments.find((d) => d.id === departmentId)!
+  const previewSubjects: Subject[] = (catalogue?.courses ?? [])
+    .filter((c) => c.selectable)
+    .map((c, i) => ({
+      id: -(i + 1),
+      name: c.name,
+      name_en: c.name,
+      faculty: department.name,
+      department_id: departmentId,
+      course_code: c.code,
+      offerings: c.offerings,
+    }))
+  const tracks =
+    catalogue && 'tracks' in catalogue ? catalogue.tracks : academicTracks
+  const courses = filterCourses(previewSubjects, semester, query)
   return (
     <div className="mx-auto min-h-dvh max-w-[760px] bg-background">
       <StudyHeader />
       <div className="px-5 pt-5">
-        <h1 className="study-title text-3xl">
-          {el ? 'Πολιτικών Μηχανικών' : 'Civil Engineering'}
-        </h1>
+        <h1 className="study-title text-3xl">{department.name}</h1>
         <p className="mt-2 text-sm text-muted-foreground">
-          {el
-            ? 'Πανεπιστήμιο Πατρών · Π3 · Οδηγός 2026–27'
-            : 'University of Patras · P3 · Guide 2026–27'}
+          {el ? 'Πανεπιστήμιο Πατρών' : 'University of Patras'} ·{' '}
+          {catalogue?.curriculum.label ?? department.campus}
         </p>
         <p className="mt-2 text-xs text-muted-foreground">
           {el
@@ -86,6 +106,13 @@ export function CataloguePreview() {
       </nav>
       {tab === 'courses' && (
         <main className="p-5">
+          {!catalogue && (
+            <p role="status" className="mb-5 text-muted-foreground">
+              {el
+                ? 'Ο κατάλογος μαθημάτων δεν είναι ακόμη διαθέσιμος. Δοκίμασε την καρτέλα Μελέτη για να βρεις παρέα.'
+                : 'This course catalogue is not available yet. Try the Study tab to find company.'}
+            </p>
+          )}
           <SemesterSelect value={semester} onChange={setSemester} />
           <Input
             className="mb-5 h-12"
@@ -125,7 +152,7 @@ export function CataloguePreview() {
                     >
                       {o.semester}
                       {el ? 'ο εξάμηνο' : ' semester'} · {o.ects} ECTS ·{' '}
-                      {academicTracks[o.track]}
+                      {tracks[o.track]}
                       {o.other_tracks_only
                         ? el
                           ? ' · μόνο για άλλες κατευθύνσεις'
@@ -138,35 +165,35 @@ export function CataloguePreview() {
           </ul>
           <a
             className="mt-5 inline-block text-sm text-primary underline"
-            href={civilCatalogue.source.url}
+            href={catalogue?.source.url ?? department.url}
             target="_blank"
             rel="noreferrer"
           >
-            {el
-              ? 'Πηγή: επίσημος οδηγός, σελ. 13–28'
-              : 'Source: official guide, pp. 13–28'}
+            {el ? 'Επίσημη πηγή τμήματος' : 'Official department source'}
           </a>
         </main>
       )}
       {tab === 'notes' && (
         <NotesScreen
           preview
-          subjects={civilPreviewSubjects}
-          notes={[
-            {
-              id: 'catalogue-sample',
-              title: el
-                ? 'Δείγμα σημειώσεων — Εφαρμοσμένα Μαθηματικά I'
-                : 'Sample notes — Applied Mathematics I',
-              subject_id: civilPreviewSubjects[0].id,
-              subject: civilPreviewSubjects[0],
-              author_id: 'preview',
-              file_url: null,
-              likes_count: 0,
-              downloads_count: 0,
-              created_at: '2026-10-03',
-            },
-          ]}
+          subjects={previewSubjects}
+          notes={
+            previewSubjects.length
+              ? [
+                  {
+                    id: 'catalogue-sample',
+                    title: `${el ? 'Δείγμα σημειώσεων' : 'Sample notes'} — ${previewSubjects[0].name}`,
+                    subject_id: previewSubjects[0].id,
+                    subject: previewSubjects[0],
+                    author_id: 'preview',
+                    file_url: null,
+                    likes_count: 0,
+                    downloads_count: 0,
+                    created_at: '2026-10-03',
+                  },
+                ]
+              : []
+          }
         />
       )}
       {tab === 'study' &&
@@ -183,7 +210,7 @@ export function CataloguePreview() {
           </div>
         ) : (
           <DailyWizard
-            subjects={civilPreviewSubjects}
+            subjects={previewSubjects}
             initialSemester={currentSemester}
             onComplete={() => setComplete(true)}
           />

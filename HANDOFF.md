@@ -80,3 +80,7 @@ The user confirmed click-and-drag scrolls in the iPhone simulator; ordinary Mac 
 ## Simulated matching flow
 
 Development-only `/design-preview` now completes the subject/time/place wizard into fictional candidates, simulates a reciprocal like, shows the match celebration, and opens a local practice chat with the same person. A demo-match button reopens it from the chat list. Preview cards hide live report/block actions. No auth accounts, likes, matches, or messages are created in Supabase. Reload resets the simulation; chat messages are ephemeral. Typecheck and 76 tests pass; verified match celebration, matching identity in chat, and a local practice message. Simulator is left on Sample preview at the wizard.
+
+## University departments and general study — 2026-10-03
+
+All 31 Patras departments can be saved with entry year and semester, even before their catalogue is imported. The study wizard starts with “Παρέα για διάβασμα” or “Συγκεκριμένο μάθημα”. General study matches across departments in the same university city; course matching remains course-specific. Notes explain missing catalogues without showing unrelated departmental content. Civil and Physics provide 158 selectable courses; 29 department catalogues remain pending. User applied migrations 022/023; live profile, Physics course loading and general search verified. See docs/ACADEMIC-CATALOGUE.md for cohort limits and test coverage.

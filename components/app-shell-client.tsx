@@ -14,6 +14,7 @@ import { markConversationRead, markNotificationsRead } from "@/lib/actions"
 import type { Profile, Subject, Venue, Note, Coupon, StudySessionRecord, ConversationPreview, BlockedUser, AppNotification } from "@/lib/types"
 
 interface AppShellClientProps {
+  generalStudyAvailable?: boolean
   userId: string
   email: string
   authProvider: string
@@ -32,6 +33,7 @@ interface AppShellClientProps {
 }
 
 export function AppShellClient({
+  generalStudyAvailable = false,
   userId,
   email,
   authProvider,
@@ -136,6 +138,7 @@ export function AppShellClient({
       <main ref={scrollRef} className="app-scroll-region min-h-0 flex-1 overflow-y-auto">
         <div hidden={activeTab !== "partner"} className="min-h-full">
           <PartnerScreen
+            generalStudyAvailable={generalStudyAvailable}
             onGoToChat={handleGoToChat}
             userId={userId}
             profile={profile}

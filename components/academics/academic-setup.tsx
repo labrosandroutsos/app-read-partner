@@ -6,7 +6,8 @@ import { BookOpen } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { useTranslation } from '@/lib/i18n'
 import {
-  CIVIL_DEPARTMENT,
+  departments,
+  catalogueFor,
   validateAcademicSelection,
 } from '@/lib/academic-catalogue'
 import { saveAcademicProfile } from '@/lib/academic-actions'
@@ -17,7 +18,11 @@ export function AcademicSetup({
   onPreviewComplete,
 }: {
   profile?: Profile | null
-  onPreviewComplete?: (semester: number) => void
+  onPreviewComplete?: (
+    semester: number,
+    department: string,
+    entryYear: number,
+  ) => void
 }) {
   const { locale } = useTranslation()
   const el = locale === 'el'
@@ -25,10 +30,12 @@ export function AcademicSetup({
   const [department, setDepartment] = useState(profile?.department_id ?? '')
   const [entryYear, setEntryYear] = useState(String(profile?.entry_year ?? ''))
   const [semester, setSemester] = useState(
-    String(Math.min(profile?.semester ?? 1, 11)),
+    String(Math.min(profile?.semester ?? 1, 13)),
   )
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState('')
+  const selected = departments.find((d) => d.id === department)
+  const catalogue = catalogueFor(department, Number(entryYear))
   async function submit(e: React.FormEvent) {
     e.preventDefault()
     setBusy(true)
@@ -40,7 +47,8 @@ export function AcademicSetup({
         semester: Number(semester),
       }
       validateAcademicSelection(input)
-      if (onPreviewComplete) onPreviewComplete(input.semester)
+      if (onPreviewComplete)
+        onPreviewComplete(input.semester, department, input.entryYear)
       else {
         await saveAcademicProfile(input)
         router.push('/app')
@@ -57,17 +65,17 @@ export function AcademicSetup({
     }
   }
   const selectStyle =
-    'h-12 w-full rounded-xl border border-input bg-card px-3 text-base'
+    'h-12 w-full min-w-0 rounded-xl border border-input bg-card px-3 text-base'
   return (
     <main className="mx-auto min-h-dvh max-w-lg px-5 py-8 pb-[max(2rem,env(safe-area-inset-bottom))]">
       <BookOpen className="mb-6 h-7 w-7 text-primary" aria-hidden="true" />
       <h1 className="study-title text-3xl">
         {el ? 'Πού σπουδάζεις;' : 'Where do you study?'}
       </h1>
-      <p className="mt-3 mb-7 text-muted-foreground">
+      <p className="mb-7 mt-3 text-muted-foreground">
         {el
-          ? 'Βρες σημειώσεις και παρέα για τα μαθήματα του τμήματός σου.'
-          : 'Find notes and study partners for your department’s courses.'}
+          ? 'Βρες παρέα για διάβασμα στο πανεπιστήμιό σου και σημειώσεις για τα μαθήματά σου.'
+          : 'Find study company at your university and notes for your courses.'}
       </p>
       <form onSubmit={submit} className="space-y-5">
         <div>
@@ -96,24 +104,28 @@ export function AcademicSetup({
             {el ? 'Τμήμα' : 'Department'}
           </label>
           <select
-            required
             id="department"
             className={selectStyle}
+            required
             value={department}
             onChange={(e) => setDepartment(e.target.value)}
           >
             <option value="">
               {el ? 'Επίλεξε τμήμα' : 'Choose department'}
             </option>
-            <option value={CIVIL_DEPARTMENT}>
-              {el ? 'Πολιτικών Μηχανικών' : 'Civil Engineering'}
-            </option>
+            {[...departments]
+              .sort((a, b) => a.name.localeCompare(b.name, 'el'))
+              .map((d) => (
+                <option key={d.id} value={d.id}>
+                  {d.name}
+                </option>
+              ))}
           </select>
-          <p className="mt-2 text-xs text-muted-foreground">
-            {el
-              ? 'Ξεκινάμε με τους Πολιτικούς Μηχανικούς. Θα προστεθούν και άλλα τμήματα.'
-              : 'Civil Engineering is our first department. More departments will follow.'}
-          </p>
+          {selected && (
+            <p className="mt-2 text-xs text-muted-foreground">
+              {el ? 'Έδρα τμήματος' : 'Department location'}: {selected.campus}
+            </p>
+          )}
         </div>
         <div>
           <label
@@ -123,26 +135,29 @@ export function AcademicSetup({
             {el ? 'Έτος εισαγωγής' : 'Entry year'}
           </label>
           <select
-            required
             id="entry-year"
             className={selectStyle}
+            required
             value={entryYear}
             onChange={(e) => setEntryYear(e.target.value)}
           >
             <option value="">{el ? 'Επίλεξε έτος' : 'Choose year'}</option>
-            {Array.from({ length: 13 }, (_, i) => 2026 - i).map((y) => (
+            {Array.from({ length: 77 }, (_, i) => 2026 - i).map((y) => (
               <option key={y} value={y}>
                 {y}–{y + 1}
               </option>
             ))}
-            <option value="older">{el ? 'Πριν το 2014' : 'Before 2014'}</option>
           </select>
         </div>
-        {entryYear === 'older' && (
+        {department && entryYear && (
           <p role="status" className="text-sm text-muted-foreground">
-            {el
-              ? 'Το παλαιότερο πρόγραμμα σπουδών δεν έχει προστεθεί ακόμη. Μπορείς να δεις τον επίσημο οδηγό παρακάτω.'
-              : 'The older curriculum is not available yet. You can view the official guide below.'}
+            {catalogue
+              ? el
+                ? `Διαθέσιμα μαθήματα: ${catalogue.curriculum.label}.`
+                : `Courses available: ${catalogue.curriculum.label}.`
+              : el
+                ? 'Ο κατάλογος για το πρόγραμμά σου δεν είναι ακόμη διαθέσιμος. Μπορείς ήδη να βρεις παρέα για γενικό διάβασμα.'
+                : 'Your programme’s course catalogue is not available yet. You can still find company for general studying.'}
           </p>
         )}
         <div>
@@ -158,17 +173,17 @@ export function AcademicSetup({
             value={semester}
             onChange={(e) => setSemester(e.target.value)}
           >
-            {Array.from({ length: 10 }, (_, i) => (
+            {Array.from({ length: 12 }, (_, i) => (
               <option key={i + 1} value={i + 1}>
                 {i + 1}
               </option>
             ))}
-            <option value="11">{el ? '11ο και άνω' : '11 or above'}</option>
+            <option value="13">{el ? '13ο και άνω' : '13 or above'}</option>
           </select>
           <p className="mt-2 text-xs text-muted-foreground">
             {el
-              ? 'Θα μπορείς πάντα να επιλέγεις μαθήματα από όλα τα εξάμηνα.'
-              : 'You can always choose courses from any semester.'}
+              ? 'Τα μαθήματα προηγούμενων εξαμήνων παραμένουν διαθέσιμα.'
+              : 'Courses from earlier semesters remain available.'}
           </p>
         </div>
         {error && (
@@ -178,34 +193,38 @@ export function AcademicSetup({
         )}
         <Button
           className="h-12 w-full"
-          disabled={busy || !department || !entryYear || entryYear === 'older'}
+          disabled={busy || !department || !entryYear}
         >
           {busy
             ? el
               ? 'Αποθήκευση…'
               : 'Saving…'
             : el
-              ? 'Βρες τα μαθήματά σου'
-              : 'Find your courses'}
+              ? 'Συνέχεια'
+              : 'Continue'}
         </Button>
-        <a
-          className="block text-sm text-primary underline underline-offset-4"
-          href="https://www.civil.upatras.gr/index.php/odhgos/"
-          target="_blank"
-          rel="noreferrer"
-        >
-          {el
-            ? 'Επίσημος οδηγός σπουδών · 2026–27'
-            : 'Official study guide · 2026–27'}
-        </a>
+        {selected && (
+          <a
+            className="flex min-h-11 items-center text-sm text-primary underline underline-offset-4"
+            href={catalogue?.source.url ?? selected.url}
+            target="_blank"
+            rel="noreferrer"
+          >
+            {catalogue
+              ? el
+                ? 'Επίσημος οδηγός σπουδών'
+                : 'Official study guide'
+              : el
+                ? 'Πληροφορίες τμήματος'
+                : 'Department information'}
+          </a>
+        )}
         {!onPreviewComplete && (
           <Link
             href="/app?catalogue=later"
             className="flex min-h-11 items-center text-sm text-muted-foreground underline underline-offset-4"
           >
-            {el
-              ? 'Δεν καλύπτεται το πρόγραμμά μου — συνέχεια με γενικά μαθήματα'
-              : 'My programme is not listed — continue with general subjects'}
+            {el ? 'Θα το συμπληρώσω αργότερα' : 'I’ll complete this later'}
           </Link>
         )}
       </form>

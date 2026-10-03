@@ -66,3 +66,7 @@ existing **"Empty states"** toggle.
 
 ### 2026-09-20 — Navigation and composer layout
 Bottom navigation participates in the shell flex layout and owns the bottom safe-area inset. Removed estimated content padding and the fixed chat spacer so the composer meets navigation naturally at every viewport height. Applied to both authenticated shell and developer preview.
+
+## University departments and general study — 2026-10-03
+
+All 31 Patras departments can be saved with entry year and semester, even before their catalogue is imported. The study wizard starts with “Παρέα για διάβασμα” or “Συγκεκριμένο μάθημα”. General study matches across departments in the same university city; course matching remains course-specific. Notes explain missing catalogues without showing unrelated departmental content. Civil and Physics provide 158 selectable courses; 29 department catalogues remain pending. User applied migrations 022/023; live profile, Physics course loading and general search verified. See docs/ACADEMIC-CATALOGUE.md for cohort limits and test coverage.

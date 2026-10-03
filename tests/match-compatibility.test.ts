@@ -55,3 +55,10 @@ describe("match compatibility", () => {
     expect(calculateMatchCompatibility({ ...base, candidateStart: "invalid" })).toBeNull()
   })
 })
+
+
+it("does not penalise different semesters in general study mode", () => {
+  expect(calculateMatchCompatibility({...base,generalStudy:true,candidateSemester:13})?.compatibilityScore)
+    .toBe(calculateMatchCompatibility({...base,generalStudy:true,candidateSemester:1})?.compatibilityScore)
+  expect(calculateMatchCompatibility({...base,candidateSemester:13})?.compatibilityScore).toBeLessThan(100)
+})

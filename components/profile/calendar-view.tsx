@@ -41,7 +41,7 @@ export function CalendarView({ studySessions = [], userId }: CalendarViewProps) 
       id: session.id,
       startsAt,
       endsAt: session.ends_at,
-      subject: (el ? session.subject?.name : session.subject?.name_en) || (el ? 'Μάθημα' : 'Subject'),
+      subject: (el ? session.subject?.name : session.subject?.name_en) || (el ? 'Παρέα για διάβασμα' : 'Study together'),
       partnerName: partner?.display_name?.split(' ')[0] || '?',
       partnerInitials: (partner?.display_name || '?').slice(0, 2).toUpperCase(),
       partnerColor: partner?.avatar_color || 'bg-primary',

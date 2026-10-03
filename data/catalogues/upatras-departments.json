@@ -1,0 +1,315 @@
+{
+  "retrieved_at": "2026-10-03",
+  "departments": [
+    {
+      "name": "Βιολογίας",
+      "url": "https://www.upatras.gr/education/undergraduate-studies/school-of-natural-sciences/department-of-biology/",
+      "school": "school-of-natural-sciences",
+      "source": "https://www.upatras.gr/education/undergraduate-studies/school-of-natural-sciences/",
+      "campus": "Πάτρα",
+      "id": "upatras-biology",
+      "university_id": "upatras",
+      "catalogue_status": "pending"
+    },
+    {
+      "name": "Γεωλογίας",
+      "url": "https://www.upatras.gr/education/undergraduate-studies/school-of-natural-sciences/department-of-geology/",
+      "school": "school-of-natural-sciences",
+      "source": "https://www.upatras.gr/education/undergraduate-studies/school-of-natural-sciences/",
+      "campus": "Πάτρα",
+      "id": "upatras-geology",
+      "university_id": "upatras",
+      "catalogue_status": "pending"
+    },
+    {
+      "name": "Επιστήμης των Υλικών",
+      "url": "https://www.upatras.gr/education/undergraduate-studies/school-of-natural-sciences/department-of-materials-science/",
+      "school": "school-of-natural-sciences",
+      "source": "https://www.upatras.gr/education/undergraduate-studies/school-of-natural-sciences/",
+      "campus": "Πάτρα",
+      "id": "upatras-materials-science",
+      "university_id": "upatras",
+      "catalogue_status": "pending"
+    },
+    {
+      "name": "Μαθηματικών",
+      "url": "https://www.upatras.gr/education/undergraduate-studies/school-of-natural-sciences/department-of-mathematics/",
+      "school": "school-of-natural-sciences",
+      "source": "https://www.upatras.gr/education/undergraduate-studies/school-of-natural-sciences/",
+      "campus": "Πάτρα",
+      "id": "upatras-mathematics",
+      "university_id": "upatras",
+      "catalogue_status": "pending"
+    },
+    {
+      "name": "Φυσικής",
+      "url": "https://www.upatras.gr/education/undergraduate-studies/school-of-natural-sciences/department-of-physics/",
+      "school": "school-of-natural-sciences",
+      "source": "https://www.upatras.gr/education/undergraduate-studies/school-of-natural-sciences/",
+      "campus": "Πάτρα",
+      "id": "upatras-physics",
+      "university_id": "upatras",
+      "catalogue_status": "verified"
+    },
+    {
+      "name": "Χημείας",
+      "url": "https://www.upatras.gr/education/undergraduate-studies/school-of-natural-sciences/department-of-chemistry/",
+      "school": "school-of-natural-sciences",
+      "source": "https://www.upatras.gr/education/undergraduate-studies/school-of-natural-sciences/",
+      "campus": "Πάτρα",
+      "id": "upatras-chemistry",
+      "university_id": "upatras",
+      "catalogue_status": "pending"
+    },
+    {
+      "name": "Αρχιτεκτόνων Μηχανικών",
+      "url": "https://www.upatras.gr/education/undergraduate-studies/school-of-engineering/department-of-architecture/",
+      "school": "school-of-engineering",
+      "source": "https://www.upatras.gr/education/undergraduate-studies/school-of-engineering/",
+      "campus": "Πάτρα",
+      "id": "upatras-architecture",
+      "university_id": "upatras",
+      "catalogue_status": "pending"
+    },
+    {
+      "name": "Ηλεκτρολόγων Μηχανικών και Τεχνολογίας Υπολογιστών",
+      "url": "https://www.upatras.gr/education/undergraduate-studies/school-of-engineering/department-of-electrical-and-computer-engineering/",
+      "school": "school-of-engineering",
+      "source": "https://www.upatras.gr/education/undergraduate-studies/school-of-engineering/",
+      "campus": "Πάτρα",
+      "id": "upatras-electrical-and-computer-engineering",
+      "university_id": "upatras",
+      "catalogue_status": "pending"
+    },
+    {
+      "name": "Μηχανικών Ηλεκτρονικών Υπολογιστών και Πληροφορικής",
+      "url": "https://www.upatras.gr/education/undergraduate-studies/school-of-engineering/department-of-computer-engineering-and-informatics/",
+      "school": "school-of-engineering",
+      "source": "https://www.upatras.gr/education/undergraduate-studies/school-of-engineering/",
+      "campus": "Πάτρα",
+      "id": "upatras-computer-engineering-and-informatics",
+      "university_id": "upatras",
+      "catalogue_status": "pending"
+    },
+    {
+      "name": "Μηχανολόγων και Αεροναυπηγών Μηχανικών",
+      "url": "https://www.upatras.gr/education/undergraduate-studies/school-of-engineering/department-of-mechanical-engineering-and-aeronautics/",
+      "school": "school-of-engineering",
+      "source": "https://www.upatras.gr/education/undergraduate-studies/school-of-engineering/",
+      "campus": "Πάτρα",
+      "id": "upatras-mechanical-engineering-and-aeronautics",
+      "university_id": "upatras",
+      "catalogue_status": "pending"
+    },
+    {
+      "name": "Πολιτικών Μηχανικών",
+      "url": "https://www.upatras.gr/education/undergraduate-studies/school-of-engineering/department-of-civil-engineering/",
+      "school": "school-of-engineering",
+      "source": "https://www.upatras.gr/education/undergraduate-studies/school-of-engineering/",
+      "campus": "Πάτρα",
+      "id": "upatras-civil",
+      "university_id": "upatras",
+      "catalogue_status": "verified"
+    },
+    {
+      "name": "Χημικών Μηχανικών",
+      "url": "https://www.upatras.gr/education/undergraduate-studies/school-of-engineering/department-of-chemical-engineering/",
+      "school": "school-of-engineering",
+      "source": "https://www.upatras.gr/education/undergraduate-studies/school-of-engineering/",
+      "campus": "Πάτρα",
+      "id": "upatras-chemical-engineering",
+      "university_id": "upatras",
+      "catalogue_status": "pending"
+    },
+    {
+      "name": "Ιατρικής",
+      "url": "https://www.upatras.gr/education/undergraduate-studies/school-of-health-sciences/department-of-medicine/",
+      "school": "school-of-health-sciences",
+      "source": "https://www.upatras.gr/education/undergraduate-studies/school-of-health-sciences/",
+      "campus": "Πάτρα",
+      "id": "upatras-medicine",
+      "university_id": "upatras",
+      "catalogue_status": "pending"
+    },
+    {
+      "name": "Φαρμακευτικής",
+      "url": "https://www.upatras.gr/education/undergraduate-studies/school-of-health-sciences/department-of-pharmacy/",
+      "school": "school-of-health-sciences",
+      "source": "https://www.upatras.gr/education/undergraduate-studies/school-of-health-sciences/",
+      "campus": "Πάτρα",
+      "id": "upatras-pharmacy",
+      "university_id": "upatras",
+      "catalogue_status": "pending"
+    },
+    {
+      "name": "Επιστημών της Εκπαίδευσης και Κοινωνικής Εργασίας",
+      "url": "https://www.upatras.gr/education/undergraduate-studies/school-of-humanities-and-social-sciences/department-of-education-and-social-work/",
+      "school": "school-of-humanities-and-social-sciences",
+      "source": "https://www.upatras.gr/education/undergraduate-studies/school-of-humanities-and-social-sciences/",
+      "campus": "Πάτρα",
+      "id": "upatras-education-and-social-work",
+      "university_id": "upatras",
+      "catalogue_status": "pending"
+    },
+    {
+      "name": "Επιστημών της Εκπαίδευσης και της Αγωγής στην Προσχολική Ηλικία",
+      "url": "https://www.upatras.gr/education/undergraduate-studies/school-of-humanities-and-social-sciences/department-of-educational-sciences-and-early-childhood-education/",
+      "school": "school-of-humanities-and-social-sciences",
+      "source": "https://www.upatras.gr/education/undergraduate-studies/school-of-humanities-and-social-sciences/",
+      "campus": "Πάτρα",
+      "id": "upatras-educational-sciences-and-early-childhood-education",
+      "university_id": "upatras",
+      "catalogue_status": "pending"
+    },
+    {
+      "name": "Θεατρικών Σπουδών",
+      "url": "https://www.upatras.gr/education/undergraduate-studies/school-of-humanities-and-social-sciences/department-of-theatre-studies/",
+      "school": "school-of-humanities-and-social-sciences",
+      "source": "https://www.upatras.gr/education/undergraduate-studies/school-of-humanities-and-social-sciences/",
+      "campus": "Πάτρα",
+      "id": "upatras-theatre-studies",
+      "university_id": "upatras",
+      "catalogue_status": "pending"
+    },
+    {
+      "name": "Ιστορίας-Αρχαιολογίας",
+      "url": "https://www.upatras.gr/education/undergraduate-studies/school-of-humanities-and-social-sciences/department-of-history-and-archaeology/",
+      "school": "school-of-humanities-and-social-sciences",
+      "source": "https://www.upatras.gr/education/undergraduate-studies/school-of-humanities-and-social-sciences/",
+      "campus": "Πάτρα",
+      "id": "upatras-history-and-archaeology",
+      "university_id": "upatras",
+      "catalogue_status": "pending"
+    },
+    {
+      "name": "Φιλολογίας",
+      "url": "https://www.upatras.gr/education/undergraduate-studies/school-of-humanities-and-social-sciences/department-of-philology/",
+      "school": "school-of-humanities-and-social-sciences",
+      "source": "https://www.upatras.gr/education/undergraduate-studies/school-of-humanities-and-social-sciences/",
+      "campus": "Πάτρα",
+      "id": "upatras-philology",
+      "university_id": "upatras",
+      "catalogue_status": "pending"
+    },
+    {
+      "name": "Φιλοσοφίας",
+      "url": "https://www.upatras.gr/education/undergraduate-studies/school-of-humanities-and-social-sciences/department-of-philosophy/",
+      "school": "school-of-humanities-and-social-sciences",
+      "source": "https://www.upatras.gr/education/undergraduate-studies/school-of-humanities-and-social-sciences/",
+      "campus": "Πάτρα",
+      "id": "upatras-philosophy",
+      "university_id": "upatras",
+      "catalogue_status": "pending"
+    },
+    {
+      "name": "Διοίκησης Επιχειρήσεων",
+      "url": "https://www.upatras.gr/education/undergraduate-studies/school-of-economics-and-business/department-of-business-administration/",
+      "school": "school-of-economics-and-business",
+      "source": "https://www.upatras.gr/education/undergraduate-studies/school-of-economics-and-business/",
+      "campus": "Πάτρα",
+      "id": "upatras-business-administration",
+      "university_id": "upatras",
+      "catalogue_status": "pending"
+    },
+    {
+      "name": "Διοίκησης Τουρισμού",
+      "url": "https://www.upatras.gr/education/undergraduate-studies/school-of-economics-and-business/department-of-tourism-management/",
+      "school": "school-of-economics-and-business",
+      "source": "https://www.upatras.gr/education/undergraduate-studies/school-of-economics-and-business/",
+      "campus": "Πάτρα (Κουκούλι)",
+      "id": "upatras-tourism-management",
+      "university_id": "upatras",
+      "catalogue_status": "pending"
+    },
+    {
+      "name": "Διοικητικής Επιστήμης και Τεχνολογίας",
+      "url": "https://www.upatras.gr/education/undergraduate-studies/school-of-economics-and-business/department-of-management-science-and-technology/",
+      "school": "school-of-economics-and-business",
+      "source": "https://www.upatras.gr/education/undergraduate-studies/school-of-economics-and-business/",
+      "campus": "Πάτρα (Κουκούλι)",
+      "id": "upatras-management-science-and-technology",
+      "university_id": "upatras",
+      "catalogue_status": "pending"
+    },
+    {
+      "name": "Οικονομικών Επιστημών",
+      "url": "https://www.upatras.gr/education/undergraduate-studies/school-of-economics-and-business/department-of-economics/",
+      "school": "school-of-economics-and-business",
+      "source": "https://www.upatras.gr/education/undergraduate-studies/school-of-economics-and-business/",
+      "campus": "Πάτρα",
+      "id": "upatras-economics",
+      "university_id": "upatras",
+      "catalogue_status": "pending"
+    },
+    {
+      "name": "Αειφορικής Γεωργίας",
+      "url": "https://www.upatras.gr/education/undergraduate-studies/school-of-agricultural-sciences/department-of-sustainable-agriculture/",
+      "school": "school-of-agricultural-sciences",
+      "source": "https://www.upatras.gr/education/undergraduate-studies/school-of-agricultural-sciences/",
+      "campus": "Αγρίνιο",
+      "id": "upatras-sustainable-agriculture",
+      "university_id": "upatras",
+      "catalogue_status": "pending"
+    },
+    {
+      "name": "Αλιείας και Υδατοκαλλιεργειών",
+      "url": "https://www.upatras.gr/education/undergraduate-studies/school-of-agricultural-sciences/department-of-fisheries-and-aquaculture/",
+      "school": "school-of-agricultural-sciences",
+      "source": "https://www.upatras.gr/education/undergraduate-studies/school-of-agricultural-sciences/",
+      "campus": "Μεσολόγγι",
+      "id": "upatras-fisheries-and-aquaculture",
+      "university_id": "upatras",
+      "catalogue_status": "pending"
+    },
+    {
+      "name": "Γεωπονίας",
+      "url": "https://www.upatras.gr/education/undergraduate-studies/school-of-agricultural-sciences/department-of-agriculture/",
+      "school": "school-of-agricultural-sciences",
+      "source": "https://www.upatras.gr/education/undergraduate-studies/school-of-agricultural-sciences/",
+      "campus": "Μεσολόγγι",
+      "id": "upatras-agriculture",
+      "university_id": "upatras",
+      "catalogue_status": "pending"
+    },
+    {
+      "name": "Επιστήμης και Τεχνολογίας Τροφίμων",
+      "url": "https://www.upatras.gr/education/undergraduate-studies/school-of-agricultural-sciences/department-of-food-science-and-technology/",
+      "school": "school-of-agricultural-sciences",
+      "source": "https://www.upatras.gr/education/undergraduate-studies/school-of-agricultural-sciences/",
+      "campus": "Αγρίνιο",
+      "id": "upatras-food-science-and-technology",
+      "university_id": "upatras",
+      "catalogue_status": "pending"
+    },
+    {
+      "name": "Λογοθεραπείας",
+      "url": "https://www.upatras.gr/education/undergraduate-studies/school-of-health-rehabilitation-sciences/department-of-speech-and-language-therapy/",
+      "school": "school-of-health-rehabilitation-sciences",
+      "source": "https://www.upatras.gr/education/undergraduate-studies/school-of-health-rehabilitation-sciences/",
+      "campus": "Πάτρα",
+      "id": "upatras-speech-and-language-therapy",
+      "university_id": "upatras",
+      "catalogue_status": "pending"
+    },
+    {
+      "name": "Νοσηλευτικής",
+      "url": "https://www.upatras.gr/education/undergraduate-studies/school-of-health-rehabilitation-sciences/department-of-nursing/",
+      "school": "school-of-health-rehabilitation-sciences",
+      "source": "https://www.upatras.gr/education/undergraduate-studies/school-of-health-rehabilitation-sciences/",
+      "campus": "Πάτρα (Κουκούλι)",
+      "id": "upatras-nursing",
+      "university_id": "upatras",
+      "catalogue_status": "pending"
+    },
+    {
+      "name": "Φυσικοθεραπείας",
+      "url": "https://www.upatras.gr/education/undergraduate-studies/school-of-health-rehabilitation-sciences/department-of-physiotherapy/",
+      "school": "school-of-health-rehabilitation-sciences",
+      "source": "https://www.upatras.gr/education/undergraduate-studies/school-of-health-rehabilitation-sciences/",
+      "campus": "Πάτρα",
+      "id": "upatras-physiotherapy",
+      "university_id": "upatras",
+      "catalogue_status": "pending"
+    }
+  ]
+}

@@ -88,7 +88,7 @@ describe('Civil Engineering guide import', () => {
       'upatras-civil-p3-2026',
     )
     for (const input of [
-      { ...valid, entryYear: 2013 },
+      { ...valid, entryYear: 1949 },
       { ...valid, entryYear: 2027 },
       { ...valid, departmentId: 'other' },
       { ...valid, semester: 0 },
@@ -96,5 +96,13 @@ describe('Civil Engineering guide import', () => {
     ]) {
       expect(() => validateAcademicSelection(input, 2026)).toThrow()
     }
+  })
+})
+
+
+describe('University-wide department selection', () => {
+  it('keeps unsupported entry cohorts unassigned instead of inventing a curriculum', () => {
+    expect(validateAcademicSelection({departmentId:CIVIL_DEPARTMENT,entryYear:2013,semester:13},2026).curriculum_id).toBeNull()
+    expect(validateAcademicSelection({departmentId:'upatras-medicine',entryYear:2020,semester:12},2026)).toMatchObject({department_id:'upatras-medicine',curriculum_id:null,degree:'Ιατρικής'})
   })
 })

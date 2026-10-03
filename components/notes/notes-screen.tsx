@@ -46,7 +46,7 @@ export function NotesScreen({ preview = false, userId = "", notes: dbNotes = [],
   return (
     <div className="relative">
       <ScreenHeading title={t("notes.title")} description={locale === "el" ? "Κράτα ό,τι σε βοηθά. Μοιράσου ό,τι ξέρεις." : "Keep what helps. Share what you know."} />
-      <div className="px-5 pb-5">{preview ? <p className="text-xs text-muted-foreground">{locale === "el" ? "Δείγμα βιβλιοθήκης · οι ενέργειες είναι ανενεργές" : "Sample library · actions are disabled"}</p> : <UploadDialog subjects={dbSubjects} />}</div>
+      <div className="px-5 pb-5">{preview ? <p className="text-xs text-muted-foreground">{locale === "el" ? "Δείγμα βιβλιοθήκης · οι ενέργειες είναι ανενεργές" : "Sample library · actions are disabled"}</p> : dbSubjects.length ? <UploadDialog subjects={dbSubjects} /> : <p className="text-sm text-muted-foreground">{locale === "el" ? "Ο κατάλογος του προγράμματός σου δεν είναι ακόμη διαθέσιμος. Μπορείς να βρεις παρέα για γενικό διάβασμα από την καρτέλα Partner." : "Your programme’s catalogue is not available yet. You can find company for general studying in the Partner tab."}</p>}</div>
       <div className="px-5 pb-5">
         {dbSubjects.some(s => s.offerings) && <SemesterSelect value={semester} onChange={value => {setSemester(value); setFilterSubject("all")}} />}
         <Select value={filterSubject} onValueChange={setFilterSubject}>
@@ -74,7 +74,7 @@ export function NotesScreen({ preview = false, userId = "", notes: dbNotes = [],
         <div className="mx-5 border-t border-border py-8">
           <FileText className="mb-4 h-7 w-7 text-muted-foreground" />
           <p className="font-medium text-foreground">{t("notes.empty")}</p>
-          <p className="mt-1 text-sm text-muted-foreground">{t("notes.empty.help")}</p>
+          {dbSubjects.length > 0 && <p className="mt-1 text-sm text-muted-foreground">{t("notes.empty.help")}</p>}
         </div>
       )}
 

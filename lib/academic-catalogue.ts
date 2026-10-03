@@ -1,6 +1,18 @@
+import directory from '@/data/catalogues/upatras-departments.json'
+import physics from '@/data/catalogues/upatras-physics-2026.json'
 import catalogue from '@/data/catalogues/upatras-civil-2026.json'
 import type { Subject } from '@/lib/types'
 
+export const departments = directory.departments
+export const verifiedCatalogues = [catalogue, physics]
+export function catalogueFor(departmentId: string, entryYear: number) {
+  return verifiedCatalogues.find(
+    (c) =>
+      c.department.id === departmentId &&
+      entryYear >= c.curriculum.entry_year_min &&
+      entryYear <= c.curriculum.entry_year_max,
+  )
+}
 export const civilCatalogue = catalogue
 export const CIVIL_DEPARTMENT = catalogue.department.id
 export const CIVIL_CURRICULUM = catalogue.curriculum.id
@@ -38,26 +50,27 @@ export function validateAcademicSelection(
   input: { departmentId: string; entryYear: number; semester: number },
   currentYear = new Date().getFullYear(),
 ) {
-  if (input.departmentId !== CIVIL_DEPARTMENT)
-    throw new Error('Unsupported department')
+  const department = departments.find((d) => d.id === input.departmentId)
+  if (!department) throw new Error('Unsupported department')
   if (
     !Number.isInteger(input.entryYear) ||
-    input.entryYear < 2014 ||
+    input.entryYear < 1950 ||
     input.entryYear > Math.min(currentYear, 2026)
   )
-    throw new Error('This catalogue covers entry years 2014–2026 only')
+    throw new Error('Invalid entry year')
   if (
     !Number.isInteger(input.semester) ||
     input.semester < 1 ||
-    input.semester > 11
+    input.semester > 13
   )
     throw new Error('Invalid semester')
   return {
-    department_id: CIVIL_DEPARTMENT,
-    curriculum_id: CIVIL_CURRICULUM,
+    department_id: department.id,
+    curriculum_id:
+      catalogueFor(department.id, input.entryYear)?.curriculum.id ?? null,
     entry_year: input.entryYear,
     semester: input.semester,
-    degree: 'Πολιτικών Μηχανικών',
+    degree: department.name,
   }
 }
 // Negative IDs are local preview fixtures, never persisted or used by live mutations.

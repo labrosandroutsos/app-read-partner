@@ -18,7 +18,7 @@ function assertUuid(value: string, field: string) {
 }
 
 export async function createSession(formData: {
-  subjectId: number
+  subjectId: number | null
   venueId: string | null
   duration: string
   plannedStart: string
@@ -30,8 +30,12 @@ export async function createSession(formData: {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) throw new Error('Not authenticated')
 
-  if (!Number.isInteger(formData.subjectId) || formData.subjectId < 1) {
+  if (formData.subjectId !== null && (!Number.isInteger(formData.subjectId) || formData.subjectId < 1)) {
     throw new Error('Invalid subject')
+  }
+  if (formData.subjectId === null) {
+    const {data: ready, error} = await supabase.rpc('general_study_matching_ready')
+    if (error || !ready) throw new Error('General study matching is not available yet')
   }
   if (formData.venueId) assertUuid(formData.venueId, 'venue')
   if (!ALLOWED_DURATIONS.has(formData.duration)) {
@@ -143,6 +147,7 @@ export async function findMatchCandidates(sessionId: string): Promise<MatchingSe
   for (const candidate of candidates ?? []) {
     if (uniqueCandidates.has(candidate.candidate_user_id)) continue
     const compatibility = calculateMatchCompatibility({
+      generalStudy: ownSession.subject_id === null,
       ownStart: ownSession.planned_start ?? `${ownSession.planned_date}T12:00:00`,
       ownEnd: ownSession.planned_end ?? `${ownSession.planned_date}T14:00:00`,
       candidateStart: candidate.planned_start,
@@ -167,7 +172,7 @@ export async function findMatchCandidates(sessionId: string): Promise<MatchingSe
       initials: (candidate.display_name || 'S').slice(0, 2).toUpperCase(),
       degree: candidate.degree || '',
       semester: candidate.semester || 1,
-      subjects: candidate.subjects?.length ? candidate.subjects : [String(ownSession.subject_id)],
+      subjects: candidate.subjects?.length ? candidate.subjects : (ownSession.subject_id === null ? [] : [String(ownSession.subject_id)]),
       avatarColor: candidate.avatar_color || 'bg-blue-500',
       distance: Number(candidate.distance) || 0,
       timeOverlap: compatibility.timeOverlap,
@@ -185,17 +190,16 @@ export async function findMatchCandidates(sessionId: string): Promise<MatchingSe
     return a.distance - b.distance
   })
 
+  let pendingQuery = supabase.from('matches').select('id', {count:'exact',head:true})
+    .eq('status','pending').eq('user_a',user.id).eq('session_a',sessionId)
+  pendingQuery = ownSession.subject_id === null ? pendingQuery.is('subject_id',null) : pendingQuery.eq('subject_id',ownSession.subject_id)
   const [activeMatchesResult, pendingInterestsResult] = await Promise.all([
     supabase
       .from('matches')
       .select('id', { count: 'exact', head: true })
       .eq('status', 'accepted')
       .or(`user_a.eq.${user.id},user_b.eq.${user.id}`),
-    supabase
-      .from('matches')
-      .select('id', { count: 'exact', head: true })
-      .eq('status', 'pending')
-      .eq('user_a', user.id),
+    pendingQuery,
   ])
 
   return {
@@ -749,7 +753,7 @@ export async function updateProfile(formData: {
   if (degree !== undefined && degree.length > 120) {
     throw new Error('Invalid degree')
   }
-  if (formData.semester !== undefined && (!Number.isInteger(formData.semester) || formData.semester < 1 || formData.semester > 12)) {
+  if (formData.semester !== undefined && (!Number.isInteger(formData.semester) || formData.semester < 1 || formData.semester > 13)) {
     throw new Error('Invalid semester')
   }
 

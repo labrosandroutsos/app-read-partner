@@ -335,7 +335,7 @@ export async function getStudyStats(userId: string) {
       existing.hours += row.duration_hours
     } else {
       statsMap.set(row.subject_id!, {
-        subject: (row as any).subjects?.name ?? 'Unknown',
+        subject: (row as any).subjects?.name ?? 'Παρέα για διάβασμα',
         hours: row.duration_hours,
       })
     }

@@ -55,7 +55,7 @@ export function AccountSettingsDialog({ email, authProvider, profile, blockedUse
   async function handleSave(event: React.FormEvent) {
     event.preventDefault()
     const parsedSemester = Number.parseInt(semester, 10)
-    if (!displayName.trim() || !Number.isInteger(parsedSemester) || parsedSemester < 1 || parsedSemester > 12) {
+    if (!displayName.trim() || !Number.isInteger(parsedSemester) || parsedSemester < 1 || parsedSemester > 13) {
       toast.error(t("profile.account.invalid"))
       return
     }
@@ -109,7 +109,7 @@ export function AccountSettingsDialog({ email, authProvider, profile, blockedUse
           </div>
           <div className="flex flex-col gap-2">
             <Label htmlFor="account-semester">{t("profile.account.semester")}</Label>
-            <Input id="account-semester" type="number" min="1" max="12" value={semester} onChange={(event) => setSemester(event.target.value)} required />
+            <Input id="account-semester" type="number" min="1" max="13" value={semester} onChange={(event) => setSemester(event.target.value)} required />
           </div>
           <DialogFooter>
             <Button type="submit" disabled={saving}>

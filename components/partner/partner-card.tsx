@@ -27,7 +27,7 @@ export function PartnerCard({ preview = false, candidate, matchSubject, style, c
   const dbSubject = subjects?.find(s => s.id.toString() === matchSubject)
   const mockSubject = getSubjectById(matchSubject)
 
-  const subjectName = dbSubject
+  const subjectName = matchSubject === "general" ? (locale === "el" ? "Παρέα για διάβασμα" : "Study together") : dbSubject
     ? (locale === "el" ? dbSubject.name : dbSubject.name_en)
     : mockSubject
     ? (locale === "el" ? mockSubject.name : mockSubject.nameEn)

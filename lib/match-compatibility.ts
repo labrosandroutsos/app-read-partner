@@ -2,6 +2,7 @@ export type StudyStyle = "quiet" | "social" | "either"
 export type StudyLanguage = "el" | "en" | "either"
 
 export interface MatchCompatibilityInput {
+  generalStudy?: boolean
   ownStart: string
   ownEnd: string
   candidateStart: string
@@ -47,7 +48,7 @@ export function calculateMatchCompatibility(input: MatchCompatibilityInput): Mat
   const styleScore = stylesCompatible ? 100 : 40
   const languageScore = languagesCompatible ? 100 : 25
   const semesterDifference = Math.abs(input.candidateSemester - input.ownSemester)
-  const semesterScore = Math.max(40, 100 - semesterDifference * 10)
+  const semesterScore = input.generalStudy ? 100 : Math.max(40, 100 - semesterDifference * 10)
   const compatibilityScore = Math.round(
     timeOverlap * 0.45 + venueScore * 0.2 + styleScore * 0.15 + languageScore * 0.1 + semesterScore * 0.1
   )

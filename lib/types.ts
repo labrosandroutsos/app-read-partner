@@ -44,7 +44,7 @@ export interface Venue {
 export interface Session {
   id: string
   user_id: string
-  subject_id: number
+  subject_id: number | null
   venue_id: string | null
   duration: string | null
   planned_date: string

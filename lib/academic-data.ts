@@ -29,3 +29,11 @@ export async function getCurriculumSubjects(
     }))
     .sort((a, b) => a.name.localeCompare(b.name, 'el'))
 }
+
+export async function isGeneralStudyReady() {
+  const supabase = await createClient()
+  const {data,error} = await supabase.rpc('general_study_matching_ready')
+  if (error && ['PGRST202','42883'].includes(error.code)) return false
+  if (error) throw error
+  return data === true
+}

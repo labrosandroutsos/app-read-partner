@@ -13,12 +13,12 @@ export async function saveAcademicProfile(input: {
     data: { user },
   } = await supabase.auth.getUser()
   if (!user) throw new Error('Not authenticated')
-  const { data: curriculum, error: catalogueError } = await supabase
-    .from('curricula')
-    .select('id')
-    .eq('id', selection.curriculum_id)
-    .single()
-  if (catalogueError || !curriculum) throw new Error('Catalogue is unavailable')
+  const {data: department, error: departmentError} = await supabase.from('departments').select('id').eq('id',selection.department_id).single()
+  if (departmentError || !department) throw new Error('Department is unavailable')
+  if (selection.curriculum_id) {
+    const { data: curriculum, error: catalogueError } = await supabase.from('curricula').select('id').eq('id',selection.curriculum_id).single()
+    if (catalogueError || !curriculum) throw new Error('Catalogue is unavailable')
+  }
   const { data, error } = await supabase
     .from('profiles')
     .update(selection)

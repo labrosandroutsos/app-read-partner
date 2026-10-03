@@ -10,6 +10,7 @@ import { getMatchingSearchErrorKind } from "@/lib/matching-feedback"
 import type { MatchingSearchFeedback, PartnerCandidate, Profile, Subject, Venue } from "@/lib/types"
 
 interface PartnerScreenProps {
+  generalStudyAvailable?: boolean
   onGoToChat: () => void
   userId: string
   profile: Profile | null
@@ -17,7 +18,7 @@ interface PartnerScreenProps {
   venues: Venue[]
 }
 
-export function PartnerScreen({ onGoToChat, profile, subjects, venues }: PartnerScreenProps) {
+export function PartnerScreen({ onGoToChat, profile, subjects, venues, generalStudyAvailable = false }: PartnerScreenProps) {
   const { t, locale } = useTranslation()
   const [wizardComplete, setWizardComplete] = useState(false)
   const [prefs, setPrefs] = useState<MatchPreferences>({ subject: "", venue: "", duration: "", plannedStart: "", studyStyle: "either", language: "either", maxDistanceKm: 5 })
@@ -30,7 +31,7 @@ export function PartnerScreen({ onGoToChat, profile, subjects, venues }: Partner
     setIsSearching(true)
 
     try {
-      const subjectId = Number.parseInt(p.subject, 10)
+      const subjectId = p.subject === "general" ? null : Number.parseInt(p.subject, 10)
       const venueId = p.venue === "anywhere" ? null : p.venue
 
       const session = await createSession({
@@ -72,7 +73,7 @@ export function PartnerScreen({ onGoToChat, profile, subjects, venues }: Partner
 
   if (!wizardComplete) {
     return (
-      <DailyWizard initialSemester={profile?.semester}
+      <DailyWizard generalStudyAvailable={generalStudyAvailable} initialSemester={profile?.semester}
         onComplete={handleWizardComplete}
         subjects={subjects}
         venues={venues}
