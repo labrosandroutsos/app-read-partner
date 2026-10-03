@@ -13,8 +13,6 @@ export default function SignUpPage() {
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [displayName, setDisplayName] = useState("")
-  const [degree, setDegree] = useState("")
-  const [semester, setSemester] = useState("1")
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
   const router = useRouter()
@@ -46,8 +44,6 @@ export default function SignUpPage() {
         options: {
           data: {
             display_name: displayName,
-            degree,
-            semester: parseInt(semester),
           },
         },
       })
@@ -91,16 +87,7 @@ export default function SignUpPage() {
               <Label htmlFor="password">Password</Label>
               <Input id="password" type="password" placeholder="At least 8 characters" value={password} onChange={(e) => setPassword(e.target.value)} required minLength={8} autoComplete="new-password" />
             </div>
-            <div className="grid grid-cols-2 gap-3">
-              <div className="flex flex-col gap-2">
-                <Label htmlFor="degree">Degree</Label>
-                <Input id="degree" placeholder="π.χ. Πληροφορική" value={degree} onChange={(e) => setDegree(e.target.value)} />
-              </div>
-              <div className="flex flex-col gap-2">
-                <Label htmlFor="semester">Semester</Label>
-                <Input id="semester" type="number" min="1" max="12" value={semester} onChange={(e) => setSemester(e.target.value)} />
-              </div>
-            </div>
+            <p className="text-sm text-muted-foreground">You’ll choose your department and semester after signing in.</p>
             <Button type="submit" className="w-full" disabled={loading}>
               {loading ? "Creating account..." : "Sign Up"}
             </Button>

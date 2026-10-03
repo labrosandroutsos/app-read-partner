@@ -1,9 +1,12 @@
+import { isCatalogueReady, getCurriculumSubjects } from '@/lib/academic-data'
+import { AcademicSetup } from '@/components/academics/academic-setup'
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import { getProfile, getSubjects, getVenues, getConversations, getNotes, getCoupons, getStudySessions, getStudyStats, getPastPartners, getBlockedUsers, getActiveVenueCheckin, getVenueManagerAssignment, getAccessContext, getNotifications } from '@/lib/data'
 import { AppShellClient } from '@/components/app-shell-client'
 
-export default async function AppPage() {
+export default async function AppPage({ searchParams }: { searchParams: Promise<{ catalogue?: string }> }) {
+  const { catalogue } = await searchParams
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
 
@@ -19,9 +22,12 @@ export default async function AppPage() {
   const managerAssignment = await getVenueManagerAssignment(user.id)
   if (managerAssignment) redirect('/venue-manager')
 
-  const [profile, subjects, venues, conversations, notes, coupons, studySessions, studyStats, pastPartners, blockedUsers, activeVenueId, notifications] = await Promise.all([
-    getProfile(user.id),
-    getSubjects(),
+  const profile = await getProfile(user.id)
+  const catalogueReady = await isCatalogueReady()
+  if (catalogueReady && !profile?.curriculum_id && catalogue !== 'later') return <AcademicSetup profile={profile} />
+
+  const [subjects, venues, conversations, notes, coupons, studySessions, studyStats, pastPartners, blockedUsers, activeVenueId, notifications] = await Promise.all([
+    profile?.curriculum_id ? getCurriculumSubjects(profile.curriculum_id) : getSubjects().then(items => items.filter(subject => !subject.department_id)),
     getVenues(),
     getConversations(user.id),
     getNotes(user.id),
@@ -43,7 +49,7 @@ export default async function AppPage() {
       subjects={subjects}
       venues={venues}
       conversations={conversations}
-      notes={notes}
+      notes={profile?.curriculum_id ? notes.filter(n => subjects.some(s => s.id === n.subject_id)) : notes}
       coupons={coupons}
       studySessions={studySessions}
       studyStats={studyStats}

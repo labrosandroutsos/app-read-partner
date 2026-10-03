@@ -1,4 +1,7 @@
 export interface Profile {
+  department_id?: string | null
+  curriculum_id?: string | null
+  entry_year?: number | null
   id: string
   display_name: string | null
   degree: string | null
@@ -8,7 +11,19 @@ export interface Profile {
   created_at: string
 }
 
+export interface CourseOffering {
+  semester: number
+  track: number
+  kind: string
+  ects: number | null
+  page: number
+  other_tracks_only?: boolean
+}
+
 export interface Subject {
+  department_id?: string | null
+  course_code?: string | null
+  offerings?: CourseOffering[]
   id: number
   name: string
   name_en: string

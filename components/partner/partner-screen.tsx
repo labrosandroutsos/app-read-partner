@@ -72,7 +72,7 @@ export function PartnerScreen({ onGoToChat, profile, subjects, venues }: Partner
 
   if (!wizardComplete) {
     return (
-      <DailyWizard
+      <DailyWizard initialSemester={profile?.semester}
         onComplete={handleWizardComplete}
         subjects={subjects}
         venues={venues}

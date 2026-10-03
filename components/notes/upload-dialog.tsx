@@ -1,5 +1,7 @@
 "use client"
 
+import { SemesterSelect } from '@/components/academics/semester-select'
+import { filterCourses } from '@/lib/academic-catalogue'
 import { useRef, useState, useTransition } from "react"
 import { FileCheck2, Loader2, Upload } from "lucide-react"
 import { useRouter } from "next/navigation"
@@ -27,7 +29,8 @@ export function UploadDialog({ subjects }: UploadDialogProps) {
   const [file, setFile] = useState<File | null>(null)
   const [isPending, startTransition] = useTransition()
 
-  const subjectList = subjects || []
+  const [semester, setSemester] = useState("all")
+  const subjectList = filterCourses(subjects || [], semester)
 
   const resetForm = () => {
     setTitle("")
@@ -82,6 +85,7 @@ export function UploadDialog({ subjects }: UploadDialogProps) {
             />
           </div>
           <div className="flex flex-col gap-2">
+            {subjects?.some(s => s.offerings) && <SemesterSelect value={semester} onChange={value => { setSemester(value); setSubject("") }} />}
             <Label>{t("notes.upload.subject")}</Label>
             <Select value={subject} onValueChange={setSubject}>
               <SelectTrigger>

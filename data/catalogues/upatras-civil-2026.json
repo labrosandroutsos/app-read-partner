@@ -1,0 +1,1960 @@
+{
+  "university": {
+    "id": "upatras",
+    "name": "Πανεπιστήμιο Πατρών"
+  },
+  "department": {
+    "id": "upatras-civil",
+    "name": "Πολιτικών Μηχανικών"
+  },
+  "curriculum": {
+    "id": "upatras-civil-p3-2026",
+    "label": "Π3 · Οδηγός 2026–27",
+    "entry_year_min": 2014,
+    "entry_year_max": 2026
+  },
+  "source": {
+    "url": "https://www.civil.upatras.gr/wp-content/uploads/2026/08/2026-27-%CE%9F%CE%94%CE%97%CE%93%CE%9F%CE%A3-%CE%A0%CE%A1%CE%9F%CE%A0%CE%A4%CE%A5%CE%A7%CE%99%CE%91%CE%9A%CE%A9%CE%9D-%CE%A3%CE%A0%CE%9F%CE%A5%CE%94%CE%A9%CE%9D-%CE%A0%CE%9F%CE%9B%CE%99%CE%A4%CE%99%CE%9A%CE%A9%CE%9D-%CE%9C%CE%97%CE%A7%CE%91%CE%9D%CE%99%CE%9A%CE%A9%CE%9D-%CE%B3%CE%B9%CE%B1-site-27082026.pdf",
+    "title": "Οδηγός Σπουδών Πολιτικών Μηχανικών 2026–2027",
+    "retrieved_at": "2026-10-03",
+    "sha256": "4d5108d4f73f398f2910dc3c6d92833bf9be20490b1f980ded56e4c8b109f6b6",
+    "pages": [
+      13,
+      28
+    ]
+  },
+  "courses": [
+    {
+      "code": "CIV_1105",
+      "name": "Εφαρμοσμένα Μαθηματικά I",
+      "offerings": [
+        {
+          "source_code": "CIV_1105",
+          "semester": 1,
+          "track": 0,
+          "kind": "required",
+          "ects": 6,
+          "page": 13,
+          "other_tracks_only": false
+        }
+      ],
+      "selectable": true
+    },
+    {
+      "code": "CIV_1131",
+      "name": "Φυσική",
+      "offerings": [
+        {
+          "source_code": "CIV_1131",
+          "semester": 1,
+          "track": 0,
+          "kind": "required",
+          "ects": 5,
+          "page": 13,
+          "other_tracks_only": false
+        }
+      ],
+      "selectable": true
+    },
+    {
+      "code": "CIV_2221",
+      "name": "Προγραμματισμός και Εφαρμογές Η/Υ",
+      "offerings": [
+        {
+          "source_code": "CIV_2221",
+          "semester": 1,
+          "track": 0,
+          "kind": "required",
+          "ects": 5,
+          "page": 13,
+          "other_tracks_only": false
+        }
+      ],
+      "selectable": true
+    },
+    {
+      "code": "CIV_1215",
+      "name": "Τεχνική Μηχανική - Στατική",
+      "offerings": [
+        {
+          "source_code": "CIV_1215",
+          "semester": 1,
+          "track": 0,
+          "kind": "required",
+          "ects": 6,
+          "page": 13,
+          "other_tracks_only": false
+        }
+      ],
+      "selectable": true
+    },
+    {
+      "code": "CIV_1709",
+      "name": "Τεχνικό και Ηλεκτρονικό Σχέδιο",
+      "offerings": [
+        {
+          "source_code": "CIV_1709",
+          "semester": 1,
+          "track": 0,
+          "kind": "required",
+          "ects": 5,
+          "page": 13,
+          "other_tracks_only": false
+        }
+      ],
+      "selectable": true
+    },
+    {
+      "code": "CIV_1145",
+      "name": "Δομή και Σύνθεση Τεχνικών Κειμένων",
+      "offerings": [
+        {
+          "source_code": "CIV_1145",
+          "semester": 1,
+          "track": 0,
+          "kind": "required",
+          "ects": 3,
+          "page": 13,
+          "other_tracks_only": false
+        }
+      ],
+      "selectable": true
+    },
+    {
+      "code": "CIV_2110A",
+      "name": "Εφαρμοσμένα Μαθηματικά ΙΙ",
+      "offerings": [
+        {
+          "source_code": "CIV_2110Α",
+          "semester": 2,
+          "track": 0,
+          "kind": "required",
+          "ects": 6,
+          "page": 13,
+          "other_tracks_only": false
+        }
+      ],
+      "selectable": true
+    },
+    {
+      "code": "CIV_2120A",
+      "name": "Πιθανοθεωρία – Στατιστική",
+      "offerings": [
+        {
+          "source_code": "CIV_2120Α",
+          "semester": 2,
+          "track": 0,
+          "kind": "required",
+          "ects": 6,
+          "page": 13,
+          "other_tracks_only": false
+        }
+      ],
+      "selectable": true
+    },
+    {
+      "code": "CIV_3217",
+      "name": "Εισαγωγή στη Μηχανική των Υλικών",
+      "offerings": [
+        {
+          "source_code": "CIV_3217",
+          "semester": 2,
+          "track": 0,
+          "kind": "required",
+          "ects": 6,
+          "page": 13,
+          "other_tracks_only": false
+        }
+      ],
+      "selectable": true
+    },
+    {
+      "code": "CIV_2138A",
+      "name": "Γεωλογία για Πολιτικούς Μηχανικούς",
+      "offerings": [
+        {
+          "source_code": "CIV_2138Α",
+          "semester": 2,
+          "track": 0,
+          "kind": "required",
+          "ects": 6,
+          "page": 13,
+          "other_tracks_only": false
+        }
+      ],
+      "selectable": true
+    },
+    {
+      "code": "CIV_3710A",
+      "name": "Οικοδομική",
+      "offerings": [
+        {
+          "source_code": "CIV_3710Α",
+          "semester": 2,
+          "track": 0,
+          "kind": "required",
+          "ects": 6,
+          "page": 13,
+          "other_tracks_only": false
+        }
+      ],
+      "selectable": true
+    },
+    {
+      "code": "CIV_3115A",
+      "name": "Εφαρμοσμένα Μαθηματικά ΙΙΙ",
+      "offerings": [
+        {
+          "source_code": "CIV_3115Α",
+          "semester": 3,
+          "track": 0,
+          "kind": "required",
+          "ects": 4,
+          "page": 14,
+          "other_tracks_only": false
+        }
+      ],
+      "selectable": true
+    },
+    {
+      "code": "CIV_3127A",
+      "name": "Αριθμητικές Μέθοδοι",
+      "offerings": [
+        {
+          "source_code": "CIV_3127Α",
+          "semester": 3,
+          "track": 0,
+          "kind": "required",
+          "ects": 4,
+          "page": 14,
+          "other_tracks_only": false
+        }
+      ],
+      "selectable": true
+    },
+    {
+      "code": "CIV_4218",
+      "name": "Μηχανική των Υλικών",
+      "offerings": [
+        {
+          "source_code": "CIV_4218",
+          "semester": 3,
+          "track": 0,
+          "kind": "required",
+          "ects": 6,
+          "page": 14,
+          "other_tracks_only": false
+        }
+      ],
+      "selectable": true
+    },
+    {
+      "code": "CIV_4219",
+      "name": "Δομικά Υλικά",
+      "offerings": [
+        {
+          "source_code": "CIV_4219",
+          "semester": 3,
+          "track": 0,
+          "kind": "required",
+          "ects": 6,
+          "page": 14,
+          "other_tracks_only": false
+        }
+      ],
+      "selectable": true
+    },
+    {
+      "code": "CIV_3803",
+      "name": "Εισαγωγή στη Γεωδαισία",
+      "offerings": [
+        {
+          "source_code": "CIV_3803",
+          "semester": 3,
+          "track": 0,
+          "kind": "required",
+          "ects": 6,
+          "page": 14,
+          "other_tracks_only": false
+        }
+      ],
+      "selectable": true
+    },
+    {
+      "code": "CIV_4711A",
+      "name": "Φυσική των Κτηρίων",
+      "offerings": [
+        {
+          "source_code": "CIV_4711Α",
+          "semester": 3,
+          "track": 0,
+          "kind": "required",
+          "ects": 4,
+          "page": 14,
+          "other_tracks_only": false
+        }
+      ],
+      "selectable": true
+    },
+    {
+      "code": "CIV_5220A",
+      "name": "Ανάλυση Γραμμικών Φορέων",
+      "offerings": [
+        {
+          "source_code": "CIV_5220Α",
+          "semester": 4,
+          "track": 0,
+          "kind": "required",
+          "ects": 6,
+          "page": 14,
+          "other_tracks_only": false
+        }
+      ],
+      "selectable": true
+    },
+    {
+      "code": "CIV_2216",
+      "name": "Δυναμική – Ταλαντώσεις",
+      "offerings": [
+        {
+          "source_code": "CIV_2216",
+          "semester": 4,
+          "track": 0,
+          "kind": "required",
+          "ects": 6,
+          "page": 14,
+          "other_tracks_only": false
+        }
+      ],
+      "selectable": true
+    },
+    {
+      "code": "CIV_4410A",
+      "name": "Ρευστομηχανική",
+      "offerings": [
+        {
+          "source_code": "CIV_4410Α",
+          "semester": 4,
+          "track": 0,
+          "kind": "required",
+          "ects": 6,
+          "page": 14,
+          "other_tracks_only": false
+        }
+      ],
+      "selectable": true
+    },
+    {
+      "code": "CIV_5605A",
+      "name": "Τεχνική της Κυκλοφορίας",
+      "offerings": [
+        {
+          "source_code": "CIV_5605Α",
+          "semester": 4,
+          "track": 0,
+          "kind": "required",
+          "ects": 6,
+          "page": 14,
+          "other_tracks_only": false
+        }
+      ],
+      "selectable": true
+    },
+    {
+      "code": "CIV_4414",
+      "name": "Χημεία Περιβάλλοντος",
+      "offerings": [
+        {
+          "source_code": "CIV_4414",
+          "semester": 4,
+          "track": 0,
+          "kind": "required",
+          "ects": 6,
+          "page": 14,
+          "other_tracks_only": false
+        }
+      ],
+      "selectable": true
+    },
+    {
+      "code": "CIV_6221A",
+      "name": "Ανάλυση Γραμμικών Φορέων με Μητρώα",
+      "offerings": [
+        {
+          "source_code": "CIV_6221Α",
+          "semester": 5,
+          "track": 0,
+          "kind": "required",
+          "ects": 6,
+          "page": 15,
+          "other_tracks_only": false
+        }
+      ],
+      "selectable": true
+    },
+    {
+      "code": "CIV_6235A",
+      "name": "Σχεδιασμός Μεταλλικών Στοιχείων",
+      "offerings": [
+        {
+          "source_code": "CIV_6235Α",
+          "semester": 5,
+          "track": 0,
+          "kind": "required",
+          "ects": 6,
+          "page": 15,
+          "other_tracks_only": false
+        }
+      ],
+      "selectable": true
+    },
+    {
+      "code": "CIV_5310A",
+      "name": "Εδαφομηχανική Ι",
+      "offerings": [
+        {
+          "source_code": "CIV_5310Α",
+          "semester": 5,
+          "track": 0,
+          "kind": "required",
+          "ects": 6,
+          "page": 15,
+          "other_tracks_only": false
+        }
+      ],
+      "selectable": true
+    },
+    {
+      "code": "CIV_5415A",
+      "name": "Υδραυλική",
+      "offerings": [
+        {
+          "source_code": "CIV_5415Α",
+          "semester": 5,
+          "track": 0,
+          "kind": "required",
+          "ects": 6,
+          "page": 15,
+          "other_tracks_only": false
+        }
+      ],
+      "selectable": true
+    },
+    {
+      "code": "CIV_5505A",
+      "name": "Καθαρισμός Νερού",
+      "offerings": [
+        {
+          "source_code": "CIV_5505Α",
+          "semester": 5,
+          "track": 0,
+          "kind": "required",
+          "ects": 6,
+          "page": 15,
+          "other_tracks_only": false
+        }
+      ],
+      "selectable": true
+    },
+    {
+      "code": "CIV_6230A",
+      "name": "Σχεδιασμός Γραμμικών Στοιχείων Οπλισμένου Σκυροδέματος",
+      "offerings": [
+        {
+          "source_code": "CIV_6230Α",
+          "semester": 6,
+          "track": 0,
+          "kind": "required",
+          "ects": 6,
+          "page": 15,
+          "other_tracks_only": false
+        }
+      ],
+      "selectable": true
+    },
+    {
+      "code": "CIV_7236",
+      "name": "Σχεδιασμός Μεταλλικών Κατασκευών",
+      "offerings": [
+        {
+          "source_code": "CIV_7236",
+          "semester": 6,
+          "track": 0,
+          "kind": "required",
+          "ects": 5,
+          "page": 15,
+          "other_tracks_only": false
+        }
+      ],
+      "selectable": true
+    },
+    {
+      "code": "CIV_6315",
+      "name": "Εδαφομηχανική ΙΙ",
+      "offerings": [
+        {
+          "source_code": "CIV_6315",
+          "semester": 6,
+          "track": 0,
+          "kind": "required",
+          "ects": 5,
+          "page": 15,
+          "other_tracks_only": false
+        }
+      ],
+      "selectable": true
+    },
+    {
+      "code": "CIV_6420",
+      "name": "Τεχνική Υδρολογία",
+      "offerings": [
+        {
+          "source_code": "CIV_6420",
+          "semester": 6,
+          "track": 0,
+          "kind": "required",
+          "ects": 5,
+          "page": 15,
+          "other_tracks_only": false
+        }
+      ],
+      "selectable": true
+    },
+    {
+      "code": "CIV_6510A",
+      "name": "Επεξεργασία Λυμάτων",
+      "offerings": [
+        {
+          "source_code": "CIV_6510Α",
+          "semester": 6,
+          "track": 0,
+          "kind": "required",
+          "ects": 6,
+          "page": 15,
+          "other_tracks_only": false
+        }
+      ],
+      "selectable": true
+    },
+    {
+      "code": "CIV_6610",
+      "name": "Τεχνική Ορολογία στην Αγγλική Γλώσσα",
+      "offerings": [
+        {
+          "source_code": "CIV_6610",
+          "semester": 6,
+          "track": 0,
+          "kind": "required",
+          "ects": 3,
+          "page": 15,
+          "other_tracks_only": false
+        }
+      ],
+      "selectable": true
+    },
+    {
+      "code": "CIV_8223A",
+      "name": "Δυναμική των Κατασκευών",
+      "offerings": [
+        {
+          "source_code": "CIV_8223Α",
+          "semester": 7,
+          "track": 0,
+          "kind": "required",
+          "ects": 6,
+          "page": 16,
+          "other_tracks_only": false
+        }
+      ],
+      "selectable": true
+    },
+    {
+      "code": "CIV_7231A",
+      "name": "Σχεδιασμός Επίπεδων Στοιχείων Οπλισμένου Σκυροδέματος",
+      "offerings": [
+        {
+          "source_code": "CIV_7231Α",
+          "semester": 7,
+          "track": 0,
+          "kind": "required",
+          "ects": 6,
+          "page": 16,
+          "other_tracks_only": false
+        }
+      ],
+      "selectable": true
+    },
+    {
+      "code": "CIV_7320A",
+      "name": "Θεμελιώσεις",
+      "offerings": [
+        {
+          "source_code": "CIV_7320Α",
+          "semester": 7,
+          "track": 0,
+          "kind": "required",
+          "ects": 6,
+          "page": 16,
+          "other_tracks_only": false
+        }
+      ],
+      "selectable": true
+    },
+    {
+      "code": "CIV_0480A",
+      "name": "Λιμενικά Έργα",
+      "offerings": [
+        {
+          "source_code": "CIV_0480Α",
+          "semester": 7,
+          "track": 0,
+          "kind": "required",
+          "ects": 6,
+          "page": 16,
+          "other_tracks_only": false
+        }
+      ],
+      "selectable": true
+    },
+    {
+      "code": "CIV_7610A",
+      "name": "Σχεδιασμός και Κατασκευή Οδών",
+      "offerings": [
+        {
+          "source_code": "CIV_7610Α",
+          "semester": 7,
+          "track": 0,
+          "kind": "required",
+          "ects": 6,
+          "page": 16,
+          "other_tracks_only": false
+        }
+      ],
+      "selectable": true
+    },
+    {
+      "code": "CIV_7222A",
+      "name": "Ανάλυση Κατασκευών με τη Μέθοδο των Πεπερασμένων Στοιχείων",
+      "offerings": [
+        {
+          "source_code": "CIV_7222Α",
+          "semester": 8,
+          "track": 0,
+          "kind": "required",
+          "ects": 7,
+          "page": 16,
+          "other_tracks_only": false
+        }
+      ],
+      "selectable": true
+    },
+    {
+      "code": "CIV_8435A",
+      "name": "Σχεδιασμός Έργων Ύδρευσης και Αποχέτευσης",
+      "offerings": [
+        {
+          "source_code": "CIV_8435Α",
+          "semester": 8,
+          "track": 0,
+          "kind": "required",
+          "ects": 6,
+          "page": 16,
+          "other_tracks_only": false
+        }
+      ],
+      "selectable": true
+    },
+    {
+      "code": "CIV_5716A",
+      "name": "Διαχείριση Τεχνικών Έργων",
+      "offerings": [
+        {
+          "source_code": "CIV_5716Α",
+          "semester": 8,
+          "track": 0,
+          "kind": "required",
+          "ects": 7,
+          "page": 16,
+          "other_tracks_only": false
+        }
+      ],
+      "selectable": true
+    },
+    {
+      "code": "CIV_8232A",
+      "name": "Σύνθεση και Σχεδιασμός Κατασκευών Οπλισμένου Σκυροδέματος",
+      "offerings": [
+        {
+          "source_code": "CIV_8232Α",
+          "semester": 8,
+          "track": 1,
+          "kind": "track_required",
+          "ects": 5,
+          "page": 17,
+          "other_tracks_only": false
+        },
+        {
+          "source_code": "CIV_8232Α",
+          "semester": 10,
+          "track": 1,
+          "kind": "elective",
+          "ects": 5,
+          "page": 25,
+          "other_tracks_only": true
+        }
+      ],
+      "selectable": true
+    },
+    {
+      "code": "CIV_8355A",
+      "name": "Γεωτεχνική Σεισμική Μηχανική",
+      "offerings": [
+        {
+          "source_code": "CIV_8355Α",
+          "semester": 8,
+          "track": 2,
+          "kind": "track_required",
+          "ects": 5,
+          "page": 17,
+          "other_tracks_only": false
+        },
+        {
+          "source_code": "CIV_8355Α",
+          "semester": 10,
+          "track": 2,
+          "kind": "elective",
+          "ects": 5,
+          "page": 26,
+          "other_tracks_only": true
+        }
+      ],
+      "selectable": true
+    },
+    {
+      "code": "CIV_9560A",
+      "name": "Μελέτες Περιβαλλοντικών Επιπτώσεων Τεχνικών Έργων",
+      "offerings": [
+        {
+          "source_code": "CIV_9560Α",
+          "semester": 8,
+          "track": 3,
+          "kind": "track_required",
+          "ects": 5,
+          "page": 17,
+          "other_tracks_only": false
+        },
+        {
+          "source_code": "CIV_9560Α",
+          "semester": 8,
+          "track": 4,
+          "kind": "elective",
+          "ects": 5,
+          "page": 19,
+          "other_tracks_only": false
+        },
+        {
+          "source_code": "CIV_9560Α",
+          "semester": 10,
+          "track": 3,
+          "kind": "elective",
+          "ects": 5,
+          "page": 27,
+          "other_tracks_only": true
+        },
+        {
+          "source_code": "CIV_9560Α",
+          "semester": 10,
+          "track": 4,
+          "kind": "elective",
+          "ects": 5,
+          "page": 28,
+          "other_tracks_only": false
+        }
+      ],
+      "selectable": true
+    },
+    {
+      "code": "CIV_8665A",
+      "name": "Ανάλυση και Σχεδιασμός Μεταφορών I",
+      "offerings": [
+        {
+          "source_code": "CIV_8665Α",
+          "semester": 8,
+          "track": 4,
+          "kind": "track_required",
+          "ects": 5,
+          "page": 17,
+          "other_tracks_only": false
+        },
+        {
+          "source_code": "CIV_8665Α",
+          "semester": 10,
+          "track": 4,
+          "kind": "elective",
+          "ects": 5,
+          "page": 28,
+          "other_tracks_only": true
+        }
+      ],
+      "selectable": true
+    },
+    {
+      "code": "CIV_9269A",
+      "name": "Σύμμικτες Κατασκευές",
+      "offerings": [
+        {
+          "source_code": "CIV_9269Α",
+          "semester": 8,
+          "track": 1,
+          "kind": "elective",
+          "ects": 5,
+          "page": 17,
+          "other_tracks_only": false
+        },
+        {
+          "source_code": "CIV_9269Α",
+          "semester": 10,
+          "track": 1,
+          "kind": "elective",
+          "ects": 5,
+          "page": 25,
+          "other_tracks_only": false
+        }
+      ],
+      "selectable": true
+    },
+    {
+      "code": "CIV_9255A",
+      "name": "Σεισμική Μηχανική και Αντισεισμικές Κατασκευές",
+      "offerings": [
+        {
+          "source_code": "CIV_9255Α",
+          "semester": 8,
+          "track": 1,
+          "kind": "elective",
+          "ects": 5,
+          "page": 17,
+          "other_tracks_only": false
+        },
+        {
+          "source_code": "CIV_9255Α",
+          "semester": 8,
+          "track": 2,
+          "kind": "elective",
+          "ects": 5,
+          "page": 18,
+          "other_tracks_only": false
+        },
+        {
+          "source_code": "CIV_9255Α",
+          "semester": 10,
+          "track": 1,
+          "kind": "elective",
+          "ects": 5,
+          "page": 25,
+          "other_tracks_only": false
+        },
+        {
+          "source_code": "CIV_9255Α",
+          "semester": 10,
+          "track": 2,
+          "kind": "elective",
+          "ects": 5,
+          "page": 26,
+          "other_tracks_only": false
+        }
+      ],
+      "selectable": true
+    },
+    {
+      "code": "CIV_8268A",
+      "name": "Σχεδιασμός και Επισκευές Κατασκευών από Φέρουσα Τοιχοποιία",
+      "offerings": [
+        {
+          "source_code": "CIV_8268Α",
+          "semester": 8,
+          "track": 1,
+          "kind": "elective",
+          "ects": 5,
+          "page": 17,
+          "other_tracks_only": false
+        },
+        {
+          "source_code": "CIV_8268Α",
+          "semester": 10,
+          "track": 1,
+          "kind": "elective",
+          "ects": 5,
+          "page": 25,
+          "other_tracks_only": false
+        }
+      ],
+      "selectable": true
+    },
+    {
+      "code": "CIV_9371A",
+      "name": "Μέθοδοι Γεωτεχνικής Έρευνας",
+      "offerings": [
+        {
+          "source_code": "CIV_9371Α",
+          "semester": 8,
+          "track": 2,
+          "kind": "elective",
+          "ects": 5,
+          "page": 18,
+          "other_tracks_only": false
+        },
+        {
+          "source_code": "CIV_9371Α",
+          "semester": 10,
+          "track": 2,
+          "kind": "elective",
+          "ects": 5,
+          "page": 26,
+          "other_tracks_only": false
+        }
+      ],
+      "selectable": true
+    },
+    {
+      "code": "CIV_8371A",
+      "name": "Ειδικά Θέματα Θεμελιώσεων",
+      "offerings": [
+        {
+          "source_code": "CIV_8371Α",
+          "semester": 8,
+          "track": 2,
+          "kind": "elective",
+          "ects": 5,
+          "page": 18,
+          "other_tracks_only": false
+        },
+        {
+          "source_code": "CIV_8371Α",
+          "semester": 10,
+          "track": 2,
+          "kind": "elective",
+          "ects": 5,
+          "page": 26,
+          "other_tracks_only": false
+        }
+      ],
+      "selectable": true
+    },
+    {
+      "code": "CIV_8356A",
+      "name": "Γεωδαισία",
+      "offerings": [
+        {
+          "source_code": "CIV_8356A",
+          "semester": 8,
+          "track": 2,
+          "kind": "elective",
+          "ects": 5,
+          "page": 18,
+          "other_tracks_only": false
+        },
+        {
+          "source_code": "CIV_8356A",
+          "semester": 8,
+          "track": 4,
+          "kind": "elective",
+          "ects": 5,
+          "page": 19,
+          "other_tracks_only": false
+        }
+      ],
+      "selectable": true
+    },
+    {
+      "code": "CIV_8460A",
+      "name": "Υπολογιστική Υδραυλική",
+      "offerings": [
+        {
+          "source_code": "CIV_8460A",
+          "semester": 8,
+          "track": 3,
+          "kind": "elective",
+          "ects": 5,
+          "page": 18,
+          "other_tracks_only": false
+        },
+        {
+          "source_code": "CIV_8460A",
+          "semester": 10,
+          "track": 3,
+          "kind": "elective",
+          "ects": 5,
+          "page": 27,
+          "other_tracks_only": false
+        }
+      ],
+      "selectable": true
+    },
+    {
+      "code": "CIV_8461A",
+      "name": "Υδραυλική Υποδομών Ενέργειας",
+      "offerings": [
+        {
+          "source_code": "CIV_8461A",
+          "semester": 8,
+          "track": 3,
+          "kind": "elective",
+          "ects": 5,
+          "page": 18,
+          "other_tracks_only": false
+        },
+        {
+          "source_code": "CIV_8461A",
+          "semester": 10,
+          "track": 3,
+          "kind": "elective",
+          "ects": 5,
+          "page": 27,
+          "other_tracks_only": false
+        }
+      ],
+      "selectable": true
+    },
+    {
+      "code": "CIV_0560A",
+      "name": "Διαχείριση Στερεών Αποβλήτων",
+      "offerings": [
+        {
+          "source_code": "CIV_0560Α",
+          "semester": 8,
+          "track": 3,
+          "kind": "elective",
+          "ects": 5,
+          "page": 18,
+          "other_tracks_only": false
+        },
+        {
+          "source_code": "CIV_0560Α",
+          "semester": 10,
+          "track": 3,
+          "kind": "elective",
+          "ects": 5,
+          "page": 27,
+          "other_tracks_only": false
+        }
+      ],
+      "selectable": true
+    },
+    {
+      "code": "CIV_8555A",
+      "name": "Ατμοσφαιρική Ρύπανση",
+      "offerings": [
+        {
+          "source_code": "CIV_8555A",
+          "semester": 8,
+          "track": 3,
+          "kind": "elective",
+          "ects": 5,
+          "page": 18,
+          "other_tracks_only": false
+        },
+        {
+          "source_code": "CIV_8555A",
+          "semester": 10,
+          "track": 3,
+          "kind": "elective",
+          "ects": 5,
+          "page": 27,
+          "other_tracks_only": false
+        },
+        {
+          "source_code": "CIV_8555A",
+          "semester": 10,
+          "track": 4,
+          "kind": "elective",
+          "ects": 5,
+          "page": 28,
+          "other_tracks_only": false
+        }
+      ],
+      "selectable": true
+    },
+    {
+      "code": "CIV_0683A",
+      "name": "Οργάνωση Έργων και Εργοταξίων",
+      "offerings": [
+        {
+          "source_code": "CIV_0683Α",
+          "semester": 8,
+          "track": 4,
+          "kind": "elective",
+          "ects": 5,
+          "page": 18,
+          "other_tracks_only": false
+        },
+        {
+          "source_code": "CIV_0683Α",
+          "semester": 10,
+          "track": 4,
+          "kind": "elective",
+          "ects": 5,
+          "page": 28,
+          "other_tracks_only": false
+        }
+      ],
+      "selectable": true
+    },
+    {
+      "code": "CIV_8658A",
+      "name": "Ευφυείς Πόλεις, Υποδομές και Μεταφορές",
+      "offerings": [
+        {
+          "source_code": "CIV_8658A",
+          "semester": 8,
+          "track": 4,
+          "kind": "elective",
+          "ects": 5,
+          "page": 18,
+          "other_tracks_only": false
+        },
+        {
+          "source_code": "CIV_8658A",
+          "semester": 10,
+          "track": 4,
+          "kind": "elective",
+          "ects": 5,
+          "page": 28,
+          "other_tracks_only": false
+        }
+      ],
+      "selectable": true
+    },
+    {
+      "code": "CIV_8659A",
+      "name": "Βελτιστοποίηση και Εφαρμογές",
+      "offerings": [
+        {
+          "source_code": "CIV_8659A",
+          "semester": 8,
+          "track": 4,
+          "kind": "elective",
+          "ects": 5,
+          "page": 19,
+          "other_tracks_only": false
+        },
+        {
+          "source_code": "CIV_8659A",
+          "semester": 10,
+          "track": 4,
+          "kind": "elective",
+          "ects": 5,
+          "page": 28,
+          "other_tracks_only": false
+        }
+      ],
+      "selectable": true
+    },
+    {
+      "code": "CIV_1000",
+      "name": "Πρακτική Άσκηση",
+      "offerings": [
+        {
+          "source_code": "CIV_1000",
+          "semester": 9,
+          "track": 0,
+          "kind": "internship",
+          "ects": 4,
+          "page": 20,
+          "other_tracks_only": false
+        },
+        {
+          "source_code": "CIV_1000",
+          "semester": 10,
+          "track": 0,
+          "kind": "internship",
+          "ects": 4,
+          "page": 20,
+          "other_tracks_only": false
+        }
+      ],
+      "selectable": false
+    },
+    {
+      "code": "CIV_9811A",
+      "name": "Διπλωματική Ι (3 μαθ. των 5 ΔΜ)",
+      "offerings": [
+        {
+          "source_code": "CIV_9811A",
+          "semester": 9,
+          "track": 0,
+          "kind": "thesis",
+          "ects": 10,
+          "page": 20,
+          "other_tracks_only": false
+        }
+      ],
+      "selectable": false
+    },
+    {
+      "code": "CIV_9812A",
+      "name": "Διπλωματική ΙΙ (6 μαθ. των 5 ΔΜ)",
+      "offerings": [
+        {
+          "source_code": "CIV_9812A",
+          "semester": 10,
+          "track": 0,
+          "kind": "thesis",
+          "ects": 20,
+          "page": 20,
+          "other_tracks_only": false
+        }
+      ],
+      "selectable": false
+    },
+    {
+      "code": "CIV_9263A",
+      "name": "Ενισχύσεις – Επισκευές Κατασκευών Οπλισμένου Σκυροδέματος",
+      "offerings": [
+        {
+          "source_code": "CIV_9263Α",
+          "semester": 9,
+          "track": 1,
+          "kind": "elective",
+          "ects": 5,
+          "page": 21,
+          "other_tracks_only": false
+        }
+      ],
+      "selectable": true
+    },
+    {
+      "code": "CIV_8262A",
+      "name": "Προεντεταμένο Σκυρόδεμα",
+      "offerings": [
+        {
+          "source_code": "CIV_8262A",
+          "semester": 9,
+          "track": 1,
+          "kind": "elective",
+          "ects": 5,
+          "page": 21,
+          "other_tracks_only": false
+        }
+      ],
+      "selectable": true
+    },
+    {
+      "code": "CIV_9264A",
+      "name": "Πυρομηχανική και Πυροπροστασία",
+      "offerings": [
+        {
+          "source_code": "CIV_9264A",
+          "semester": 9,
+          "track": 1,
+          "kind": "elective",
+          "ects": 5,
+          "page": 21,
+          "other_tracks_only": false
+        }
+      ],
+      "selectable": true
+    },
+    {
+      "code": "CIV_0272A",
+      "name": "Ξύλινες Κατασκευές",
+      "offerings": [
+        {
+          "source_code": "CIV_0272Α",
+          "semester": 9,
+          "track": 1,
+          "kind": "elective",
+          "ects": 5,
+          "page": 21,
+          "other_tracks_only": false
+        }
+      ],
+      "selectable": true
+    },
+    {
+      "code": "CIV_9111A",
+      "name": "Μάθημα επιλογής εκτός Τμήματος Κατ_1_1",
+      "offerings": [
+        {
+          "source_code": "CIV_9111Α",
+          "semester": 9,
+          "track": 1,
+          "kind": "external_placeholder",
+          "ects": 5,
+          "page": 21,
+          "other_tracks_only": false
+        }
+      ],
+      "selectable": false
+    },
+    {
+      "code": "CIV_9112A",
+      "name": "Μάθημα επιλογής εκτός Τμήματος Κατ_1_2",
+      "offerings": [
+        {
+          "source_code": "CIV_9112Α",
+          "semester": 9,
+          "track": 1,
+          "kind": "external_placeholder",
+          "ects": 5,
+          "page": 21,
+          "other_tracks_only": false
+        }
+      ],
+      "selectable": false
+    },
+    {
+      "code": "CIV_9113A",
+      "name": "Μάθημα επιλογής εκτός Τμήματος Κατ_1_3",
+      "offerings": [
+        {
+          "source_code": "CIV_9113Α",
+          "semester": 9,
+          "track": 1,
+          "kind": "external_placeholder",
+          "ects": 5,
+          "page": 21,
+          "other_tracks_only": false
+        }
+      ],
+      "selectable": false
+    },
+    {
+      "code": "CIV_9114A",
+      "name": "Μάθημα επιλογής εκτός Τμήματος Κατ_1_4",
+      "offerings": [
+        {
+          "source_code": "CIV_9114Α",
+          "semester": 9,
+          "track": 1,
+          "kind": "external_placeholder",
+          "ects": 5,
+          "page": 21,
+          "other_tracks_only": false
+        }
+      ],
+      "selectable": false
+    },
+    {
+      "code": "CIV_8357A",
+      "name": "Γεωλογία Τεχνικών Έργων και Βραχομηχανική",
+      "offerings": [
+        {
+          "source_code": "CIV_8357A",
+          "semester": 9,
+          "track": 2,
+          "kind": "elective",
+          "ects": 5,
+          "page": 22,
+          "other_tracks_only": false
+        }
+      ],
+      "selectable": true
+    },
+    {
+      "code": "CIV_9372A",
+      "name": "Υπολογιστική Γεωτεχνική Μηχανική",
+      "offerings": [
+        {
+          "source_code": "CIV_9372Α",
+          "semester": 9,
+          "track": 2,
+          "kind": "elective",
+          "ects": 5,
+          "page": 22,
+          "other_tracks_only": false
+        }
+      ],
+      "selectable": true
+    },
+    {
+      "code": "CIV_9373A",
+      "name": "Μέθοδοι Βελτίωσης και Ενίσχυσης Εδαφών",
+      "offerings": [
+        {
+          "source_code": "CIV_9373Α",
+          "semester": 9,
+          "track": 2,
+          "kind": "elective",
+          "ects": 5,
+          "page": 22,
+          "other_tracks_only": false
+        }
+      ],
+      "selectable": true
+    },
+    {
+      "code": "CIV_9810A",
+      "name": "Γεωδαιτικές Εφαρμογές",
+      "offerings": [
+        {
+          "source_code": "CIV_9810Α",
+          "semester": 9,
+          "track": 2,
+          "kind": "elective",
+          "ects": 5,
+          "page": 22,
+          "other_tracks_only": false
+        },
+        {
+          "source_code": "CIV_9810Α",
+          "semester": 9,
+          "track": 4,
+          "kind": "elective",
+          "ects": 5,
+          "page": 24,
+          "other_tracks_only": false
+        }
+      ],
+      "selectable": true
+    },
+    {
+      "code": "CIV_9485A",
+      "name": "Παράκτια Υδραυλική",
+      "offerings": [
+        {
+          "source_code": "CIV_9485A",
+          "semester": 9,
+          "track": 2,
+          "kind": "elective",
+          "ects": 5,
+          "page": 22,
+          "other_tracks_only": false
+        },
+        {
+          "source_code": "CIV_9485A",
+          "semester": 9,
+          "track": 3,
+          "kind": "elective",
+          "ects": 5,
+          "page": 23,
+          "other_tracks_only": false
+        }
+      ],
+      "selectable": true
+    },
+    {
+      "code": "CIV_9470A",
+      "name": "Υπόγεια Ύδατα",
+      "offerings": [
+        {
+          "source_code": "CIV_9470A",
+          "semester": 9,
+          "track": 2,
+          "kind": "elective",
+          "ects": 5,
+          "page": 22,
+          "other_tracks_only": false
+        },
+        {
+          "source_code": "CIV_9470A",
+          "semester": 9,
+          "track": 3,
+          "kind": "elective",
+          "ects": 5,
+          "page": 23,
+          "other_tracks_only": false
+        }
+      ],
+      "selectable": true
+    },
+    {
+      "code": "CIV_9121A",
+      "name": "Μάθημα επιλογής εκτός Τμήματος Κατ_2_1",
+      "offerings": [
+        {
+          "source_code": "CIV_9121Α",
+          "semester": 9,
+          "track": 2,
+          "kind": "external_placeholder",
+          "ects": 5,
+          "page": 22,
+          "other_tracks_only": false
+        }
+      ],
+      "selectable": false
+    },
+    {
+      "code": "CIV_9122A",
+      "name": "Μάθημα επιλογής εκτός Τμήματος Κατ_2_2",
+      "offerings": [
+        {
+          "source_code": "CIV_9122Α",
+          "semester": 9,
+          "track": 2,
+          "kind": "external_placeholder",
+          "ects": 5,
+          "page": 22,
+          "other_tracks_only": false
+        }
+      ],
+      "selectable": false
+    },
+    {
+      "code": "CIV_9123A",
+      "name": "Μάθημα επιλογής εκτός Τμήματος Κατ_2_3",
+      "offerings": [
+        {
+          "source_code": "CIV_9123Α",
+          "semester": 9,
+          "track": 2,
+          "kind": "external_placeholder",
+          "ects": 5,
+          "page": 22,
+          "other_tracks_only": false
+        }
+      ],
+      "selectable": false
+    },
+    {
+      "code": "CIV_9124A",
+      "name": "Μάθημα επιλογής εκτός Τμήματος Κατ_2_4",
+      "offerings": [
+        {
+          "source_code": "CIV_9124Α",
+          "semester": 9,
+          "track": 2,
+          "kind": "external_placeholder",
+          "ects": 5,
+          "page": 22,
+          "other_tracks_only": false
+        }
+      ],
+      "selectable": false
+    },
+    {
+      "code": "CIV_9480A",
+      "name": "Εργαστηριακά Θέματα Υδραυλικής Μηχανικής",
+      "offerings": [
+        {
+          "source_code": "CIV_9480A",
+          "semester": 9,
+          "track": 3,
+          "kind": "elective",
+          "ects": 5,
+          "page": 23,
+          "other_tracks_only": false
+        }
+      ],
+      "selectable": true
+    },
+    {
+      "code": "CIV_7430A",
+      "name": "Υδραυλικά και Αντιπλημμυρικά Έργα",
+      "offerings": [
+        {
+          "source_code": "CIV_7430Α",
+          "semester": 9,
+          "track": 3,
+          "kind": "elective",
+          "ects": 5,
+          "page": 23,
+          "other_tracks_only": false
+        }
+      ],
+      "selectable": true
+    },
+    {
+      "code": "CIV_9576A",
+      "name": "Φυσικά Συστήματα Επεξεργασίας Λυμάτων",
+      "offerings": [
+        {
+          "source_code": "CIV_9576Α",
+          "semester": 9,
+          "track": 3,
+          "kind": "elective",
+          "ects": 5,
+          "page": 23,
+          "other_tracks_only": false
+        }
+      ],
+      "selectable": true
+    },
+    {
+      "code": "CIV_8558A",
+      "name": "Ρύπανση Εσωτερικών και Παράκτιων Υδάτων",
+      "offerings": [
+        {
+          "source_code": "CIV_8558A",
+          "semester": 9,
+          "track": 3,
+          "kind": "elective",
+          "ects": 5,
+          "page": 23,
+          "other_tracks_only": false
+        }
+      ],
+      "selectable": true
+    },
+    {
+      "code": "CIV_9562A",
+      "name": "Περιβαλλοντική Ανάλυση",
+      "offerings": [
+        {
+          "source_code": "CIV_9562Α",
+          "semester": 9,
+          "track": 3,
+          "kind": "elective",
+          "ects": 5,
+          "page": 23,
+          "other_tracks_only": false
+        },
+        {
+          "source_code": "CIV_9562Α",
+          "semester": 9,
+          "track": 4,
+          "kind": "elective",
+          "ects": 5,
+          "page": 24,
+          "other_tracks_only": false
+        }
+      ],
+      "selectable": true
+    },
+    {
+      "code": "CIV_9131A",
+      "name": "Μάθημα επιλογής εκτός Τμήματος Κατ_3_1",
+      "offerings": [
+        {
+          "source_code": "CIV_9131Α",
+          "semester": 9,
+          "track": 3,
+          "kind": "external_placeholder",
+          "ects": 5,
+          "page": 23,
+          "other_tracks_only": false
+        }
+      ],
+      "selectable": false
+    },
+    {
+      "code": "CIV_9132A",
+      "name": "Μάθημα επιλογής εκτός Τμήματος Κατ_3_2",
+      "offerings": [
+        {
+          "source_code": "CIV_9132Α",
+          "semester": 9,
+          "track": 3,
+          "kind": "external_placeholder",
+          "ects": 5,
+          "page": 23,
+          "other_tracks_only": false
+        }
+      ],
+      "selectable": false
+    },
+    {
+      "code": "CIV_9133A",
+      "name": "Μάθημα επιλογής εκτός Τμήματος Κατ_3_3",
+      "offerings": [
+        {
+          "source_code": "CIV_9133Α",
+          "semester": 9,
+          "track": 3,
+          "kind": "external_placeholder",
+          "ects": 5,
+          "page": 23,
+          "other_tracks_only": false
+        }
+      ],
+      "selectable": false
+    },
+    {
+      "code": "CIV_9134A",
+      "name": "Μάθημα επιλογής εκτός Τμήματος Κατ_3_4",
+      "offerings": [
+        {
+          "source_code": "CIV_9134Α",
+          "semester": 9,
+          "track": 3,
+          "kind": "external_placeholder",
+          "ects": 5,
+          "page": 23,
+          "other_tracks_only": false
+        }
+      ],
+      "selectable": false
+    },
+    {
+      "code": "CIV_9668A",
+      "name": "Ανάλυση και Σχεδιασμός Μεταφορών ΙΙ",
+      "offerings": [
+        {
+          "source_code": "CIV_9668A",
+          "semester": 9,
+          "track": 4,
+          "kind": "elective",
+          "ects": 5,
+          "page": 24,
+          "other_tracks_only": false
+        }
+      ],
+      "selectable": true
+    },
+    {
+      "code": "CIV_9669A",
+      "name": "Ευφυή Συστήματα Μεταφορών",
+      "offerings": [
+        {
+          "source_code": "CIV_9669Α",
+          "semester": 9,
+          "track": 4,
+          "kind": "elective",
+          "ects": 5,
+          "page": 24,
+          "other_tracks_only": false
+        }
+      ],
+      "selectable": true
+    },
+    {
+      "code": "CIV_9670A",
+      "name": "Διαχείριση Υποδομής Συγκοινωνιακών Έργων",
+      "offerings": [
+        {
+          "source_code": "CIV_9670A",
+          "semester": 9,
+          "track": 4,
+          "kind": "elective",
+          "ects": 5,
+          "page": 24,
+          "other_tracks_only": false
+        }
+      ],
+      "selectable": true
+    },
+    {
+      "code": "CIV_9141A",
+      "name": "Μάθημα επιλογής εκτός Τμήματος Κατ_4_1",
+      "offerings": [
+        {
+          "source_code": "CIV_9141Α",
+          "semester": 9,
+          "track": 4,
+          "kind": "external_placeholder",
+          "ects": 5,
+          "page": 24,
+          "other_tracks_only": false
+        }
+      ],
+      "selectable": false
+    },
+    {
+      "code": "CIV_9142A",
+      "name": "Μάθημα επιλογής εκτός Τμήματος Κατ_4_2",
+      "offerings": [
+        {
+          "source_code": "CIV_9142Α",
+          "semester": 9,
+          "track": 4,
+          "kind": "external_placeholder",
+          "ects": 5,
+          "page": 24,
+          "other_tracks_only": false
+        }
+      ],
+      "selectable": false
+    },
+    {
+      "code": "CIV_9143A",
+      "name": "Μάθημα επιλογής εκτός Τμήματος Κατ_4_3",
+      "offerings": [
+        {
+          "source_code": "CIV_9143Α",
+          "semester": 9,
+          "track": 4,
+          "kind": "external_placeholder",
+          "ects": 5,
+          "page": 24,
+          "other_tracks_only": false
+        }
+      ],
+      "selectable": false
+    },
+    {
+      "code": "CIV_9144A",
+      "name": "Μάθημα επιλογής εκτός Τμήματος Κατ_4_4",
+      "offerings": [
+        {
+          "source_code": "CIV_9144Α",
+          "semester": 9,
+          "track": 4,
+          "kind": "external_placeholder",
+          "ects": 5,
+          "page": 24,
+          "other_tracks_only": false
+        }
+      ],
+      "selectable": false
+    },
+    {
+      "code": "CIV_0275A",
+      "name": "Αρχές Βιώσιμης Δόμησης",
+      "offerings": [
+        {
+          "source_code": "CIV_0275A",
+          "semester": 10,
+          "track": 1,
+          "kind": "elective",
+          "ects": 5,
+          "page": 25,
+          "other_tracks_only": false
+        }
+      ],
+      "selectable": true
+    },
+    {
+      "code": "CIV_0274A",
+      "name": "Ολοκληρωμένος Σχεδιασμός και Διαχείριση Κατασκευαστικών Πληροφοριών (BIM)",
+      "offerings": [
+        {
+          "source_code": "CIV_0274A",
+          "semester": 10,
+          "track": 1,
+          "kind": "elective",
+          "ects": 5,
+          "page": 25,
+          "other_tracks_only": false
+        },
+        {
+          "source_code": "CIV_0274A",
+          "semester": 10,
+          "track": 4,
+          "kind": "elective",
+          "ects": 5,
+          "page": 28,
+          "other_tracks_only": false
+        }
+      ],
+      "selectable": true
+    },
+    {
+      "code": "CIV_9115A",
+      "name": "Μάθημα επιλογής εκτός Τμήματος Κατ_1_5",
+      "offerings": [
+        {
+          "source_code": "CIV_9115Α",
+          "semester": 10,
+          "track": 1,
+          "kind": "external_placeholder",
+          "ects": 5,
+          "page": 25,
+          "other_tracks_only": false
+        }
+      ],
+      "selectable": false
+    },
+    {
+      "code": "CIV_9116A",
+      "name": "Μάθημα επιλογής εκτός Τμήματος Κατ_1_6",
+      "offerings": [
+        {
+          "source_code": "CIV_9116Α",
+          "semester": 10,
+          "track": 1,
+          "kind": "external_placeholder",
+          "ects": 5,
+          "page": 25,
+          "other_tracks_only": false
+        }
+      ],
+      "selectable": false
+    },
+    {
+      "code": "CIV_9125A",
+      "name": "Μάθημα επιλογής εκτός Τμήματος Κατ_2_5",
+      "offerings": [
+        {
+          "source_code": "CIV_9125Α",
+          "semester": 10,
+          "track": 2,
+          "kind": "external_placeholder",
+          "ects": 5,
+          "page": 26,
+          "other_tracks_only": false
+        }
+      ],
+      "selectable": false
+    },
+    {
+      "code": "CIV_9126A",
+      "name": "Μάθημα επιλογής εκτός Τμήματος Κατ_2_6",
+      "offerings": [
+        {
+          "source_code": "CIV_9126Α",
+          "semester": 10,
+          "track": 2,
+          "kind": "external_placeholder",
+          "ects": 5,
+          "page": 26,
+          "other_tracks_only": false
+        }
+      ],
+      "selectable": false
+    },
+    {
+      "code": "CIV_9135A",
+      "name": "Μάθημα επιλογής εκτός Τμήματος Κατ_3_5",
+      "offerings": [
+        {
+          "source_code": "CIV_9135Α",
+          "semester": 10,
+          "track": 3,
+          "kind": "external_placeholder",
+          "ects": 5,
+          "page": 27,
+          "other_tracks_only": false
+        }
+      ],
+      "selectable": false
+    },
+    {
+      "code": "CIV_9136A",
+      "name": "Μάθημα επιλογής εκτός Τμήματος Κατ_3_6",
+      "offerings": [
+        {
+          "source_code": "CIV_9136Α",
+          "semester": 10,
+          "track": 3,
+          "kind": "external_placeholder",
+          "ects": 5,
+          "page": 27,
+          "other_tracks_only": false
+        }
+      ],
+      "selectable": false
+    },
+    {
+      "code": "CIV_9145A",
+      "name": "Μάθημα επιλογής εκτός Τμήματος Κατ_4_5",
+      "offerings": [
+        {
+          "source_code": "CIV_9145Α",
+          "semester": 10,
+          "track": 4,
+          "kind": "external_placeholder",
+          "ects": 5,
+          "page": 28,
+          "other_tracks_only": false
+        }
+      ],
+      "selectable": false
+    },
+    {
+      "code": "CIV_9146A",
+      "name": "Μάθημα επιλογής εκτός Τμήματος Κατ_4_6",
+      "offerings": [
+        {
+          "source_code": "CIV_9146Α",
+          "semester": 10,
+          "track": 4,
+          "kind": "external_placeholder",
+          "ects": 5,
+          "page": 28,
+          "other_tracks_only": false
+        }
+      ],
+      "selectable": false
+    }
+  ]
+}

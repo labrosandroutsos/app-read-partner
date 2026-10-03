@@ -64,7 +64,7 @@ export function AccountSettingsDialog({ email, authProvider, profile, blockedUse
     try {
       await updateProfile({
         displayName: displayName.trim(),
-        degree: degree.trim(),
+        ...(profile?.department_id ? {} : {degree: degree.trim()}),
         semester: parsedSemester,
       })
       toast.success(t("profile.account.saved"))
@@ -105,7 +105,7 @@ export function AccountSettingsDialog({ email, authProvider, profile, blockedUse
           </div>
           <div className="flex flex-col gap-2">
             <Label htmlFor="account-degree">{t("profile.account.degree")}</Label>
-            <Input id="account-degree" value={degree} onChange={(event) => setDegree(event.target.value)} />
+            <Input disabled={Boolean(profile?.department_id)} id="account-degree" value={degree} onChange={(event) => setDegree(event.target.value)} />
           </div>
           <div className="flex flex-col gap-2">
             <Label htmlFor="account-semester">{t("profile.account.semester")}</Label>

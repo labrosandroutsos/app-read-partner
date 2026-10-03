@@ -47,6 +47,7 @@ export function ProfileScreen({
       <ScreenHeading title={locale === "el" ? "Το διάβασμά σου" : "Your study space"} description={locale === "el" ? "Τα πλάνα, η πρόοδος και οι άνθρωποί σου." : "Your plans, progress, and study partners."} />
       <ProfileHeader profile={profile} onOpenSettings={() => setSettingsOpen(true)} />
 
+      {!preview && <div className="px-5 py-3"><a href="/app/studies" className="inline-flex min-h-11 items-center text-sm font-medium text-primary underline underline-offset-4">{locale === 'el' ? 'Τμήμα και πρόγραμμα σπουδών' : 'Department and curriculum'}</a></div>}
       <div className="px-5">
         <Accordion type="multiple" defaultValue={["calendar"]} className="w-full">
           <AccordionItem value="calendar">

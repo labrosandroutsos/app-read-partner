@@ -60,6 +60,7 @@ export function DesignPreview() {
 
   return <div className="relative mx-auto flex h-dvh max-w-[760px] flex-col overflow-hidden border-x bg-background">
     <StudyHeader />
+    <a href="/catalogue-preview" className="flex min-h-11 shrink-0 items-center px-5 text-sm font-medium text-primary underline">Δοκιμή καταλόγου Πολιτικών Μηχανικών</a>
     <div className="flex shrink-0 items-center justify-between px-5 py-1 text-[11px] text-muted-foreground"><span>Simulation · fictional users · nothing saved</span><Button variant="ghost" className="h-11 text-xs" aria-pressed={empty} onClick={() => setEmpty(!empty)}>{empty ? "Show samples" : "Empty states"}</Button></div>
     <div className="flex shrink-0 items-center gap-2 border-b border-border/60 px-5 py-2">
       <span className="text-[11px] font-medium text-muted-foreground">Colour</span>

@@ -1,5 +1,7 @@
 "use client"
 
+import { SemesterSelect } from '@/components/academics/semester-select'
+import { filterCourses } from '@/lib/academic-catalogue'
 import { useMemo, useState } from "react"
 import { ArrowRight, Check, ChevronLeft, MapPin, Search, SlidersHorizontal } from "lucide-react"
 import { useTranslation } from "@/lib/i18n"
@@ -25,6 +27,7 @@ interface DailyWizardProps {
   onComplete: (prefs: MatchPreferences) => void | Promise<void>
   subjects?: Subject[]
   venues?: Venue[]
+  initialSemester?: number | null
   isSubmitting?: boolean
 }
 
@@ -32,13 +35,14 @@ function localDateValue(date: Date) {
   return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`
 }
 
-export function DailyWizard({ onComplete, subjects = [], venues = [], isSubmitting = false }: DailyWizardProps) {
+export function DailyWizard({ onComplete, subjects = [], venues = [], initialSemester, isSubmitting = false }: DailyWizardProps) {
   const { t, locale } = useTranslation()
   const el = locale === "el"
   const now = useMemo(() => new Date(), [])
   const defaultStart = useMemo(() => nextStudyStart(now), [now])
   const maxDate = useMemo(() => new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000), [now])
   const [step, setStep] = useState(0)
+  const [courseSemester, setCourseSemester] = useState(subjects.some(s => s.offerings?.length) && initialSemester && initialSemester <= 10 ? String(initialSemester) : "all")
   const [selectedSubject, setSelectedSubject] = useState("")
   const [subjectQuery, setSubjectQuery] = useState("")
   const [selectedDate, setSelectedDate] = useState(localDateValue(defaultStart))
@@ -52,7 +56,7 @@ export function DailyWizard({ onComplete, subjects = [], venues = [], isSubmitti
   const venueItems = venues.filter((venue) => venue.is_open)
   const subjectName = (subject: Subject) => el ? subject.name : subject.name_en
   const chosenSubject = subjects.find((subject) => String(subject.id) === selectedSubject)
-  const visibleSubjects = subjects.filter((subject) => `${subject.name} ${subject.name_en}`.toLocaleLowerCase(locale).includes(subjectQuery.toLocaleLowerCase(locale).trim()))
+  const visibleSubjects = filterCourses(subjects, courseSemester, subjectQuery)
   const validDate = isFutureStudyTime(selectedDate, selectedTime, localDateValue(maxDate))
   const canProceed = [Boolean(selectedSubject), validDate && Boolean(selectedDuration), Boolean(selectedVenue && studyStyle && language)][step]
   const stepLabels = el ? ["Μάθημα", "Ώρα", "Τοποθεσία"] : ["Subject", "Time", "Place"]
@@ -91,8 +95,9 @@ export function DailyWizard({ onComplete, subjects = [], venues = [], isSubmitti
         <legend className="sr-only">{headings[step]}</legend>
         {step === 0 && (
           <div>
+            {subjects.some(s => s.offerings) && <SemesterSelect value={courseSemester} onChange={value => {setCourseSemester(value); setSelectedSubject("")}} />}
             {subjects.length > 8 && <div className="relative mb-4"><Search className="pointer-events-none absolute left-3 top-3.5 h-4 w-4 text-muted-foreground" /><Input className="h-12 pl-10" aria-label={el ? "Αναζήτηση μαθήματος" : "Search subjects"} placeholder={el ? "Αναζήτηση μαθήματος" : "Search subjects"} value={subjectQuery} onChange={(event) => setSubjectQuery(event.target.value)} /></div>}
-            <div className="grid grid-cols-2 gap-3">
+            <div className={cn("grid gap-3", subjects.some(s => s.offerings) ? "grid-cols-1" : "grid-cols-2")}>
               {visibleSubjects.map((subject) => {
                 const selected = selectedSubject === String(subject.id)
                 const hue = (Number(subject.id) * 47) % 360
@@ -100,7 +105,7 @@ export function DailyWizard({ onComplete, subjects = [], venues = [], isSubmitti
                 return <label key={subject.id} className={cn("relative flex min-h-[60px] cursor-pointer items-center gap-2 rounded-2xl border bg-card px-2.5 py-2.5 shadow-sm transition-all duration-150 ease-[var(--ease-out-quint)] active:scale-[0.98] focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2", selected ? "border-primary bg-primary/[0.06] font-semibold shadow-md" : "border-border hover:border-primary/40")}>
                   <input className="sr-only" type="radio" name="study-subject" value={subject.id} checked={selected} onChange={() => setSelectedSubject(String(subject.id))} />
                   <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-xs font-bold" style={{ backgroundColor: `oklch(0.92 0.05 ${hue})`, color: `oklch(0.42 0.12 ${hue})` }} aria-hidden="true">{label.charAt(0)}</span>
-                  <span className="min-w-0 flex-1 pr-3 text-[13.5px] leading-tight hyphens-auto">{label}</span>
+                  <span className="min-w-0 flex-1 pr-3 text-[13.5px] leading-tight hyphens-auto">{label}{subject.course_code && <span className="mt-1 block text-xs font-normal text-muted-foreground">{subject.course_code}</span>}</span>
                   {selected && <span className="absolute right-2 top-2 flex h-4 w-4 items-center justify-center rounded-full bg-primary text-primary-foreground" aria-hidden="true"><Check className="h-2.5 w-2.5" /></span>}
                 </label>
               })}

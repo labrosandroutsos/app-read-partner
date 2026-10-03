@@ -1,5 +1,7 @@
 "use client"
 
+import { SemesterSelect } from '@/components/academics/semester-select'
+import { filterCourses } from '@/lib/academic-catalogue'
 import { useState } from "react"
 import { ScreenHeading } from "@/components/screen-heading"
 import { FileText } from "lucide-react"
@@ -19,7 +21,8 @@ interface NotesScreenProps {
 export function NotesScreen({ preview = false, userId = "", notes: dbNotes = [], subjects: dbSubjects = [] }: NotesScreenProps) {
   const { t, locale } = useTranslation()
   const [filterSubject, setFilterSubject] = useState("all")
-  const subjectList = dbSubjects
+  const [semester, setSemester] = useState("all")
+  const subjectList = filterCourses(dbSubjects, semester)
 
   // Build display items
   const displayNotes = dbNotes.map(n => ({
@@ -38,15 +41,14 @@ export function NotesScreen({ preview = false, userId = "", notes: dbNotes = [],
         fileUrl: n.file_url,
       }))
 
-  const filtered = filterSubject === "all"
-    ? displayNotes
-    : displayNotes.filter(n => n.subject === filterSubject)
+  const filtered = displayNotes.filter(n => (semester === "all" || subjectList.some(s => s.id === n.subjectId)) && (filterSubject === "all" || n.subject === filterSubject))
 
   return (
     <div className="relative">
       <ScreenHeading title={t("notes.title")} description={locale === "el" ? "Κράτα ό,τι σε βοηθά. Μοιράσου ό,τι ξέρεις." : "Keep what helps. Share what you know."} />
-      <div className="px-5 pb-5">{preview ? <p className="text-xs text-muted-foreground">{locale === "el" ? "Δείγμα βιβλιοθήκης · οι ενέργειες είναι ανενεργές" : "Sample library · actions are disabled"}</p> : <UploadDialog subjects={subjectList} />}</div>
+      <div className="px-5 pb-5">{preview ? <p className="text-xs text-muted-foreground">{locale === "el" ? "Δείγμα βιβλιοθήκης · οι ενέργειες είναι ανενεργές" : "Sample library · actions are disabled"}</p> : <UploadDialog subjects={dbSubjects} />}</div>
       <div className="px-5 pb-5">
+        {dbSubjects.some(s => s.offerings) && <SemesterSelect value={semester} onChange={value => {setSemester(value); setFilterSubject("all")}} />}
         <Select value={filterSubject} onValueChange={setFilterSubject}>
           <SelectTrigger aria-label={t("notes.filter")} className="data-[size=default]:h-12 w-full bg-card">
             <SelectValue placeholder={t("notes.filter")} />
